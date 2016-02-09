@@ -35,9 +35,6 @@ namespace Palace
 
 		private static void StartConsole(string[] args)
 		{
-			// System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.ConsoleTraceListener());
-			// System.Diagnostics.Trace.AutoFlush = true;
-
 			string parameter = string.Concat(args);
 			switch (parameter)
 			{
@@ -48,7 +45,7 @@ namespace Palace
 					ServiceControllerHelper.UninstallService(GlobalConfiguration.Settings.ServiceName);
 					break;
 				default:
-					System.Diagnostics.Trace.WriteLine("console mode detected");
+					System.Diagnostics.Trace.WriteLine("console mode");
 
 					var starter = new Starter();
 					starter.Start();

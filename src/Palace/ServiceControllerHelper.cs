@@ -35,8 +35,15 @@ namespace Palace
 			if (svc.Status == ServiceControllerStatus.Stopped)
 			{
 				System.Diagnostics.Trace.WriteLine(string.Format("Try to start {0}", svcName));
-				svc.Start();
-				svc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 15));
+				try
+				{
+					svc.Start();
+					svc.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 1, 0));
+				}
+				catch(Exception ex)
+				{
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+				}
 			}
 		}
 
@@ -57,23 +64,39 @@ namespace Palace
 
 			System.Diagnostics.Trace.WriteLine(string.Format("uninstall {0}", svcName));
 
+			bool isStopped = false;
 			if (svc.Status != ServiceControllerStatus.Stopped)
 			{
 				System.Diagnostics.Trace.WriteLine(string.Format("try to stop {0}", svcName));
-				svc.Stop();
-				svc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 0, 15));
+				try
+				{
+					svc.Stop();
+					svc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 0, 15));
+					isStopped = true;
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+				}
 			}
 
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} stopped", svcName));
-			try
+			if (isStopped)
 			{
-				ManagedInstallerClass.InstallHelper(new string[] { "/u", Assembly.GetExecutingAssembly().Location });
+				System.Diagnostics.Trace.WriteLine(string.Format("{0} stopped", svcName));
+				try
+				{
+					ManagedInstallerClass.InstallHelper(new string[] { "/u", Assembly.GetExecutingAssembly().Location });
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Trace.WriteLine(ex.ToString());
+				}
+				System.Diagnostics.Trace.WriteLine(string.Format("{0} uninstalled", svcName));
 			}
-			catch(Exception ex)
+			else
 			{
-				System.Diagnostics.Trace.WriteLine(ex.ToString());
+				System.Diagnostics.Trace.WriteLine(string.Format("stop {0} service manualy before", svcName));
 			}
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} uninstalled", svcName));
 		}
 
 		public static ServiceController GetWindowsService(string serviceName)
@@ -81,7 +104,7 @@ namespace Palace
 			var services = ServiceController.GetServices();
 			foreach (var item in services)
 			{
-				if (item.DisplayName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase))
+				if (item.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase))
 				{
 					return item;
 				}

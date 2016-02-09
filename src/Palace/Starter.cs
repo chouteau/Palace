@@ -24,7 +24,13 @@ namespace Palace
 			m_ServiceList = list.Where(i => !i.Item1).Select(i => Type.GetType(i.Item2)).ToList();
 			var autoUpdateServiceHostList = list.Where(i => i.Item1).Select(i => i.Item2).ToList();
 
-			StartServices();
+			var failList = new List<Exception>();
+			StartServices(failList);
+			if (failList.Count > 0)
+			{
+				var failStartException = new AggregateException("Start services failed", failList);
+				throw failStartException;
+			}
 			m_AutoUpdateStarter.Start(autoUpdateServiceHostList);
 
 			GlobalConfiguration.SaveSettings();
@@ -64,18 +70,27 @@ namespace Palace
 			}
 		}
 
-		void StartServices()
+		void StartServices(List<Exception> failList)
 		{
 			System.Diagnostics.Trace.WriteLine(string.Format("Start {0} services", m_ServiceList.Count()));
 
 			foreach (var svcType in m_ServiceList)
 			{
 				System.Diagnostics.Trace.WriteLine(string.Format("Try to start {0} service", svcType.Name));
-				var svcInstance = Activator.CreateInstance(svcType);
-				var method = svcType.GetMethod("Start");
-				method.Invoke(svcInstance, null);
-				m_InstanciedServiceList.Add(svcInstance);
-				System.Diagnostics.Trace.WriteLine(string.Format("Service {0} started", svcType.Name));
+				try
+				{
+					var svcInstance = Activator.CreateInstance(svcType);
+					var method = svcType.GetMethod("Start");
+					method.Invoke(svcInstance, null);
+					m_InstanciedServiceList.Add(svcInstance);
+					System.Diagnostics.Trace.WriteLine(string.Format("Service {0} started", svcType.Name));
+				}
+				catch(Exception ex)
+				{
+					failList.Add(ex);
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+				}
 			}
 		}
 

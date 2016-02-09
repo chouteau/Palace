@@ -36,7 +36,17 @@ namespace Palace
 
 			var svcName = this.PalaceServiceInstaller.ServiceName;
 			var svc = ServiceControllerHelper.GetWindowsService(svcName);
-			svc.Start();
+			if (svc != null)
+			{
+				try
+				{
+					svc.Start();
+				}
+				catch(Exception ex)
+				{
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+				}
+			}
 		}
 
 		protected override void OnBeforeUninstall(IDictionary savedState)
@@ -46,7 +56,7 @@ namespace Palace
 			if (svc.Status != ServiceControllerStatus.Stopped)
 			{
 				svc.Stop();
-				svc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 0, 15));
+				svc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 1, 0));
 			}
 
 			var serviceName = GetStoredServiceName(savedState);
@@ -60,11 +70,12 @@ namespace Palace
 			{
 				return base.Context.Parameters["ServiceName"];
 			}
-			if (savedState.Contains("ServiceName"))
+			if (savedState != null
+				&& savedState.Contains("ServiceName"))
 			{
 				return savedState["ServiceName"].ToString();
 			}
-			return "AutoUpdateSvcHost";
+			return "Palace";
 		}
 
 		private void SetServiceName(string serviceName)
