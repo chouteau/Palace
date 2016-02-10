@@ -1,2 +1,2 @@
-# Palace (1.0.0.0)
+# Palace (1.1.4.0)
 Generic windows services hoster

@@ -33,7 +33,10 @@ namespace Palace
 			StopAutoUpdateServices();
 
 			m_Terminated = true;
-			m_EventStop.Set();
+			if(m_EventStop != null)
+			{
+				m_EventStop.Set();
+			}
 
 			if (m_CheckerThread != null
 				&& m_CheckerThread.Join(TimeSpan.FromSeconds(1)))
@@ -137,6 +140,10 @@ namespace Palace
 
 		public void StopAutoUpdateServices()
 		{
+			if (m_AutoUpdateServiceList == null)
+			{
+				return;
+			}
 			System.Diagnostics.Trace.WriteLine("try to stop and unload running service");
 			foreach (var svc in m_AutoUpdateServiceList)
 			{

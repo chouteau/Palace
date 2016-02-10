@@ -36,7 +36,7 @@ namespace Palace
 				m_AutoUpdateStarter.Start(autoUpdateServiceHostList);
 			}
 
-			GlobalConfiguration.SaveSettings();
+			// GlobalConfiguration.SaveSettings();
 		}
 
 		public void Stop()
