@@ -31,7 +31,10 @@ namespace Palace
 				var failStartException = new AggregateException("Start services failed", failList);
 				throw failStartException;
 			}
-			m_AutoUpdateStarter.Start(autoUpdateServiceHostList);
+			if(autoUpdateServiceHostList.Count > 0)
+			{
+				m_AutoUpdateStarter.Start(autoUpdateServiceHostList);
+			}
 
 			GlobalConfiguration.SaveSettings();
 		}
