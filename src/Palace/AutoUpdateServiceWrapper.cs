@@ -22,7 +22,7 @@ namespace Palace
 			m_AssemblyName = typeInfo[1].Trim();
 		}
 
-		public void Start()
+		public void Initialize()
 		{
 			System.Diagnostics.Trace.WriteLine(string.Format("Try to start {0} autoupdate service", m_TypeName));
 			var setup = AppDomain.CurrentDomain.SetupInformation;
@@ -32,46 +32,51 @@ namespace Palace
 			setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
 			m_Domain = AppDomain.CreateDomain(m_TypeName + "AppDomain", null, setup);
 			m_Service = m_Domain.CreateInstanceAndUnwrap(m_AssemblyName, m_TypeName);
-			var method = m_Service.GetType().GetMethod("Start");
-			method.Invoke(m_Service, null);
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service started", m_TypeName));
+			var initializeMethod = m_Service.GetType().GetMethod("Initialize");
+			initializeMethod.Invoke(m_Service, null);
+			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service initialized", m_TypeName));
+		}
+
+		public void Start()
+		{
+			if (m_Service == null)
+			{
+				return;
+			}
+			var startMethod = m_Service.GetType().GetMethod("Start");
+			startMethod.Invoke(m_Service, null);
+			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service initialized", m_TypeName));
 		}
 
 		public void Stop()
 		{
 			System.Diagnostics.Trace.WriteLine(string.Format("try to stop {0} service", m_TypeName));
-			try
+			if (m_Service != null)
 			{
-				var methodInfo = m_Service.GetType().GetMethod("Stop");
-				methodInfo.Invoke(m_Service, null);
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Trace.WriteLine(ex.ToString());
-			}
-
-			try
-			{
-				AppDomain.Unload(m_Domain);
-				m_Domain = null;
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Trace.WriteLine(ex.ToString());
+				try
+				{
+					var methodInfo = m_Service.GetType().GetMethod("Stop");
+					methodInfo.Invoke(m_Service, null);
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Trace.WriteLine(ex.ToString());
+				}
 			}
 
-			System.Diagnostics.Trace.WriteLine(string.Format("service {0} stopped", m_TypeName));
-		}
-
-		private void StartInternal()
-		{
-			var dll = System.IO.Path.Combine(GlobalConfiguration.CurrentFolder, m_AssemblyName + ".dll");
-			var bytes = System.IO.File.ReadAllBytes(dll);
-			var asm = Assembly.Load(bytes);
-			m_Service = asm.CreateInstance(m_TypeName);
-			var method = m_Service.GetType().GetMethod("Start");
-			method.Invoke(m_Service, null);
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service started", m_TypeName));
+			if (m_Domain != null)
+			{
+				try
+				{
+					AppDomain.Unload(m_Domain);
+					m_Domain = null;
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Trace.WriteLine(ex.ToString());
+				}
+				System.Diagnostics.Trace.WriteLine(string.Format("service {0} stopped", m_TypeName));
+			}
 		}
 
 		public void Dispose()

@@ -133,8 +133,27 @@ namespace Palace
 			foreach (var assemblyQualifiedName in m_AutoUpdateServiceTypeList)
 			{
 				var svc = new AutoUpdateServiceWrapper(assemblyQualifiedName);
-				svc.Start();
-				m_AutoUpdateServiceList.Add(svc);
+				try
+				{
+					svc.Initialize();
+					m_AutoUpdateServiceList.Add(svc);
+				}
+				catch(Exception ex)
+				{
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+				}
+			}
+
+			foreach (var svc in m_AutoUpdateServiceList)
+			{
+				try
+				{
+					svc.Start();
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+				}
 			}
 		}
 

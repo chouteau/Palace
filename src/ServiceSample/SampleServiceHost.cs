@@ -21,6 +21,11 @@ namespace ServiceSample
 			m_Timer.Start();
 		}
 
+		public void Initialize()
+		{
+			System.Diagnostics.Trace.WriteLine("SampleService : Initialized");
+		}
+
 		public void Stop()
 		{
 			m_Timer.Stop();

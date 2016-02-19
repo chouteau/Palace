@@ -45,8 +45,6 @@ namespace Palace
 					ServiceControllerHelper.UninstallService(GlobalConfiguration.Settings.ServiceName);
 					break;
 				default:
-					System.Diagnostics.Trace.WriteLine("console mode");
-
 					var starter = new Starter();
 					starter.Start();
 

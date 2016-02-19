@@ -21,6 +21,11 @@ namespace AutoUpdateServiceSample
 			System.Diagnostics.Trace.AutoFlush = true;
 		}
 
+		public void Initialize()
+		{
+			System.Diagnostics.Trace.WriteLine("Autoupdate5 Initialized");
+		}
+
 		public void Start()
 		{
 			m_Timer = new System.Timers.Timer();

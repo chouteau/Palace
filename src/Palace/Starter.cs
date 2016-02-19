@@ -83,10 +83,10 @@ namespace Palace
 				try
 				{
 					var svcInstance = Activator.CreateInstance(svcType);
-					var method = svcType.GetMethod("Start");
-					method.Invoke(svcInstance, null);
+					var initializeMethod = svcType.GetMethod("Initialize");
+					initializeMethod.Invoke(svcInstance, null);
 					m_InstanciedServiceList.Add(svcInstance);
-					System.Diagnostics.Trace.WriteLine(string.Format("Service {0} started", svcType.Name));
+					System.Diagnostics.Trace.WriteLine(string.Format("Service {0} initialized", svcType.Name));
 				}
 				catch(Exception ex)
 				{
@@ -95,6 +95,23 @@ namespace Palace
 					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
 				}
 			}
+
+			foreach (var svc in m_InstanciedServiceList)
+			{
+				try
+				{
+					var initializeMethod = svc.GetType().GetMethod("Start");
+					initializeMethod.Invoke(svc, null);
+					System.Diagnostics.Trace.WriteLine(string.Format("Service {0} started", svc.GetType().Name));
+				}
+				catch (Exception ex)
+				{
+					failList.Add(ex);
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+				}
+			}
+
 		}
 
 		IEnumerable<Tuple<bool, string>> GetServiceTypeList()
@@ -163,6 +180,7 @@ namespace Palace
 						   let methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
 						   let autoUpdateService = type.Name.EndsWith("AutoUpdateServiceHost")
 						   where type.Name.EndsWith("ServiceHost")
+							   && methods.Select(i => i.Name).Contains("Initialize")
 							   && methods.Select(i => i.Name).Contains("Start")
 							   && methods.Select(i => i.Name).Contains("Stop")
 						   select new Tuple<bool, string>(autoUpdateService, type.AssemblyQualifiedName)).ToList();
