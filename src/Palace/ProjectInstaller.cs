@@ -51,16 +51,16 @@ namespace Palace
 
 		protected override void OnBeforeUninstall(IDictionary savedState)
 		{
-			var svcName = this.PalaceServiceInstaller.ServiceName;
+			var svcName = GetStoredServiceName(savedState);
 			var svc = ServiceControllerHelper.GetWindowsService(svcName);
-			if (svc.Status != ServiceControllerStatus.Stopped)
+			if (svc != null
+				&& svc.Status != ServiceControllerStatus.Stopped)
 			{
 				svc.Stop();
 				svc.WaitForStatus(ServiceControllerStatus.Stopped, new TimeSpan(0, 1, 0));
 			}
 
-			var serviceName = GetStoredServiceName(savedState);
-			SetServiceName(serviceName);
+			SetServiceName(svcName);
 			base.OnBeforeUninstall(savedState);
 		}
 

@@ -64,7 +64,7 @@ namespace Palace
 
 			System.Diagnostics.Trace.WriteLine(string.Format("uninstall {0}", svcName));
 
-			bool isStopped = false;
+			bool isStopped = true;
 			if (svc.Status != ServiceControllerStatus.Stopped)
 			{
 				System.Diagnostics.Trace.WriteLine(string.Format("try to stop {0}", svcName));
