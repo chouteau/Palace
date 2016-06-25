@@ -70,12 +70,17 @@ Put json file (palace.json.config) on same directory of Palace.exe with this set
 2. Configure build events
 
 ![Build events configuration][BuildEvents]
+
+
 3. Configure debug
 
 ![Build events configuration][Debug]
+
+
 4. Run
 
 ![Build events configuration][Run]
+
 
 ## Service Install / Uninstall
 
