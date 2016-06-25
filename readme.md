@@ -1,11 +1,13 @@
 # Palace (2.0.8.0)
 Generic windows services hoster, palace lauch any poco type with this caracteritics :
 
-1. Type name must terminate with "ServiceHost" suffix
+* Type name must terminate with "ServiceHost" suffix
+ 
 > Ex : Sample**ServiceHost**
-2. Type must contains **Initialize** Method
-3. Type must contains **Start** Method
-4. Type must contains **Stop** Method
+
+* Type must contains **Initialize** Method
+* Type must contains **Start** Method
+* Type must contains **Stop** Method
 
 ```c#
 public class SampleServiceHost : IDisposable
@@ -64,16 +66,16 @@ Put json file (palace.json.config) on same directory of Palace.exe with this set
 
 ## Usage
 
-1. Reference this assembly with nuget on your Class Library Project.
-2. Configure build events
+* Reference this assembly with nuget on your Class Library Project.
+* Configure build events
 
 ![Build events configuration][BuildEvents]
 
-3. Configure debug
+* Configure debug
 
 ![Build events configuration][Debug]
 
-4. Run
+* Run
 
 ![Build events configuration][Run]
 
