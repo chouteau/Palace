@@ -2,9 +2,7 @@
 Generic windows services hoster, palace lauch any poco type with this caracteritics :
 
 1. Type name must terminate with "ServiceHost" suffix
-
 > Ex : Sample**ServiceHost**
-
 2. Type must contains **Initialize** Method
 3. Type must contains **Start** Method
 4. Type must contains **Stop** Method
@@ -71,11 +69,9 @@ Put json file (palace.json.config) on same directory of Palace.exe with this set
 
 ![Build events configuration][BuildEvents]
 
-
 3. Configure debug
 
 ![Build events configuration][Debug]
-
 
 4. Run
 
