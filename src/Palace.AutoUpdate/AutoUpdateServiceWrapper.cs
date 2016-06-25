@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Palace
+namespace Palace.AutoUpdate
 {
 	[Serializable]
 	public class AutoUpdateServiceWrapper : IDisposable

@@ -44,9 +44,18 @@
     <Compile Include="SampleServiceHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Palace\Palace.csproj">
+      <Project>{d1cc792d-957a-4f6e-86fe-912313764819}</Project>
+      <Name>Palace</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y $(TargetPath) $(SolutionDir)src\Palace\bin\debug</PostBuildEvent>
+    <PostBuildEvent>copy /Y $(ProjectDir)app.config $(TargetDir)Palace.exe.config</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

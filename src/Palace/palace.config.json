@@ -1,7 +1,7 @@
 ﻿{
-	"ServiceName": "Palace2",
+	"ServiceName": "Palace",
 	"ServiceDisplayName": "Palace Services Hoster",
-	"ServiceDescription": "Host for (auto updatable) services",
+	"ServiceDescription": "Host for services",
 	"UpdateUriList": [],
 	"ScanIntervalInSeconds": "60",
 	"ApiKey": null

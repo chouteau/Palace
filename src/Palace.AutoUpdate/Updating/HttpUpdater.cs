@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Palace.Updating
+namespace Palace.AutoUpdate.Updating
 {
 	public class HttpUpdater : UpdaterBase
 	{

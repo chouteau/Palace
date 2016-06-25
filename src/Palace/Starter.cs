@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -13,11 +12,9 @@ namespace Palace
 	{
 		private List<object> m_InstanciedServiceList;
 		private List<Type> m_ServiceList;
-		private AutoUpdateStarter m_AutoUpdateStarter;
 
 		public void Start()
 		{
-			m_AutoUpdateStarter = new AutoUpdateStarter();
 			m_InstanciedServiceList = new List<object>();
 			var list = GetServiceTypeList();
 			System.Diagnostics.Trace.WriteLine(string.Format("{0} services found", list.Count()));
@@ -31,17 +28,10 @@ namespace Palace
 				var failStartException = new AggregateException("Start services failed", failList);
 				throw failStartException;
 			}
-			if(autoUpdateServiceHostList.Count > 0)
-			{
-				m_AutoUpdateStarter.Start(autoUpdateServiceHostList);
-			}
-
-			// GlobalConfiguration.SaveSettings();
 		}
 
 		public void Stop()
 		{
-			m_AutoUpdateStarter.Stop();
 			System.Diagnostics.Trace.WriteLine("Stop services");
 
 			foreach (var svc in m_InstanciedServiceList)
