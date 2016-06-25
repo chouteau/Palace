@@ -75,7 +75,7 @@ Put json file (palace.json.config) on same directory of Palace.exe with this set
 ![Build events configuration][Debug]
 4. Run
 
-![Build events configuration][Debug]
+![Build events configuration][Run]
 
 ## Service Install / Uninstall
 
@@ -97,7 +97,6 @@ C:\MyService> Palace.exe /uninstall
 **Palace** run with "Network Service" account
 
 
-
-[BuildEvents]:https://github.com/chouteau/palace/blob/master/buidevents.png
-[Debug]:https://github.com/chouteau/palace/blob/master/debug.png
-[Run]:https://github.com/chouteau/palace/blob/master/run.png
+[BuildEvents]:https://raw.githubusercontent.com/chouteau/palace/master/BuildEvents.PNG
+[Debug]:https://raw.githubusercontent.com/chouteau/palace/master/Debug.PNG
+[Run]:https://raw.githubusercontent.com/chouteau/palace/master/Run.png
