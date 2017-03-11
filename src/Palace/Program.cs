@@ -48,7 +48,7 @@ namespace Palace
 					var starter = new Starter();
 					starter.Start();
 
-					System.Diagnostics.Trace.WriteLine(string.Format("{0} started in console mode", GlobalConfiguration.Settings.ServiceName));
+					GlobalConfiguration.Logger.Info($"{GlobalConfiguration.Settings.ServiceName} started in console mode");
 
 					System.Console.ReadKey();
 

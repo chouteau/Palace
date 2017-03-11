@@ -25,7 +25,7 @@ namespace Palace.AutoUpdate
 
 		public void Initialize()
 		{
-			System.Diagnostics.Trace.WriteLine(string.Format("Try to start {0} autoupdate service", m_TypeName));
+			GlobalConfiguration.Logger.Info(string.Format("Try to start {0} autoupdate service", m_TypeName));
 			var setup = AppDomain.CurrentDomain.SetupInformation;
 			setup.ShadowCopyFiles = "false";
 			m_Domain = AppDomain.CreateDomain(m_TypeName + "AppDomain", null, setup);
@@ -33,7 +33,7 @@ namespace Palace.AutoUpdate
 
 			Invoke("Initialize");
 
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service initialized", m_TypeName));
+			GlobalConfiguration.Logger.Info(string.Format("{0} autoupdate service initialized", m_TypeName));
 		}
 
 		public void Start()
@@ -44,7 +44,7 @@ namespace Palace.AutoUpdate
 			}
 
 			Invoke("Start");
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service initialized", m_TypeName));
+			GlobalConfiguration.Logger.Info(string.Format("{0} autoupdate service initialized", m_TypeName));
 		}
 
 		public void Stop()
@@ -54,7 +54,7 @@ namespace Palace.AutoUpdate
 				return;
 			}
 
-			System.Diagnostics.Trace.WriteLine(string.Format("try to stop {0} service", m_TypeName));
+			GlobalConfiguration.Logger.Info(string.Format("try to stop {0} service", m_TypeName));
 
 			Invoke("Stop");
 
@@ -68,13 +68,13 @@ namespace Palace.AutoUpdate
 				AppDomain.Unload(m_Domain);
 				m_Domain = null;
 				GC.Collect();
-				System.Diagnostics.Trace.WriteLine("appdomain unload");
+				GlobalConfiguration.Logger.Info("appdomain unload");
 			}
 			catch (Exception ex)
 			{
-				System.Diagnostics.Trace.WriteLine(ex.ToString());
+				GlobalConfiguration.Logger.Error(ex.ToString());
 			}
-			System.Diagnostics.Trace.WriteLine(string.Format("service {0} stopped", m_TypeName));
+			GlobalConfiguration.Logger.Info(string.Format("service {0} stopped", m_TypeName));
 		}
 
 		public void Dispose()

@@ -17,7 +17,7 @@ namespace Palace
 		{
 			m_InstanciedServiceList = new List<object>();
 			var list = GetServiceTypeList("ServiceHost");
-			System.Diagnostics.Trace.WriteLine(string.Format("{0} services found", list.Count()));
+			GlobalConfiguration.Logger.Info(string.Format("{0} services found", list.Count()));
 			m_ServiceList = new List<Type>();
 			foreach (var file in list.Keys)
 			{
@@ -38,7 +38,7 @@ namespace Palace
 
 		public void Stop()
 		{
-			System.Diagnostics.Trace.WriteLine("Stop services");
+			GlobalConfiguration.Logger.Info("Stop services");
 
 			foreach (var svc in m_InstanciedServiceList)
 			{
@@ -49,7 +49,7 @@ namespace Palace
 				}
 				catch(Exception ex)
 				{
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 				}
 			}
 
@@ -63,7 +63,7 @@ namespace Palace
 					}
 					catch (Exception ex)
 					{
-						System.Diagnostics.Trace.TraceError(ex.ToString());
+						GlobalConfiguration.Logger.Error(ex.ToString());
 					}
 				}
 			}
@@ -71,7 +71,7 @@ namespace Palace
 
 		void StartServices(List<Exception> failList)
 		{
-			System.Diagnostics.Trace.WriteLine(string.Format("Start {0} services", m_ServiceList.Count()));
+			GlobalConfiguration.Logger.Info(string.Format("Start {0} services", m_ServiceList.Count()));
 
 			foreach (var svcType in m_ServiceList)
 			{
@@ -82,12 +82,12 @@ namespace Palace
 					var initializeMethod = svcType.GetMethod("Initialize");
 					initializeMethod.Invoke(svcInstance, null);
 					m_InstanciedServiceList.Add(svcInstance);
-					System.Diagnostics.Trace.WriteLine(string.Format("Service {0} initialized", svcType.Name));
+					GlobalConfiguration.Logger.Info(string.Format("Service {0} initialized", svcType.Name));
 				}
 				catch(Exception ex)
 				{
 					failList.Add(ex);
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
 				}
 			}
@@ -98,12 +98,12 @@ namespace Palace
 				{
 					var initializeMethod = svc.GetType().GetMethod("Start");
 					initializeMethod.Invoke(svc, null);
-					System.Diagnostics.Trace.WriteLine(string.Format("Service {0} started", svc.GetType().Name));
+					GlobalConfiguration.Logger.Info(string.Format("Service {0} started", svc.GetType().Name));
 				}
 				catch (Exception ex)
 				{
 					failList.Add(ex);
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
 				}
 			}
@@ -139,7 +139,7 @@ namespace Palace
 				}
 				catch(Exception ex)
 				{
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 				}
 			}
 

@@ -20,6 +20,7 @@ namespace Palace
 		{
 			CurrentFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 			m_ConfigurationFileName = System.IO.Path.Combine(CurrentFolder, "palace.config.json");
+			Logger = new DiagnosticsLogger();
 		}
 
 		public static PalaceSettings Settings
@@ -31,6 +32,8 @@ namespace Palace
 		}
 
 		public static string CurrentFolder { get; private set; }
+
+		public static ILogger Logger { get; set; }
 
 		public static string GetOrCreateStockDirectory()
 		{

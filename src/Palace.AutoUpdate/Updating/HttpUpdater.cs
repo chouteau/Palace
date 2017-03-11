@@ -11,9 +11,21 @@ namespace Palace.AutoUpdate.Updating
 	{
 		public override string CheckAndGet(string updateUri)
 		{
-			var fileName = System.IO.Path.GetFileName(updateUri);
+			Uri uri = null;
+			try
+			{
+				uri = new Uri(updateUri);
+			}
+			catch(Exception ex)
+			{
+				ex.Data.Add("uri", updateUri);
+				GlobalConfiguration.Logger.Error(ex);
+				return null;
+			}
+			var path = uri.LocalPath.Split('/');
+			var fileName = path[path.Length - 1];
 			fileName = System.IO.Path.Combine(GlobalConfiguration.GetOrCreateStockDirectory(), fileName);
-			var currentFile = new System.IO.FileInfo(updateUri);
+			var currentFile = new System.IO.FileInfo(fileName);
 			var lastWriteDate = DateTime.MinValue;
 			if (currentFile.Exists)
 			{
@@ -22,7 +34,7 @@ namespace Palace.AutoUpdate.Updating
 
 			var httpClient = new HttpClient();
 			var ci = new System.Globalization.CultureInfo("en-US");
-			httpClient.DefaultRequestHeaders.Add("User-Agent", "AutoUpdateSvcHost/1.0 (+http://www.serialcoder.net)");
+			httpClient.DefaultRequestHeaders.Add("User-Agent", "Palace AutoUpdate/1.0 (+https://github.com/chouteau/palace)");
 			httpClient.DefaultRequestHeaders.Add("If-Modified-Since", string.Format(ci, "{0:ddd, dd MMM yyyy HH:mm:ss} GMT", lastWriteDate.ToUniversalTime()));
 			httpClient.DefaultRequestHeaders.Add("ApiKey", GlobalConfiguration.Settings.ApiKey);
 

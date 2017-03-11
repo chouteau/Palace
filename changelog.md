@@ -1,3 +1,6 @@
+### Palace 2.3.11.0 / AutoUpdate 1.1.2.0
+- Improve logging
+
 ### 2.2.10.0
 - Improved start-up service detection speed
 - Adding the auto update Palace.AutoUpdate plugin to nuget

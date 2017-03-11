@@ -19,9 +19,6 @@ namespace ServiceSample
 				System.Diagnostics.Trace.WriteLine(String.Format("SampleService : {0}", DateTime.Now));
 			};
 			m_Timer.Start();
-
-			System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.ConsoleTraceListener());
-			System.Diagnostics.Trace.AutoFlush = true;
 		}
 
 		public void Initialize()

@@ -13,7 +13,6 @@ namespace Palace.AutoUpdate
 		System.Threading.ManualResetEvent m_EventStop;
 		bool m_Terminated = false;
 		List<AutoUpdateServiceWrapper> m_AutoUpdateServiceList = null;
-		bool m_AutoUpdateInProgress = false;
 
 		public void Initialize()
 		{
@@ -53,7 +52,7 @@ namespace Palace.AutoUpdate
 			var interval = new TimeSpan(0, 1, 0);
 			while (!m_Terminated)
 			{
-				System.Diagnostics.Debug.WriteLine("Check Updates");
+				GlobalConfiguration.Logger.Debug("Check Updates");
 
 				foreach (var updateUri in GlobalConfiguration.Settings.UpdateUriList)
 				{
@@ -87,27 +86,27 @@ namespace Palace.AutoUpdate
 						var webex = agex.InnerException as System.Net.Http.HttpRequestException;
 						if (webex != null)
 						{
-							System.Diagnostics.Trace.TraceWarning("UpdateService : " + webex.Message);
+							GlobalConfiguration.Logger.Warn("UpdateService : " + webex.Message);
 							interval = new TimeSpan(0, 5, 0);
 						}
 						else
 						{
-							System.Diagnostics.Trace.TraceError(agex.InnerException.GetType().FullName);
+							GlobalConfiguration.Logger.Error(agex.InnerException.GetType().FullName);
 						}
 					}
 					catch (System.Net.WebException webex)
 					{
-						System.Diagnostics.Trace.TraceWarning(webex.Message);
+						GlobalConfiguration.Logger.Warn(webex.Message);
 						interval = new TimeSpan(0, 5, 0);
 					}
 					catch (UpdateUrlNotAccessibleException)
 					{
-						System.Diagnostics.Trace.TraceWarning(string.Format("Uri {0} not accessible", updateUri));
+						GlobalConfiguration.Logger.Warn(string.Format("Uri {0} not accessible", updateUri));
 						interval = new TimeSpan(0, 5, 0);
 					}
 					catch (Exception ex)
 					{
-						System.Diagnostics.Trace.TraceError("UpdateService : \r\n" + ex.ToString());
+						GlobalConfiguration.Logger.Error("UpdateService : \r\n" + ex.ToString());
 					}
 				}
 
@@ -138,7 +137,7 @@ namespace Palace.AutoUpdate
 				}
 			}
 
-			System.Diagnostics.Trace.WriteLine("Try to run autoupdater");
+			GlobalConfiguration.Logger.Info("Try to run autoupdater");
 			foreach (var svc in m_AutoUpdateServiceList)
 			{
 				try
@@ -147,7 +146,7 @@ namespace Palace.AutoUpdate
 				}
 				catch(Exception ex)
 				{
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 				}
 			}
 
@@ -159,7 +158,7 @@ namespace Palace.AutoUpdate
 				}
 				catch (Exception ex)
 				{
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 				}
 			}
 		}
@@ -182,7 +181,7 @@ namespace Palace.AutoUpdate
 
 		bool DeployUpdate(string e)
 		{
-			System.Diagnostics.Trace.WriteLine("New update detected");
+			GlobalConfiguration.Logger.Info("New update detected");
 
 			// Unzip
 			using (var zip = System.IO.Compression.ZipFile.Open(e, System.IO.Compression.ZipArchiveMode.Read))
@@ -195,13 +194,13 @@ namespace Palace.AutoUpdate
 					{
 						return false;
 					}
-					System.Diagnostics.Trace.WriteLine(string.Format("{0} file deleted", entry));
+					GlobalConfiguration.Logger.Info(string.Format("{0} file deleted", entry));
 				}
 			}
 
 			System.Threading.Thread.Sleep(1 * 1000);
 			System.IO.Compression.ZipFile.ExtractToDirectory(e, GlobalConfiguration.CurrentFolder);
-			System.Diagnostics.Trace.WriteLine("unzip new service");
+			GlobalConfiguration.Logger.Info("unzip new service");
 
 			return true;
 		}
@@ -220,7 +219,7 @@ namespace Palace.AutoUpdate
 				}
 				catch(Exception ex)
 				{
-					System.Diagnostics.Trace.TraceError(ex.ToString());
+					GlobalConfiguration.Logger.Error(ex.ToString());
 					retryCount++;
 				}
 
