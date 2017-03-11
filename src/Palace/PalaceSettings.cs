@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Palace
 {
-	public class Settings
+	public class PalaceSettings
 	{
-		public Settings()
+		public PalaceSettings()
 		{
 			ScanIntervalInSeconds = "60";
 			ServiceName = "Palace";

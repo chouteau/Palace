@@ -10,7 +10,7 @@ namespace Palace
 	public static class GlobalConfiguration
 	{
 		private static string m_ConfigurationFileName;
-		private static Lazy<Settings> m_LazySettings = new Lazy<Settings>(() =>
+		private static Lazy<PalaceSettings> m_LazySettings = new Lazy<PalaceSettings>(() =>
 		{
 			var settings = GetSettings();
 			return settings;
@@ -22,7 +22,7 @@ namespace Palace
 			m_ConfigurationFileName = System.IO.Path.Combine(CurrentFolder, "palace.config.json");
 		}
 
-		public static Settings Settings
+		public static PalaceSettings Settings
 		{
 			get
 			{
@@ -58,13 +58,13 @@ namespace Palace
 			System.IO.File.WriteAllText(m_ConfigurationFileName, content);
 		}
 
-		private static Settings GetSettings()
+		private static PalaceSettings GetSettings()
 		{
-			var result = new Settings();
+			var result = new PalaceSettings();
 			if (System.IO.File.Exists(m_ConfigurationFileName))
 			{
 				var content = System.IO.File.ReadAllText(m_ConfigurationFileName);
-				result = Newtonsoft.Json.JsonConvert.DeserializeObject<Settings>(content);
+				result = Newtonsoft.Json.JsonConvert.DeserializeObject<PalaceSettings>(content);
 			}
 			return result;
 		}

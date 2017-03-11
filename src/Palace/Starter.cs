@@ -16,10 +16,16 @@ namespace Palace
 		public void Start()
 		{
 			m_InstanciedServiceList = new List<object>();
-			var list = GetServiceTypeList();
+			var list = GetServiceTypeList("ServiceHost");
 			System.Diagnostics.Trace.WriteLine(string.Format("{0} services found", list.Count()));
-			m_ServiceList = list.Where(i => !i.Item1).Select(i => Type.GetType(i.Item2)).ToList();
-			var autoUpdateServiceHostList = list.Where(i => i.Item1).Select(i => i.Item2).ToList();
+			m_ServiceList = new List<Type>();
+			foreach (var file in list.Keys)
+			{
+				foreach (var type in list[file])
+				{
+					m_ServiceList.Add(Type.GetType(type));
+				}
+			}
 
 			var failList = new List<Exception>();
 			StartServices(failList);
@@ -104,33 +110,31 @@ namespace Palace
 
 		}
 
-		IEnumerable<Tuple<bool, string>> GetServiceTypeList()
+		public static Dictionary<string, List<string>> GetServiceTypeList(string suffix)
 		{
-			var result = new List<Tuple<bool, string>>();
-			var fileList = System.IO.Directory.GetFiles(GlobalConfiguration.CurrentFolder, "*.dll", System.IO.SearchOption.AllDirectories).ToList();
+			var result = new Dictionary<string, List<string>>();
+			var fileList = from file in System.IO.Directory.GetFiles(GlobalConfiguration.CurrentFolder, "*.dll", System.IO.SearchOption.AllDirectories)
+						   where !System.IO.Path.GetFileName(file).StartsWith("System.",StringComparison.InvariantCultureIgnoreCase)
+								&& !System.IO.Path.GetFileName(file).StartsWith("Microsoft.",StringComparison.InvariantCultureIgnoreCase)
+						   select file;
 
-			AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (s, arg) =>
-			{
-				Assembly refType = null;
-				try
-				{
-					refType = Assembly.ReflectionOnlyLoad(arg.Name);
-				}
-				catch
-				{
-					return arg.RequestingAssembly;
-				}
-				return refType;
-			};
+			var setup = AppDomain.CurrentDomain.SetupInformation;
+			setup.ShadowCopyFiles = "false";
+			var domain = AppDomain.CreateDomain("AppDomainAssemblyChecker", null, setup);
+			var fullAssemblyName = typeof(Starter).Assembly.Location;
+			object o = domain.CreateInstanceFromAndUnwrap(fullAssemblyName, "Palace.AssemblyInspector");
+
+			var inspector = o as AssemblyInspector;
 
 			foreach (var file in fileList)
 			{
 				try
 				{
-					var list = GetServicesInfo(file);
-					if (list != null)
+					var list = inspector.Inspect(file, suffix);
+					if (list != null
+						&& list.Count() > 0)
 					{
-						result.AddRange(list);
+						result.Add(file, new List<string>(list));
 					}
 				}
 				catch(Exception ex)
@@ -139,45 +143,10 @@ namespace Palace
 				}
 			}
 
-			return result;
-		}
-
-		private IEnumerable<Tuple<bool, string>> GetServicesInfo(string file)
-		{
-			var setup = AppDomain.CurrentDomain.SetupInformation;
-			setup.ShadowCopyFiles = "true";
-			setup.ApplicationBase = GlobalConfiguration.CurrentFolder;
-			setup.PrivateBinPath = GlobalConfiguration.GetOrCreateInspectDirectory();
-			setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-			var domain = AppDomain.CreateDomain("AppDomainAssemblyChecker", null, setup);
-			domain.AssemblyResolve += (s, arg) =>
-			{
-				Assembly refType = null;
-				try
-				{
-					refType = Assembly.ReflectionOnlyLoad(arg.Name);
-				}
-				catch
-				{
-					return arg.RequestingAssembly;
-				}
-				return refType;
-			};
-
-			var bytes = System.IO.File.ReadAllBytes(file);
-			var assembly = domain.Load(bytes);
-			var typelist = (from type in assembly.GetExportedTypes()
-						   let methods = type.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
-						   let autoUpdateService = type.Name.EndsWith("AutoUpdateServiceHost")
-						   where type.Name.EndsWith("ServiceHost")
-							   && methods.Select(i => i.Name).Contains("Initialize")
-							   && methods.Select(i => i.Name).Contains("Start")
-							   && methods.Select(i => i.Name).Contains("Stop")
-						   select new Tuple<bool, string>(autoUpdateService, type.AssemblyQualifiedName)).ToList();
-
 			AppDomain.Unload(domain);
+			System.Threading.Thread.Sleep(3 * 1000);
 
-			return typelist;
+			return result;
 		}
 
 	}

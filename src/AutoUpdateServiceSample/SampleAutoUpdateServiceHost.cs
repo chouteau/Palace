@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AutoUpdateServiceSample
 {
-    public class SampleAutoUpdateServiceHost : MarshalByRefObject, IDisposable
+    public class SampleAutoServiceUpdatableHost : MarshalByRefObject, IDisposable
 	{
 		private System.Timers.Timer m_Timer;
 
@@ -15,15 +15,17 @@ namespace AutoUpdateServiceSample
 			return null;
 		}
 
-		public SampleAutoUpdateServiceHost()
+		public SampleAutoServiceUpdatableHost()
 		{
 			System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.ConsoleTraceListener());
 			System.Diagnostics.Trace.AutoFlush = true;
+
+			System.Diagnostics.Trace.WriteLine("Constructed");
 		}
 
 		public void Initialize()
 		{
-			System.Diagnostics.Trace.WriteLine("Autoupdate5 Initialized");
+			System.Diagnostics.Trace.WriteLine("Autoupdate17 Initialized");
 		}
 
 		public void Start()
@@ -32,7 +34,7 @@ namespace AutoUpdateServiceSample
 			m_Timer.Interval = 2 * 1000;
 			m_Timer.Elapsed += (s, arg) =>
 			{
-				System.Diagnostics.Trace.WriteLine(string.Format("Autoupdate5 Sample : {0}", DateTime.Now));
+				System.Diagnostics.Trace.WriteLine(string.Format("Autoupdate17 Sample : {0}", DateTime.Now));
 			};
 			m_Timer.Start();
 		}

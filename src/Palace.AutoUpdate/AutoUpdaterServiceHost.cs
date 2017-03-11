@@ -7,23 +7,24 @@ using System.Threading.Tasks;
 
 namespace Palace.AutoUpdate
 {
-	public class AutoUpdateStarter
+	public class AutoUpdaterServiceHost
 	{
 		System.Threading.Thread m_CheckerThread;
 		System.Threading.ManualResetEvent m_EventStop;
 		bool m_Terminated = false;
-		List<AutoUpdateServiceWrapper> m_AutoUpdateServiceList;
-		List<string> m_AutoUpdateServiceTypeList;
-		private bool m_AutoUpdateInProgress = false;
-		private UpdateFileWatcher m_UpdateWatcher;
+		List<AutoUpdateServiceWrapper> m_AutoUpdateServiceList = null;
+		bool m_AutoUpdateInProgress = false;
 
-		public void Start(List<string> list)
+		public void Initialize()
 		{
 			m_AutoUpdateServiceList = new List<AutoUpdateServiceWrapper>();
-			m_AutoUpdateServiceTypeList = list;
+		}
+
+		public void Start()
+		{
 			m_EventStop = new ManualResetEvent(false);
 			m_CheckerThread = new Thread(StartUpdate);
-			m_CheckerThread.Name = "UpdaterThread";
+			m_CheckerThread.Name = "PalaceAutoUpdaterThread";
 			m_CheckerThread.IsBackground = true;
 			m_CheckerThread.Start();
 		}
@@ -47,11 +48,7 @@ namespace Palace.AutoUpdate
 
 		void StartUpdate()
 		{
-			System.Diagnostics.Trace.WriteLine(string.Format("Start {0} updatable services", m_AutoUpdateServiceTypeList.Count()));
-
-			m_UpdateWatcher = new UpdateFileWatcher();
-			// m_UpdateWatcher.UpdateAvailable += DeployUpdate;
-			// m_UpdateWatcher.Initialize();
+			RunAutoUpdateServices();
 
 			var interval = new TimeSpan(0, 1, 0);
 			while (!m_Terminated)
@@ -60,9 +57,6 @@ namespace Palace.AutoUpdate
 
 				foreach (var updateUri in GlobalConfiguration.Settings.UpdateUriList)
 				{
-					var fileName = System.IO.Path.GetFileName(updateUri);
-					var zipFile = System.IO.Path.Combine(GlobalConfiguration.GetOrCreateStockDirectory(), fileName);
-
 					Updating.UpdaterBase updater = new Updating.FileUpdater();
 					if (updateUri.StartsWith("http"))
 					{
@@ -74,7 +68,16 @@ namespace Palace.AutoUpdate
 						var updateFileName = updater.CheckAndGet(updateUri);
 						if (updateFileName != null)
 						{
-							DeployUpdate(this, updateFileName);
+							StopAutoUpdateServices();
+
+							var result = DeployUpdate(updateFileName);
+							if (!result)
+							{
+								continue;
+							}
+
+							m_AutoUpdateServiceList.Clear();
+							RunAutoUpdateServices();
 						}
 
 						interval = new TimeSpan(0, 1, 0);
@@ -99,22 +102,13 @@ namespace Palace.AutoUpdate
 					}
 					catch (UpdateUrlNotAccessibleException)
 					{
-						var currentFile = new System.IO.FileInfo(zipFile);
-						if (!currentFile.Exists)
-						{
-							System.Diagnostics.Trace.TraceWarning(string.Format("Uri {0} not accessible", updateUri));
-							interval = new TimeSpan(0, 5, 0);
-						}
+						System.Diagnostics.Trace.TraceWarning(string.Format("Uri {0} not accessible", updateUri));
+						interval = new TimeSpan(0, 5, 0);
 					}
 					catch (Exception ex)
 					{
 						System.Diagnostics.Trace.TraceError("UpdateService : \r\n" + ex.ToString());
 					}
-				}
-
-				if (m_AutoUpdateServiceList.Count > 0)
-				{
-					RunAutoUpdateServices();
 				}
 
 				var handles = new WaitHandle[] { m_EventStop };
@@ -127,16 +121,29 @@ namespace Palace.AutoUpdate
 			}
 		}
 
-		public void RunAutoUpdateServices()
+		void RunAutoUpdateServices()
 		{
-			System.Diagnostics.Trace.WriteLine("Try to run autoupdater");
-			foreach (var assemblyQualifiedName in m_AutoUpdateServiceTypeList)
+			var list = Starter.GetServiceTypeList("ServiceUpdatableHost");
+			if (list == null)
 			{
-				var svc = new AutoUpdateServiceWrapper(assemblyQualifiedName);
+				return;
+			}
+
+			foreach (var file in list.Keys)
+			{
+				foreach (var type in list[file])
+				{
+					var ausw = new AutoUpdateServiceWrapper(file, type);
+					m_AutoUpdateServiceList.Add(ausw);
+				}
+			}
+
+			System.Diagnostics.Trace.WriteLine("Try to run autoupdater");
+			foreach (var svc in m_AutoUpdateServiceList)
+			{
 				try
 				{
 					svc.Initialize();
-					m_AutoUpdateServiceList.Add(svc);
 				}
 				catch(Exception ex)
 				{
@@ -157,32 +164,25 @@ namespace Palace.AutoUpdate
 			}
 		}
 
-		public void StopAutoUpdateServices()
+		void StopAutoUpdateServices()
 		{
 			if (m_AutoUpdateServiceList == null)
 			{
 				return;
 			}
+
 			System.Diagnostics.Trace.WriteLine("try to stop and unload running service");
+
 			foreach (var svc in m_AutoUpdateServiceList)
 			{
 				svc.Stop();
 				svc.Dispose();
 			}
-			m_AutoUpdateServiceList.Clear();
 		}
 
-		void DeployUpdate(object sender, string e)
+		bool DeployUpdate(string e)
 		{
-			if (m_AutoUpdateInProgress)
-			{
-				return;
-			}
-			m_AutoUpdateInProgress = true;
-
 			System.Diagnostics.Trace.WriteLine("New update detected");
-			StopAutoUpdateServices();
-			System.Threading.Thread.Sleep(1 * 1000);
 
 			// Unzip
 			using (var zip = System.IO.Compression.ZipFile.Open(e, System.IO.Compression.ZipArchiveMode.Read))
@@ -190,16 +190,49 @@ namespace Palace.AutoUpdate
 				foreach (var item in zip.Entries)
 				{
 					var entry = System.IO.Path.Combine(GlobalConfiguration.CurrentFolder.TrimEnd('\\'), item.FullName);
-					System.IO.File.Delete(entry);
+					var result = DeleteFile(entry);
+					if (!result)
+					{
+						return false;
+					}
 					System.Diagnostics.Trace.WriteLine(string.Format("{0} file deleted", entry));
 				}
 			}
+
 			System.Threading.Thread.Sleep(1 * 1000);
 			System.IO.Compression.ZipFile.ExtractToDirectory(e, GlobalConfiguration.CurrentFolder);
 			System.Diagnostics.Trace.WriteLine("unzip new service");
 
-			RunAutoUpdateServices();
-			m_AutoUpdateInProgress = false;
+			return true;
 		}
+
+		bool DeleteFile(string fileName)
+		{
+			var deleted = false;
+			var retryCount = 0;
+			while(true)
+			{
+				try
+				{
+					System.IO.File.Delete(fileName);
+					deleted = true;
+					break;
+				}
+				catch(Exception ex)
+				{
+					System.Diagnostics.Trace.TraceError(ex.ToString());
+					retryCount++;
+				}
+
+				if (retryCount > 5)
+				{
+					break;
+				}
+
+				System.Threading.Thread.Sleep(5 * 1000);
+			}
+			return deleted;
+		}
+
 	}
 }

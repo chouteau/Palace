@@ -54,7 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Settings.cs" />
+    <Compile Include="AssemblyInspector.cs" />
+    <Compile Include="PalaceSettings.cs" />
     <Compile Include="Starter.cs" />
     <Compile Include="MainService.cs">
       <SubType>Component</SubType>

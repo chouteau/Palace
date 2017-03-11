@@ -7,33 +7,32 @@ using System.Threading.Tasks;
 
 namespace Palace.AutoUpdate
 {
-	[Serializable]
 	public class AutoUpdateServiceWrapper : IDisposable
 	{
 		private string m_TypeName;
 		private string m_AssemblyName;
+		private string m_FileName;
 		private AppDomain m_Domain;
 		private object m_Service;
 
-		public AutoUpdateServiceWrapper(string qualifiedAssemblyName)
+		public AutoUpdateServiceWrapper(string fileName, string qualifiedAssemblyName)
 		{
 			var typeInfo = qualifiedAssemblyName.Split(',');
 			m_TypeName = typeInfo[0].Trim();
 			m_AssemblyName = typeInfo[1].Trim();
+			m_FileName = fileName;
 		}
 
 		public void Initialize()
 		{
 			System.Diagnostics.Trace.WriteLine(string.Format("Try to start {0} autoupdate service", m_TypeName));
 			var setup = AppDomain.CurrentDomain.SetupInformation;
-			setup.ShadowCopyFiles = "true";
-			setup.ApplicationBase = GlobalConfiguration.CurrentFolder;
-			setup.PrivateBinPath = GlobalConfiguration.GetOrCreateInspectDirectory();
-			setup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
+			setup.ShadowCopyFiles = "false";
 			m_Domain = AppDomain.CreateDomain(m_TypeName + "AppDomain", null, setup);
-			m_Service = m_Domain.CreateInstanceAndUnwrap(m_AssemblyName, m_TypeName);
-			var initializeMethod = m_Service.GetType().GetMethod("Initialize");
-			initializeMethod.Invoke(m_Service, null);
+			m_Service = m_Domain.CreateInstanceFromAndUnwrap(m_FileName, m_TypeName);
+
+			Invoke("Initialize");
+
 			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service initialized", m_TypeName));
 		}
 
@@ -43,46 +42,52 @@ namespace Palace.AutoUpdate
 			{
 				return;
 			}
-			var startMethod = m_Service.GetType().GetMethod("Start");
-			startMethod.Invoke(m_Service, null);
+
+			Invoke("Start");
 			System.Diagnostics.Trace.WriteLine(string.Format("{0} autoupdate service initialized", m_TypeName));
 		}
 
 		public void Stop()
 		{
-			System.Diagnostics.Trace.WriteLine(string.Format("try to stop {0} service", m_TypeName));
-			if (m_Service != null)
+			if (m_Service == null)
 			{
-				try
-				{
-					var methodInfo = m_Service.GetType().GetMethod("Stop");
-					methodInfo.Invoke(m_Service, null);
-				}
-				catch (Exception ex)
-				{
-					System.Diagnostics.Trace.WriteLine(ex.ToString());
-				}
+				return;
 			}
 
-			if (m_Domain != null)
+			System.Diagnostics.Trace.WriteLine(string.Format("try to stop {0} service", m_TypeName));
+
+			Invoke("Stop");
+
+			if (m_Domain == null)
 			{
-				try
-				{
-					AppDomain.Unload(m_Domain);
-					m_Domain = null;
-				}
-				catch (Exception ex)
-				{
-					System.Diagnostics.Trace.WriteLine(ex.ToString());
-				}
-				System.Diagnostics.Trace.WriteLine(string.Format("service {0} stopped", m_TypeName));
+				return;
 			}
+
+			try
+			{
+				AppDomain.Unload(m_Domain);
+				m_Domain = null;
+				GC.Collect();
+				System.Diagnostics.Trace.WriteLine("appdomain unload");
+			}
+			catch (Exception ex)
+			{
+				System.Diagnostics.Trace.WriteLine(ex.ToString());
+			}
+			System.Diagnostics.Trace.WriteLine(string.Format("service {0} stopped", m_TypeName));
 		}
 
 		public void Dispose()
 		{
 			m_Domain = null;
 			m_Service = null;
+		}
+
+		private void Invoke(string methodName)
+		{
+			var fullAssemblyName = this.GetType().Assembly.Location;
+			MethodInvoker methodInvoker = (MethodInvoker)m_Domain.CreateInstanceFromAndUnwrap(fullAssemblyName, "Palace.AutoUpdate.MethodInvoker");
+			methodInvoker.Invoke(m_Service, methodName);
 		}
 	}
 }

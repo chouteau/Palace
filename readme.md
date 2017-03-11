@@ -1,4 +1,4 @@
-# Palace (2.0.8.0)
+# Palace (2.2.10.0)
 Generic windows services hoster, palace lauch any poco type with this caracteristics :
 
 * Type name must terminate with "ServiceHost" suffix
