@@ -19,7 +19,14 @@ namespace Palace
 		{
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
 
-			if (System.Environment.UserInteractive)
+			var forceConsole = false;
+			if (args != null)
+			{
+				forceConsole = args.Any(i => "--forceconsole".Equals(i, StringComparison.InvariantCultureIgnoreCase));
+			}
+
+			if (System.Environment.UserInteractive
+				|| forceConsole)
 			{
 				StartConsole(args);
 			}

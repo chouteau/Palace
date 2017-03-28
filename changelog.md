@@ -1,3 +1,6 @@
+### 2.3.12
+- Handle --forceconsole command line parameter for start in this mode from windows service
+
 ### Palace 2.3.11.0 / AutoUpdate 1.1.2.0
 - Improve logging
 
