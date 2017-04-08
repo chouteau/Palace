@@ -113,7 +113,7 @@ namespace Palace
 		public static Dictionary<string, List<string>> GetServiceTypeList(string suffix)
 		{
 			var result = new Dictionary<string, List<string>>();
-			var fileList = from file in System.IO.Directory.GetFiles(GlobalConfiguration.CurrentFolder, "*.dll", System.IO.SearchOption.AllDirectories)
+			var fileList = from file in System.IO.Directory.GetFiles(GlobalConfiguration.CurrentFolder, GlobalConfiguration.Settings.SearchPattern, System.IO.SearchOption.AllDirectories)
 						   where !System.IO.Path.GetFileName(file).StartsWith("System.",StringComparison.InvariantCultureIgnoreCase)
 								&& !System.IO.Path.GetFileName(file).StartsWith("Microsoft.",StringComparison.InvariantCultureIgnoreCase)
 						   select file;

@@ -15,6 +15,7 @@ namespace Palace
 			ServiceDisplayName = "Palace Services Hoster";
 			ServiceDescription = "Host for (auto updatable) services";
 			UpdateUriList = new List<string>();
+			SearchPattern = "*.dll";
 		}
 
 		public string ServiceName { get; set; }
@@ -24,5 +25,7 @@ namespace Palace
 		public List<string> UpdateUriList { get; set; }
 		public string ScanIntervalInSeconds { get; set; }
 		public string ApiKey { get; set; }
+
+		public string SearchPattern { get; set; }
 	}
 }

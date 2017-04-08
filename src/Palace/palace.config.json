@@ -4,5 +4,6 @@
 	"ServiceDescription": "Host for services",
 	"UpdateUriList": [],
 	"ScanIntervalInSeconds": "60",
-	"ApiKey": null
+	"ApiKey": null,
+	"SearchPattern" : "*.dll"
 }
