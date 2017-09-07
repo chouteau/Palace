@@ -11,11 +11,11 @@ namespace Palace
 		public DiagnosticsLogger()
 		{
 			System.Diagnostics.Trace.AutoFlush = true;
-			var console = new System.Diagnostics.ConsoleTraceListener();
-			if (!System.Diagnostics.Trace.Listeners.Contains(console))
-			{
-				System.Diagnostics.Trace.Listeners.Add(console);
-			}
+			//var console = new System.Diagnostics.ConsoleTraceListener();
+			//if (!System.Diagnostics.Trace.Listeners.Contains(console))
+			//{
+			//	System.Diagnostics.Trace.Listeners.Add(console);
+			//}
 		}
 
 		public void Info(string message)
