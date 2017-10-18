@@ -35,26 +35,6 @@ namespace Palace
 
 		public static ILogger Logger { get; set; }
 
-		public static string GetOrCreateStockDirectory()
-		{
-			var stockDirectory = System.IO.Path.Combine(CurrentFolder, "Stock");
-			if (!System.IO.Directory.Exists(stockDirectory))
-			{
-				System.IO.Directory.CreateDirectory(stockDirectory);
-			}
-			return stockDirectory;
-		}
-
-		public static string GetOrCreateInspectDirectory()
-		{
-			var stockDirectory = System.IO.Path.Combine(CurrentFolder, "Inspect");
-			if (!System.IO.Directory.Exists(stockDirectory))
-			{
-				System.IO.Directory.CreateDirectory(stockDirectory);
-			}
-			return stockDirectory;
-		}
-
 		public static void SaveSettings()
 		{
 			var content = Newtonsoft.Json.JsonConvert.SerializeObject(Settings, Newtonsoft.Json.Formatting.Indented);

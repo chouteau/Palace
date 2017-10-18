@@ -12,7 +12,7 @@ namespace Palace.AutoUpdate.Updating
 		{
 			var stockFileName = System.IO.Path.GetFileName(updateUri);
 			var stockFileInfo = new System.IO.FileInfo(updateUri);
-			var inspectFileName = System.IO.Path.Combine(GlobalConfiguration.GetOrCreateInspectDirectory(), stockFileName);
+			var inspectFileName = System.IO.Path.Combine(DirectoryHelpers.GetOrCreateInspectDirectory(), stockFileName);
 			var inspectFileInfo = new System.IO.FileInfo(inspectFileName);
 			if (stockFileInfo.Exists 
 				&& (!inspectFileInfo.Exists

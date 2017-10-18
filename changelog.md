@@ -1,3 +1,9 @@
+### 2.3.15 (Palace)
+- Move stock and inspect directory resolving methods to Palace.AutoUpdate
+
+### 1.1.3 (Palace.AutoUpdate)
+- Disable Autoupdate when is attached to debugger
+
 ### 2.3.12
 - Handle --forceconsole command line parameter for start in this mode from windows service
 

@@ -24,7 +24,7 @@ namespace Palace.AutoUpdate.Updating
 			}
 			var path = uri.LocalPath.Split('/');
 			var fileName = path[path.Length - 1];
-			fileName = System.IO.Path.Combine(GlobalConfiguration.GetOrCreateStockDirectory(), fileName);
+			fileName = System.IO.Path.Combine(DirectoryHelpers.GetOrCreateStockDirectory(), fileName);
 			var currentFile = new System.IO.FileInfo(fileName);
 			var lastWriteDate = DateTime.MinValue;
 			if (currentFile.Exists)

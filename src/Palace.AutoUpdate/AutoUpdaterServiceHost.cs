@@ -52,62 +52,69 @@ namespace Palace.AutoUpdate
 			var interval = new TimeSpan(0, 1, 0);
 			while (!m_Terminated)
 			{
-				GlobalConfiguration.Logger.Debug("Check Updates");
-
-				foreach (var updateUri in GlobalConfiguration.Settings.UpdateUriList)
+				if (!System.Diagnostics.Debugger.IsAttached)
 				{
-					Updating.UpdaterBase updater = new Updating.FileUpdater();
-					if (updateUri.StartsWith("http"))
-					{
-						updater = new Updating.HttpUpdater();
-					}
+					GlobalConfiguration.Logger.Debug("Check Updates");
 
-					try
+					foreach (var updateUri in GlobalConfiguration.Settings.UpdateUriList)
 					{
-						var updateFileName = updater.CheckAndGet(updateUri);
-						if (updateFileName != null)
+						Updating.UpdaterBase updater = new Updating.FileUpdater();
+						if (updateUri.StartsWith("http"))
 						{
-							StopAutoUpdateServices();
+							updater = new Updating.HttpUpdater();
+						}
 
-							var result = DeployUpdate(updateFileName);
-							if (!result)
+						try
+						{
+							var updateFileName = updater.CheckAndGet(updateUri);
+							if (updateFileName != null)
 							{
-								continue;
+								StopAutoUpdateServices();
+
+								var result = DeployUpdate(updateFileName);
+								if (!result)
+								{
+									continue;
+								}
+
+								m_AutoUpdateServiceList.Clear();
+								RunAutoUpdateServices();
 							}
 
-							m_AutoUpdateServiceList.Clear();
-							RunAutoUpdateServices();
+							interval = new TimeSpan(0, 1, 0);
 						}
-
-						interval = new TimeSpan(0, 1, 0);
-					}
-					catch (System.AggregateException agex)
-					{
-						var webex = agex.InnerException as System.Net.Http.HttpRequestException;
-						if (webex != null)
+						catch (System.AggregateException agex)
 						{
-							GlobalConfiguration.Logger.Warn("UpdateService : " + webex.Message);
+							var webex = agex.InnerException as System.Net.Http.HttpRequestException;
+							if (webex != null)
+							{
+								GlobalConfiguration.Logger.Warn("UpdateService : " + webex.Message);
+								interval = new TimeSpan(0, 5, 0);
+							}
+							else
+							{
+								GlobalConfiguration.Logger.Error(agex.InnerException.GetType().FullName);
+							}
+						}
+						catch (System.Net.WebException webex)
+						{
+							GlobalConfiguration.Logger.Warn(webex.Message);
 							interval = new TimeSpan(0, 5, 0);
 						}
-						else
+						catch (UpdateUrlNotAccessibleException)
 						{
-							GlobalConfiguration.Logger.Error(agex.InnerException.GetType().FullName);
+							GlobalConfiguration.Logger.Warn(string.Format("Uri {0} not accessible", updateUri));
+							interval = new TimeSpan(0, 5, 0);
+						}
+						catch (Exception ex)
+						{
+							GlobalConfiguration.Logger.Error("UpdateService : \r\n" + ex.ToString());
 						}
 					}
-					catch (System.Net.WebException webex)
-					{
-						GlobalConfiguration.Logger.Warn(webex.Message);
-						interval = new TimeSpan(0, 5, 0);
-					}
-					catch (UpdateUrlNotAccessibleException)
-					{
-						GlobalConfiguration.Logger.Warn(string.Format("Uri {0} not accessible", updateUri));
-						interval = new TimeSpan(0, 5, 0);
-					}
-					catch (Exception ex)
-					{
-						GlobalConfiguration.Logger.Error("UpdateService : \r\n" + ex.ToString());
-					}
+				}
+				else
+				{
+					GlobalConfiguration.Logger.Warn("debugger is attached, autoupdate disabled");
 				}
 
 				var handles = new WaitHandle[] { m_EventStop };

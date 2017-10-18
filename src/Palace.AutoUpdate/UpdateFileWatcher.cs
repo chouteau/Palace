@@ -19,7 +19,7 @@ namespace Palace.AutoUpdate
 
 		public void Initialize()
 		{
-			var directory = new System.IO.DirectoryInfo(GlobalConfiguration.GetOrCreateStockDirectory());
+			var directory = new System.IO.DirectoryInfo(DirectoryHelpers.GetOrCreateStockDirectory());
 			m_Fsw = new FileSystemWatcher();
 			m_Fsw.Path = directory.FullName;
 			m_Fsw.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size;

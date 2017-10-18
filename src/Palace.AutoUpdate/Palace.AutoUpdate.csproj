@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AutoUpdateServiceWrapper.cs" />
     <Compile Include="AutoUpdaterServiceHost.cs" />
+    <Compile Include="DirectoryHelpers.cs" />
     <Compile Include="MethodInvoker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UpdateFileWatcher.cs" />
