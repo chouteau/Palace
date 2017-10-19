@@ -57,6 +57,7 @@ namespace Palace.AutoUpdate
 			GlobalConfiguration.Logger.Info(string.Format("try to stop {0} service", m_TypeName));
 
 			Invoke("Stop");
+			System.Threading.Thread.Sleep(10 * 1000);
 
 			if (m_Domain == null)
 			{

@@ -1,3 +1,6 @@
+### 1.1.4 (Palace.AutoUpdate)
+- Wait 10 seconds between send "Stop" and Unload AppDomain
+
 ### 2.3.15 (Palace)
 - Move stock and inspect directory resolving methods to Palace.AutoUpdate
 
