@@ -16,8 +16,12 @@ namespace Palace
 		public void Start()
 		{
 			m_InstanciedServiceList = new List<object>();
+			var watch = new System.Diagnostics.Stopwatch();
+			watch.Start();
 			var list = GetServiceTypeList("ServiceHost");
-			GlobalConfiguration.Logger.Info(string.Format("{0} services found", list.Count()));
+			watch.Stop();
+			GlobalConfiguration.Logger.Info($"{list.Count()} services found in {watch.ElapsedMilliseconds} ms");
+
 			m_ServiceList = new List<Type>();
 			foreach (var file in list.Keys)
 			{
@@ -73,16 +77,20 @@ namespace Palace
 		{
 			GlobalConfiguration.Logger.Info(string.Format("Start {0} services", m_ServiceList.Count()));
 
+			var watch = new System.Diagnostics.Stopwatch();
+
 			foreach (var svcType in m_ServiceList)
 			{
 				System.Diagnostics.Trace.WriteLine(string.Format("Try to start {0} service", svcType.Name));
 				try
 				{
+					watch.Start();
 					var svcInstance = Activator.CreateInstance(svcType);
 					var initializeMethod = svcType.GetMethod("Initialize");
 					initializeMethod.Invoke(svcInstance, null);
+					watch.Stop();
 					m_InstanciedServiceList.Add(svcInstance);
-					GlobalConfiguration.Logger.Info(string.Format("Service {0} initialized", svcType.Name));
+					GlobalConfiguration.Logger.Info($"Service {svcType.Name} initialized in {watch.ElapsedMilliseconds} ms");
 				}
 				catch(Exception ex)
 				{
@@ -90,15 +98,27 @@ namespace Palace
 					GlobalConfiguration.Logger.Error(ex.ToString());
 					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
 				}
+				finally
+				{
+					watch.Stop();
+					watch.Reset();
+				}
 			}
 
+			GlobalConfiguration.Logger.Info($"-----------------------------------------------------------------------");
+			GlobalConfiguration.Logger.Info($"All services initialized");
+			GlobalConfiguration.Logger.Info($"-----------------------------------------------------------------------");
+
+			watch.Reset();
 			foreach (var svc in m_InstanciedServiceList)
 			{
 				try
 				{
 					var initializeMethod = svc.GetType().GetMethod("Start");
+					watch.Start();
 					initializeMethod.Invoke(svc, null);
-					GlobalConfiguration.Logger.Info(string.Format("Service {0} started", svc.GetType().Name));
+					watch.Stop();
+					GlobalConfiguration.Logger.Info($"Service {svc.GetType().Name} started in {watch.ElapsedMilliseconds} ms");
 				}
 				catch (Exception ex)
 				{
@@ -106,8 +126,16 @@ namespace Palace
 					GlobalConfiguration.Logger.Error(ex.ToString());
 					System.Diagnostics.EventLog.WriteEntry("Application", ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
 				}
+				finally
+				{
+					watch.Stop();
+					watch.Reset();
+				}
 			}
 
+			GlobalConfiguration.Logger.Info($"-----------------------------------------------------------------------");
+			GlobalConfiguration.Logger.Info($"All services started");
+			GlobalConfiguration.Logger.Info($"-----------------------------------------------------------------------");
 		}
 
 		public static Dictionary<string, List<string>> GetServiceTypeList(string suffix)
