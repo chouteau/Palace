@@ -1,3 +1,6 @@
+### 2.5.17 (Palace) (AutoUpdate)
+- .Net 4.7.2 migraiton
+
 ### 1.1.4 (Palace.AutoUpdate)
 - Wait 10 seconds between send "Stop" and Unload AppDomain
 
