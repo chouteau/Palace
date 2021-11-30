@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "DemoSvc": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 888",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    }
+  }
+}
