@@ -1,0 +1,1 @@
+﻿sc create "Palace Service" binPath="Palace.exe" start="delayed-auto" DisplayName="Palace Service" obj="NT Authority\NetworkService"
