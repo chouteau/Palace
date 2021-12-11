@@ -28,7 +28,7 @@
 				return;
 			}
 
-			var pattern = @"Palace\s*\((?<os>[^;]*);(?<machineName>[^;]*);(?<hostName>[^;]*);(?<version>[^;]*)\)";
+			var pattern = @"Palace/(?<version>[^\(]*)\((?<os>[^;]*);(?<machineName>[^;]*);(?<hostName>[^;]*)\)";
 			var regexp = new System.Text.RegularExpressions.Regex(pattern);
 			var match = regexp.Match(userAgent);
 

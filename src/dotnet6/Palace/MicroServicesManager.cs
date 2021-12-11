@@ -26,8 +26,9 @@ namespace Palace
             psi.Arguments = microServiceInfo.MainFileName;
             psi.CreateNoWindow = false;
             psi.UseShellExecute = false;
-            psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+            psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             psi.RedirectStandardError = true;
+            psi.ErrorDialog = false;
 
             var process = new Process();
             process.StartInfo = psi;
@@ -77,6 +78,10 @@ namespace Palace
                 break;
             }
             Logger.LogWarning("Extact zipfile {0} for service {1} in directory {2}", zipFileInfo.ZipFileName, microServiceInfo.Name, extractDirectory);
+            if (!System.IO.Directory.Exists(extractDirectory))
+            {
+                System.IO.Directory.CreateDirectory(extractDirectory);
+            }
             System.IO.Compression.ZipFile.ExtractToDirectory(zipFileInfo.ZipFileName, extractDirectory, true);
 
             // Deploy dans son repertoire d'installation

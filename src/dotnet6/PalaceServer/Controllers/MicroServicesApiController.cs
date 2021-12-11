@@ -45,7 +45,7 @@ namespace PalaceServer.Controllers
 
             var list = Collector.GetAvailableList();
             var serviceInfo = list.FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
-            if(serviceName == null)
+            if (serviceName == null)
             {
                 return NotFound($"this service name {serviceName} does not exist");
             }
@@ -109,6 +109,20 @@ namespace PalaceServer.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        [Route("getaction/{serviceName}")]
+        public IActionResult GetAction([FromHeader] string authorization, string serviceName)
+        {
+            var svc = Collector.GetRunningList().FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
+            if (svc == null)
+            {
+                return Ok(Models.ServiceAction.DoNothing);
+            }
+
+            var nextAction = svc.NextAction;
+            svc.NextAction = Models.ServiceAction.DoNothing;
+            return Ok(nextAction);
+        }
 
         private void EnsureGoodAuthorization(string authorization)
         {

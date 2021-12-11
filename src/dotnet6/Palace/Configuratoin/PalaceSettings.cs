@@ -32,6 +32,7 @@ namespace Palace.Configuration
 
         public int WaitingUpdateTimeoutInSecond { get; set; }
         public bool StopAllMicroServicesWhenStop { get; set; }
+        public LogLevel LogLevel { get; set; }
 
         public void Initialize()
         {

@@ -25,7 +25,7 @@ namespace PalaceServer.Extensions
 
         internal static string GetUserAgent(this HttpContext httpContext)
         {
-            var ua = httpContext.Request.Headers["UserAgent"].FirstOrDefault();
+            var ua = httpContext.Request.Headers["User-Agent"].FirstOrDefault();
             return ua;
         }
 

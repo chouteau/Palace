@@ -17,7 +17,7 @@ namespace Palace.Tests
         {
             var host = TestsHelper.CreateTestHostWithoutServer();
             TestsHelper.CleanupFolders(host);
-            var starter = host.Services.GetRequiredService<Starter>();
+            var starter = host.Services.GetRequiredService<IStarter>();
 
             await starter.Start();
 
@@ -29,7 +29,7 @@ namespace Palace.Tests
         {
             var host = TestsHelper.CreateTestHostWithServer();
             TestsHelper.CleanupFolders(host);
-            var starter = host.Services.GetRequiredService<Starter>();
+            var starter = host.Services.GetRequiredService<IStarter>();
 
             await starter.Start();
 
@@ -41,7 +41,7 @@ namespace Palace.Tests
         {
             var host = TestsHelper.CreateTestHostWithServer();
             TestsHelper.PublishDemoProject(host);
-            var starter = host.Services.GetRequiredService<Starter>();
+            var starter = host.Services.GetRequiredService<IStarter>();
 
             await starter.Start();
 

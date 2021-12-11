@@ -10,7 +10,7 @@ namespace Palace
 	{
 		private bool _running = false;
 
-		public MainService(Starter starter, IServiceProvider serviceProvider,
+		public MainService(IStarter starter, IServiceProvider serviceProvider,
 			Configuration.PalaceSettings palaceSettings)
 		{
 			this.ServiceProvider = serviceProvider;
@@ -25,7 +25,7 @@ namespace Palace
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				var starter = ServiceProvider.GetRequiredService<Starter>();
+				var starter = ServiceProvider.GetRequiredService<IStarter>();
 				if (!_running)
 				{
 					await starter.Start();
@@ -35,6 +35,7 @@ namespace Palace
 				{
 					await starter.CheckHealth();
 					await starter.CheckUpdate();
+					await starter.GetAction();
 				}
 				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 			}
@@ -42,7 +43,7 @@ namespace Palace
 
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
-			var starter = ServiceProvider.GetRequiredService<Starter>();
+			var starter = ServiceProvider.GetRequiredService<IStarter>();
 			if (_running)
 			{
 				await starter.Stop();

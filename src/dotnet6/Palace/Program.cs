@@ -15,11 +15,17 @@ var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddSingleton(palaceSettings);
-        services.AddTransient<Starter>();
+        services.AddTransient<IStarter, Starter>();
         services.AddTransient<IMicroServicesManager, MicroServicesManager>();
         services.AddTransient<IAlertNotification, VoidAlertNotification>();
 
-        services.AddLogging();
+        services.AddLogging(configure =>
+        {
+            configure.ClearProviders();
+            configure.AddFilter("Microsoft", LogLevel.Warning);
+            configure.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+            configure.AddConsole();
+        });
         services.AddMemoryCache();
 
         services.AddHttpClient();
@@ -28,7 +34,7 @@ var builder = Host.CreateDefaultBuilder(args)
         {
             configure.BaseAddress = new Uri(palaceSettings.UpdateServerUrl);
             configure.DefaultRequestHeaders.Add("Authorization", $"Basic {palaceSettings.ApiKey}");
-            configure.DefaultRequestHeaders.Add("UserAgent", $"Palace ({System.Environment.OSVersion}; {System.Environment.MachineName}; {palaceSettings.HostName}; {version})");
+            configure.DefaultRequestHeaders.UserAgent.ParseAdd($"Palace/{version} ({System.Environment.OSVersion}; {System.Environment.MachineName}; {palaceSettings.HostName})");
         });
 
         services.AddHostedService<MainService>();
@@ -39,5 +45,8 @@ var builder = Host.CreateDefaultBuilder(args)
 #endif
 
 var host = builder.Build();
+
+var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+loggerFactory.AddProvider(new Palace.Logging.PalaceLoggerProvider(host.Services));
 
 await host.RunAsync();

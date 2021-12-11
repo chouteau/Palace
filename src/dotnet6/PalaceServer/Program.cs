@@ -17,9 +17,11 @@ if (palaceSettings.MicroServiceRepositoryFolder.StartsWith(@".\"))
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
 
 builder.Services.AddSingleton(palaceSettings);
+builder.Services.AddSingleton<PalaceServer.Services.LogCollector>();
 builder.Services.AddTransient<PalaceServer.Services.MicroServiceCollectorManager>();
 builder.Services.AddSingleton<PalaceServer.Services.PalaceInfoManager>();
 builder.Services.AddHostedService<PalaceServer.Services.ZipRepositoryWatcher>();   
@@ -44,6 +46,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapRazorPages();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();

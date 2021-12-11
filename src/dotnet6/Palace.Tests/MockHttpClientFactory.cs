@@ -27,7 +27,7 @@ namespace Palace.Tests
             {
                 var result = HttpClientFactory.CreateClient();
                 result.DefaultRequestHeaders.Add("Authorization", $"Basic {PalaceSettings.ApiKey}");
-                result.DefaultRequestHeaders.Add("UserAgent", $"Palace ({System.Environment.OSVersion}; {System.Environment.MachineName}; {PalaceSettings.HostName}; 1.0.0.0)");
+                result.DefaultRequestHeaders.UserAgent.ParseAdd($"Palace/1.0.0.0 ({System.Environment.OSVersion}; {System.Environment.MachineName}; {PalaceSettings.HostName})");
                 return result;
             }
             else

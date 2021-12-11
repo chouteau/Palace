@@ -28,7 +28,7 @@ namespace Palace.Tests
                             .ConfigureServices(services =>
                             {
                                 services.AddSingleton(palaceSettings);
-                                services.AddTransient<Starter>();
+                                services.AddTransient<IStarter, Starter>();
                                 services.AddTransient<IMicroServicesManager, MicroServicesManager>();
                                 services.AddTransient<IAlertNotification, Palace.VoidAlertNotification>();
 
@@ -58,7 +58,7 @@ namespace Palace.Tests
                             .ConfigureServices(services =>
                             {
                                 services.AddSingleton(palaceSettings);
-                                services.AddTransient<Starter>();
+                                services.AddTransient<IStarter, Starter>();
                                 services.AddTransient<IMicroServicesManager, MicroServicesManager>();
                                 services.AddTransient<IAlertNotification, Palace.VoidAlertNotification>();
 
@@ -69,7 +69,7 @@ namespace Palace.Tests
                                 services.AddHttpClient("PalaceServer", configure =>
                                 {
                                     configure.DefaultRequestHeaders.Add("Authorization", $"Basic {palaceSettings.ApiKey}");
-                                    configure.DefaultRequestHeaders.Add("UserAgent", $"Palace ({System.Environment.OSVersion}; {System.Environment.MachineName}; {palaceSettings.HostName}; 1.0.0.0)");
+                                    configure.DefaultRequestHeaders.UserAgent.ParseAdd($"Palace/1.0.0.0 ({System.Environment.OSVersion}; {System.Environment.MachineName}; {palaceSettings.HostName})");
                                 });
                             });
 
@@ -146,11 +146,17 @@ namespace Palace.Tests
             psi.CreateNoWindow = false;
             psi.UseShellExecute = false;
             psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            psi.RedirectStandardError = true;
+            psi.RedirectStandardOutput = true;
 
             var process = new Process();
             process.StartInfo = psi;
             process.Start();
+
+            var reader = process.StandardOutput;
+            var output = reader.ReadToEnd();
+            reader.Close();
+
+            Console.WriteLine(output);
 
             var psiZip = new System.Diagnostics.ProcessStartInfo(@"C:\Program Files\7-Zip\7z.exe");
             psiZip.WorkingDirectory = workingDirectory;
@@ -159,11 +165,18 @@ namespace Palace.Tests
             psiZip.CreateNoWindow = false;
             psiZip.UseShellExecute = false;
             psiZip.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
-            psiZip.RedirectStandardError = true;
+            psiZip.RedirectStandardOutput = true;
 
             process = new Process();
             process.StartInfo = psiZip;
             process.Start();
+
+            reader = process.StandardOutput;
+            output = reader.ReadToEnd();
+            reader.Close();
+
+            Console.WriteLine(output);
+
         }
     }
 }

@@ -11,6 +11,7 @@
         public DateTime CreationDate { get; set; }
         public DateTime LastUpdateDate { get; set; }
         public PalaceInfo PalaceInfo { get; set; }
+        public ServiceAction NextAction { get; set; }
 
         public string Key
         {
