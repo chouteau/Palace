@@ -24,7 +24,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddHostedService<DemoSvc.Worker>();
 
-        services.AddPalaceClient(typeof(Program), config =>
+        services.AddPalaceClient(config =>
         {
             config.ApiKey = "test";
         });

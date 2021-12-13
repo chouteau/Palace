@@ -8,7 +8,7 @@ namespace PalaceClient
 {
     public static class StartupExtensions
     {
-        public static IServiceCollection AddPalaceClient(this IServiceCollection services, Type svc,  Action<PalaceSettings> action)
+        public static IServiceCollection AddPalaceClient(this IServiceCollection services, Action<PalaceSettings> action)
         {
             var palaceSettings = new PalaceSettings();
             action.Invoke(palaceSettings);
@@ -16,10 +16,11 @@ namespace PalaceClient
 
             services.AddMvcCore().AddApplicationPart(typeof(StartupExtensions).Assembly);
 
-            var version = svc.Assembly.GetName().Version.ToString();
-            var productAttribute = svc.Assembly.GetCustomAttribute<System.Reflection.AssemblyProductAttribute>();
+            var entryAssembly = Assembly.GetEntryAssembly();
+            var version = entryAssembly.GetName().Version.ToString();
+            var productAttribute = entryAssembly.GetCustomAttribute<System.Reflection.AssemblyProductAttribute>();
             var serviceName = productAttribute?.Product;
-            var fileInfo = new System.IO.FileInfo(svc.Assembly.Location);
+            var fileInfo = new System.IO.FileInfo(entryAssembly.Location);
 
             palaceSettings.Version = version;
             palaceSettings.ServiceName = serviceName;
