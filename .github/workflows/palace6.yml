@@ -24,7 +24,7 @@ jobs:
     - name: Publish PalaceClient to nuget
       uses: rohith/publish-nuget@v2
       with:
-        PROJECT_FILE_PATH: ${{github.workspace}}\src\PalaceClient\PalaceClient.csproj
+        PROJECT_FILE_PATH: ${{github.workspace}}\src\dotnet6\PalaceClient\PalaceClient.csproj
         PACKAGE_NAME: PalaceClient
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
