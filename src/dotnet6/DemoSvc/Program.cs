@@ -31,10 +31,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-
-var run = host.RunAsync();
-
-PalaceClient.StopAwaiter.Wait();
+StopAwaiter.Wait(host.RunAsync());
 
 await host.StopAsync();
 
