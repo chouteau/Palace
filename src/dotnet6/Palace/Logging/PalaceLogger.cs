@@ -109,10 +109,18 @@ namespace Palace.Logging
 			try
 			{
 				using var httpClient = new HttpClient();
+				httpClient.Timeout = TimeSpan.FromSeconds(5);
 				httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
 				httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {PalaceSettings.ApiKey}");
 				httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"PalaceLogger ({System.Environment.OSVersion}; {System.Environment.MachineName}; {PalaceSettings.HostName})");
-				httpClient.PostAsJsonAsync("/api/logging/writelog", logInfo).Wait(5 * 1000);
+				var httpMessage = new HttpRequestMessage(HttpMethod.Post, "/api/logging/writelog");
+				httpMessage.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(logInfo), Encoding.UTF8, "application/json");
+				var response = httpClient.Send(httpMessage);
+				response.EnsureSuccessStatusCode();
+			}
+			catch(Exception ex)
+			{
+				Console.WriteLine(ex.Message);
 			}
 			finally
 			{

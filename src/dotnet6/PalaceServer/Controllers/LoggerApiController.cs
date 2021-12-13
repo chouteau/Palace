@@ -20,7 +20,7 @@ namespace PalaceServer.Controllers
 
         [HttpPost]
         [Route("writelog")]
-        public async Task<IActionResult> WriteLog(Models.LogInfo logInfo)
+        public IActionResult WriteLog(Models.LogInfo logInfo)
         {
             LogCollector.AddLog(logInfo);
             return Ok();

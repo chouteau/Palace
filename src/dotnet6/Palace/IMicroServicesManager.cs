@@ -21,5 +21,6 @@ namespace Palace
         Task<AvailableMicroServiceInfo> GetAvailableMicroServiceInfo(MicroServiceSettings microServiceSettings);
         Task RegisterOrUpdateRunningMicroServiceInfo(RunningMicroserviceInfo runningMicroserviceInfo);
         Task UpdateRunningMicroServiceProperty(PalaceServer.Models.ServiceProperties serviceProperties);
+        Task<PalaceServer.Models.NextActionResult> GetNextAction(Configuration.MicroServiceSettings microServiceSettings);
     }
 }

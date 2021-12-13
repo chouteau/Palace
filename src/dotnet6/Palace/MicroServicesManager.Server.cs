@@ -133,5 +133,30 @@ namespace Palace
             }
         }
 
+        public async Task<PalaceServer.Models.NextActionResult> GetNextAction(Configuration.MicroServiceSettings microServiceSettings)
+        {
+            var httpClient = HttpClientFactory.CreateClient("PalaceServer");
+            httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
+            HttpResponseMessage response = null;
+            try
+            {
+                var url = $"/api/microservices/getnextaction/{microServiceSettings.ServiceName}";
+                response = await httpClient.GetAsync(url);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return null;
+            }
+
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<PalaceServer.Models.NextActionResult>();
+            return result;
+        }
+
     }
 }

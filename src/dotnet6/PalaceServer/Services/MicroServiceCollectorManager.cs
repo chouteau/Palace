@@ -7,6 +7,8 @@ namespace PalaceServer.Services
 		public const string REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY = "availablemicroservicelist:all";
 		public const string RUNNING_MICROSERVICE_LIST_CACHE_KEY = "runningmicroservicelist:all";
 
+		public event Action OnChanged;
+
 		public MicroServiceCollectorManager(
 			IMemoryCache memoryCache,
 			ILogger<MicroServiceCollectorManager> logger,
@@ -126,6 +128,7 @@ namespace PalaceServer.Services
 			{
 				UnLockDownload(rms.ServiceName);
 			}
+			OnChanged?.Invoke();
 		}
 
 		public void UpdateRunningMicroServiceProperties(Models.ServiceProperties serviceProperties, string userAgent, string userHostAddress)
@@ -169,6 +172,8 @@ namespace PalaceServer.Services
             {
 				UnLockDownload(rms.ServiceName);
 			}
+
+			OnChanged?.Invoke();
 		}
 
 		private void UnLockDownload(string serviceName)
@@ -179,6 +184,7 @@ namespace PalaceServer.Services
 			{
 				item.LockedBy = null;
 			}
+			OnChanged?.Invoke();
 		}
 
 		private void LockDownload(string serviceName, string palaceInfoKey)
@@ -189,6 +195,7 @@ namespace PalaceServer.Services
             {
 				item.LockedBy = palaceInfoKey;
 			}
+			OnChanged?.Invoke();
 		}
 
 	}

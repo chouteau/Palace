@@ -32,6 +32,16 @@ namespace Palace
 
             var process = new Process();
             process.StartInfo = psi;
+            process.EnableRaisingEvents = true;
+            var errorMessages = new List<string>();
+            process.ErrorDataReceived += (s, arg) =>
+            {
+                if (string.IsNullOrWhiteSpace(arg.Data))
+                {
+                    return;
+                }
+                errorMessages.Add(arg.Data); 
+            };
 
             try
             {
@@ -40,8 +50,14 @@ namespace Palace
                 {
                     microServiceInfo.ServiceState = Models.ServiceState.StartFail;
                 }
-                // var errorStream = process.StandardError;
-                // var errorLog = errorStream.ReadToEnd();
+                process.BeginErrorReadLine();
+                if (errorMessages.Any())
+                {
+                    var error = string.Join(System.Environment.NewLine, errorMessages);
+                    Logger.LogError(error);
+                    microServiceInfo.ServiceState = Models.ServiceState.StartFail;
+                    return;
+                }
 
                 microServiceInfo.Process = process;
                 microServiceInfo.ServiceState = Models.ServiceState.Starting;

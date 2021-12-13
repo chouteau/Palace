@@ -33,9 +33,12 @@ namespace Palace
 				}
 				else
 				{
-					await starter.CheckHealth();
-					await starter.CheckUpdate();
-					await starter.GetAction();
+					var applyAction = await starter.ApplyAction();
+					if (!applyAction)
+					{
+						await starter.CheckHealth();
+						await starter.CheckUpdate();
+					}
 				}
 				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 			}

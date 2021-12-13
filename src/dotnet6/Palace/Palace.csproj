@@ -12,6 +12,8 @@
     <Compile Include="..\PalaceClient\StopResult.cs" Link="Models\StopResult.cs" />
     <Compile Include="..\PalaceServer\Models\AvailableMicroServiceInfo.cs" Link="Models\AvailableMicroServiceInfo.cs" />
     <Compile Include="..\PalaceServer\Models\LogInfo.cs" Link="Models\LogInfo.cs" />
+    <Compile Include="..\PalaceServer\Models\NextActionResult.cs" Link="Models\NextActionResult.cs" />
+    <Compile Include="..\PalaceServer\Models\ServiceAction.cs" Link="Models\ServiceAction.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperties.cs" Link="Models\ServiceProperties.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperty.cs" Link="Models\ServiceProperty.cs" />
   </ItemGroup>

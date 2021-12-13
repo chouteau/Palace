@@ -8,12 +8,13 @@ namespace PalaceClient
 {
     public static class StartupExtensions
     {
-        public static IServiceCollection AddPalace(this IServiceCollection services, Type svc,  Action<PalaceSettings> action)
+        public static IServiceCollection AddPalaceClient(this IServiceCollection services, Type svc,  Action<PalaceSettings> action)
         {
             var palaceSettings = new PalaceSettings();
             action.Invoke(palaceSettings);
             services.AddSingleton(palaceSettings);
 
+            services.AddMvcCore().AddApplicationPart(typeof(StartupExtensions).Assembly);
 
             var version = svc.Assembly.GetName().Version.ToString();
             var productAttribute = svc.Assembly.GetCustomAttribute<System.Reflection.AssemblyProductAttribute>();

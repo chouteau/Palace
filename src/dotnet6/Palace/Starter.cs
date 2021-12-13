@@ -70,20 +70,6 @@ namespace Palace
                     if (serviceInfo.ServiceState == Models.ServiceState.Starting
                         || serviceInfo.ServiceState == Models.ServiceState.Started)
                     {
-                        if (!InstanciedServiceList.Any(i => i.Name == serviceInfo.Name))
-                        {
-                            Logger.LogInformation($"micro service {serviceSettings.ServiceName} {serviceInfo.ServiceState}");
-                            InstanciedServiceList.Add(serviceInfo);
-
-                            // Notification du serveur
-                            await ServiceManager.RegisterOrUpdateRunningMicroServiceInfo(new PalaceClient.RunningMicroserviceInfo()
-                            {
-                                ServiceName = serviceInfo.Name,
-                                StartedDate = DateTime.Now,
-                                ServiceState = $"{serviceInfo.ServiceState}",
-                                Location = serviceInfo.Location,
-                            });
-                        }
                         break;
                     }
 
@@ -126,6 +112,31 @@ namespace Palace
             }
         }
 
+        public async Task<bool> ApplyAction()
+        {
+            foreach (var item in PalaceSettings.MicroServiceInfoList)
+            {
+                var actionResult = await ServiceManager.GetNextAction(item);
+                switch (actionResult?.Action)
+                {
+                    case PalaceServer.Models.ServiceAction.Start:
+                        Logger.LogInformation("try to start {0}", item.ServiceName);
+                        var startResult = await StartMicroService(item);
+                        if (startResult == null)
+                        {
+                            Logger.LogWarning("start {0} fail", item.ServiceName);
+                        }
+                        return true;
+
+                    case PalaceServer.Models.ServiceAction.Stop:
+                        await StopMicroService(item);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            return false;
+        }
         public async Task CheckHealth()
         {
             foreach (var item in PalaceSettings.MicroServiceInfoList)
@@ -155,6 +166,7 @@ namespace Palace
                     info.StartedDate = instancied.Process.StartTime;
                 }
                 await ServiceManager.RegisterOrUpdateRunningMicroServiceInfo(info);
+                Logger.LogDebug("service {0} is up", info.ServiceName);
             }
         }
 
@@ -225,11 +237,6 @@ namespace Palace
             }
         }
 
-        public async Task GetAction()
-        {
-            // Do nothing
-        }
-
         public async Task Stop()
         {
             Logger.LogInformation("Stop services");
@@ -241,23 +248,31 @@ namespace Palace
             Logger.LogInformation($"Stoping {PalaceSettings.MicroServiceInfoList.Count} micro services");
             foreach (var serviceSettings in PalaceSettings.MicroServiceInfoList)
             {
-                Logger.LogInformation("try to stop {0}", serviceSettings.ServiceName);
-                var result = await ServiceManager.StopRunningMicroService(serviceSettings);
-                if (result != null)
-                {
-                    Logger.LogInformation("stop {0} with result {1}", serviceSettings.ServiceName, result.Message);
-                }
-
-                await Task.Delay(2 * 1000);
-
-                var instantiedService = InstanciedServiceList.SingleOrDefault(i => i.Name == serviceSettings.ServiceName);
-                if (instantiedService != null
-                    && instantiedService.Process != null
-                        && instantiedService.Process.HasExited)
-                {
-                    InstanciedServiceList.Remove(instantiedService);
-                }
+                await StopMicroService(serviceSettings);
             }
+        }
+
+        private async Task StopMicroService(Configuration.MicroServiceSettings serviceSettings)
+        {
+            Logger.LogInformation("try to stop {0}", serviceSettings.ServiceName);
+            var result = await ServiceManager.StopRunningMicroService(serviceSettings);
+            if (result != null)
+            {
+                Logger.LogInformation("stop {0} with result {1}", serviceSettings.ServiceName, result.Message);
+            }
+
+            await Task.Delay(2 * 1000);
+
+            var instantiedService = InstanciedServiceList.SingleOrDefault(i => i.Name == serviceSettings.ServiceName);
+            if (instantiedService != null
+                && instantiedService.Process != null
+                    && instantiedService.Process.HasExited)
+            {
+                InstanciedServiceList.Remove(instantiedService);
+            }
+
+            var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(serviceSettings.ServiceName, $"{Models.ServiceState.Offline}");
+            await ServiceManager.UpdateRunningMicroServiceProperty(sps);
         }
 
         private async Task<Models.MicroServiceInfo> StartMicroService(Configuration.MicroServiceSettings serviceSettings)
@@ -301,6 +316,7 @@ namespace Palace
             if (serviceInfo.ServiceState == Models.ServiceState.Started)
             {
                 Logger.LogWarning("this micro service {0} is already started", serviceSettings.ServiceName);
+                await AddInstantiatedService(serviceInfo);
             }
             else if (serviceInfo.LocalInstallationExists)
             {
@@ -310,8 +326,31 @@ namespace Palace
                 {
                     Logger.LogWarning("service not started {0}", serviceSettings.ServiceName);
                 }
+                else
+                {
+                    await AddInstantiatedService(serviceInfo);
+                }
             }
+
             return serviceInfo;
+        }
+
+        private async Task AddInstantiatedService(Models.MicroServiceInfo serviceInfo)
+        {
+            if (!InstanciedServiceList.Any(i => i.Name == serviceInfo.Name))
+            {
+                Logger.LogInformation($"micro service {serviceInfo.Name} {serviceInfo.ServiceState}");
+                InstanciedServiceList.Add(serviceInfo);
+
+                // Notification du serveur
+                await ServiceManager.RegisterOrUpdateRunningMicroServiceInfo(new PalaceClient.RunningMicroserviceInfo
+                {
+                    ServiceName = serviceInfo.Name,
+                    StartedDate = DateTime.Now,
+                    ServiceState = $"{serviceInfo.ServiceState}",
+                    Location = serviceInfo.Location,
+                });
+            }
         }
 
     }

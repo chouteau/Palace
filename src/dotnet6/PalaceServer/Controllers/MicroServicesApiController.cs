@@ -110,18 +110,25 @@ namespace PalaceServer.Controllers
         }
 
         [HttpGet]
-        [Route("getaction/{serviceName}")]
+        [Route("getnextaction/{serviceName}")]
         public IActionResult GetAction([FromHeader] string authorization, string serviceName)
         {
             var svc = Collector.GetRunningList().FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
             if (svc == null)
             {
-                return Ok(Models.ServiceAction.DoNothing);
+                return Ok(new Models.NextActionResult
+                {
+                    Action = Models.ServiceAction.DoNothing
+                });
             }
 
             var nextAction = svc.NextAction;
             svc.NextAction = Models.ServiceAction.DoNothing;
-            return Ok(nextAction);
+
+            return Ok(new Models.NextActionResult
+            {
+                Action = nextAction
+            });
         }
 
         private void EnsureGoodAuthorization(string authorization)

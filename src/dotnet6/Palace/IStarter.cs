@@ -5,9 +5,9 @@ namespace Palace
     {
         int InstanciedServiceCount { get; }
 
+        Task<bool> ApplyAction();
         Task CheckHealth();
         Task CheckUpdate();
-        Task GetAction();
         Task Start();
         Task Stop();
     }
