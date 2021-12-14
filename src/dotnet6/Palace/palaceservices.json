@@ -1,0 +1,8 @@
+[
+  {
+    "ServiceName": "DemoSvc",
+    "MainFileName": ".\\host\\demosvc\\DemoSvc.dll",
+    "AdminServiceUrl": "http://localhost:888",
+    "PalaceApiKey": "test"
+  }
+]

@@ -40,6 +40,10 @@ namespace Palace
 						await starter.CheckUpdate();
 					}
 				}
+				
+				var remoteConfigurationManager = ServiceProvider.GetRequiredService<IRemoteConfigurationManager>();
+				await remoteConfigurationManager.SynchronizeConfiguration();
+
 				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 			}
 		}

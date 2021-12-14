@@ -17,6 +17,7 @@ namespace Palace.Configuration
 			DownloadDirectory = @".\download";
 			WaitingUpdateTimeoutInSecond = 30;
 			StopAllMicroServicesWhenStop = false;
+			PalaceServicesFileName = @".\palaceservices.json";
 		}
 
         public string UpdateServerUrl { get; set; }
@@ -33,6 +34,7 @@ namespace Palace.Configuration
         public int WaitingUpdateTimeoutInSecond { get; set; }
         public bool StopAllMicroServicesWhenStop { get; set; }
         public LogLevel LogLevel { get; set; }
+        public string PalaceServicesFileName { get; set; }
 
         public void Initialize()
         {

@@ -1,5 +1,4 @@
 ﻿@page "/"
-@attribute [Authorize]
 
 <PageTitle>Palace Server - Dashboard</PageTitle>
 
@@ -30,9 +29,9 @@
 <table class="table table-bordered">
     <thead>
         <tr>
+            <th>Host Name</th>
             <th>Os</th>
             <th>Machine Name</th>
-            <th>Host Name</th>
             <th>Ip</th>
         </tr>
     </thead>
@@ -40,9 +39,13 @@
         @foreach (var item in PalaceInfoList)
        {
         <tr>
+            <td>
+                <a href="/palace/configuration/@item.Key">
+                    @item.HostName
+                </a>
+            </td>
             <td>@item.Os</td>
             <td>@item.MachineName</td>
-            <td>@item.HostName</td>
             <td>@item.Ip</td>
         </tr>
        }
@@ -90,7 +93,7 @@
             <td>
                 <button class="btn btn-primary" @onclick="() => Start(item)">Start</button>
                 <button class="btn btn-primary" @onclick="() => Stop(item)">Stop</button>
-                <button class="btn btn-primary">Restart</button>
+                <!--<button class="btn btn-primary">Restart</button>-->
             </td>
         </tr>
        }

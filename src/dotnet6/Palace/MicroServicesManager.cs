@@ -40,7 +40,7 @@ namespace Palace
                 {
                     return;
                 }
-                errorMessages.Add(arg.Data); 
+                errorMessages.Add(arg.Data);
             };
 
             try
@@ -197,6 +197,27 @@ namespace Palace
 
             var result = await response.Content.ReadFromJsonAsync<PalaceClient.StopResult>();
             return result;
+        }
+
+        public bool KillProcess(Models.MicroServiceInfo msi)
+        {
+            if (msi == null
+                || msi.Process == null)
+            {
+                return true;
+            }
+            try
+            {
+                Logger.LogWarning("Try to kill service {0} on processId {1}", msi.Name, msi.Process.Id);
+                msi.Process.Kill(true);
+                msi.Process = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+            }
+            return false;
         }
 
         public Models.MicroServiceInfo GetLocallyInstalledMicroServiceInfo(Configuration.MicroServiceSettings microServiceSettings)

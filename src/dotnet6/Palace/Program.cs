@@ -11,12 +11,29 @@ var palaceSettings = new Palace.Configuration.PalaceSettings();
 palaceSection.Bind(palaceSettings);
 palaceSettings.Initialize();
 
+if (!palaceSettings.MicroServiceInfoList.Any())
+{
+    if (palaceSettings.PalaceServicesFileName.StartsWith(@".\"))
+    {
+        var currentFolder = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
+        palaceSettings.PalaceServicesFileName = System.IO.Path.Combine(currentFolder, palaceSettings.PalaceServicesFileName.Replace(@".\",""));
+    }
+
+    if (System.IO.File.Exists(palaceSettings.PalaceServicesFileName))
+    {
+        var content = System.IO.File.ReadAllText(palaceSettings.PalaceServicesFileName);
+        var list = System.Text.Json.JsonSerializer.Deserialize<List<Palace.Configuration.MicroServiceSettings>>(content);
+        palaceSettings.MicroServiceInfoList = list;
+    }
+}
+
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddSingleton(palaceSettings);
         services.AddTransient<IStarter, Starter>();
         services.AddTransient<IMicroServicesManager, MicroServicesManager>();
+        services.AddTransient<IRemoteConfigurationManager, RemoteConfigurationManager>();
         services.AddTransient<IAlertNotification, VoidAlertNotification>();
 
         services.AddLogging(configure =>

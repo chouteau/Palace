@@ -13,7 +13,9 @@
         public string Version { get; set; }
         public string Ip { get; set; }
 
-		public string Key
+        public string RawJsonConfiguration { get; set; }
+
+        public string Key
         {
             get
             {

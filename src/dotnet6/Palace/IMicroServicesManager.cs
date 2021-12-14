@@ -9,6 +9,7 @@ namespace Palace
     {
         void StartMicroService(MicroServiceInfo microServiceInfo);
         Task<StopResult> StopRunningMicroService(MicroServiceSettings microServiceSettings);
+        bool KillProcess(Models.MicroServiceInfo msi);
 
         MicroServiceInfo GetLocallyInstalledMicroServiceInfo(MicroServiceSettings microServiceSettings);
         Task<RunningMicroserviceInfo> GetRunningMicroServiceInfo(MicroServiceSettings microServiceSettings);

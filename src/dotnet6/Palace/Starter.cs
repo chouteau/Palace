@@ -205,10 +205,18 @@ namespace Palace
                         var stopResult = await ServiceManager.StopRunningMicroService(item);
                         if (stopResult == null)
                         {
-                            Logger.LogCritical("Stop service impossible");
-                            continue;
-                        }
-                        if (stopResult.Message == "fail")
+                            Logger.LogWarning("Stop service fail");
+                            if (instancied.Process != null)
+                            {
+                                var killSuccess = ServiceManager.KillProcess(instancied);
+                                if (!killSuccess)
+                                {
+                                    Logger.LogCritical("Stop service {0} impossible", item.ServiceName);
+                                    continue;
+                                }
+                            }
+                        } 
+                        else if (stopResult.Message == "fail")
                         {
                             Logger.LogCritical($"Stop service with messsage {stopResult.Message}");
                         }

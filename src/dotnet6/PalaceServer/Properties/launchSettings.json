@@ -2,6 +2,10 @@
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
+    "iis": {
+      "applicationUrl": "http://local.services-palace.com",
+      "sslPort": 0
+    },
     "iisExpress": {
       "applicationUrl": "http://localhost:24035",
       "sslPort": 44335
@@ -23,6 +27,14 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "IIS": {
+      "commandName": "IIS",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://local.services-palace.com"
     }
   }
 }

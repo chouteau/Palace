@@ -51,6 +51,7 @@ namespace PalaceServer.Controllers
             }
 
             var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
+
             if (serviceInfo.LockedBy != null
                 && serviceInfo.LockedBy != palaceInfo.Key)
             {
@@ -113,6 +114,8 @@ namespace PalaceServer.Controllers
         [Route("getnextaction/{serviceName}")]
         public IActionResult GetAction([FromHeader] string authorization, string serviceName)
         {
+            EnsureGoodAuthorization(authorization);
+
             var svc = Collector.GetRunningList().FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
             if (svc == null)
             {
@@ -128,6 +131,33 @@ namespace PalaceServer.Controllers
             return Ok(new Models.NextActionResult
             {
                 Action = nextAction
+            });
+        }
+
+        [HttpPost]
+        [Route("synchronize-configuration")]
+        public async Task<IActionResult> SynchronizeConfiguration([FromHeader] string authorization)
+        {
+            EnsureGoodAuthorization(authorization);
+
+            var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
+            if (palaceInfo == null)
+            {
+                return Ok();
+            }
+
+            using var reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8);
+            var configuration = await reader.ReadToEndAsync();
+
+            if (string.IsNullOrWhiteSpace(palaceInfo.RawJsonConfiguration))
+            {
+                palaceInfo.RawJsonConfiguration = configuration;
+            }
+            configuration = palaceInfo.RawJsonConfiguration;
+
+            return Ok(new Models.RawJsonConfigurationResult
+            {
+                Configuration = configuration
             });
         }
 

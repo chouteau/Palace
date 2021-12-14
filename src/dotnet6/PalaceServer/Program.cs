@@ -33,7 +33,6 @@ builder.Services.AddSingleton<PalaceServer.Services.PalaceInfoManager>();
 builder.Services.AddHostedService<PalaceServer.Services.ZipRepositoryWatcher>();   
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<AuthenticationStateProvider, PalaceServer.Services.CustomAuthStateProvider>();
 builder.Services.AddSingleton<PalaceServer.Services.AdminLoginContext>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

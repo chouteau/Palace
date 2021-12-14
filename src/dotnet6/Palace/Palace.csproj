@@ -5,6 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Palace-B6E59778-5B41-4AC3-BD67-55D951B96AF4</UserSecretsId>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
     <Compile Include="..\PalaceServer\Models\AvailableMicroServiceInfo.cs" Link="Models\AvailableMicroServiceInfo.cs" />
     <Compile Include="..\PalaceServer\Models\LogInfo.cs" Link="Models\LogInfo.cs" />
     <Compile Include="..\PalaceServer\Models\NextActionResult.cs" Link="Models\NextActionResult.cs" />
+    <Compile Include="..\PalaceServer\Models\RawJsonConfigurationResult.cs" Link="Models\RawJsonConfigurationResult.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceAction.cs" Link="Models\ServiceAction.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperties.cs" Link="Models\ServiceProperties.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperty.cs" Link="Models\ServiceProperty.cs" />
@@ -31,6 +33,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="palaceservices.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
