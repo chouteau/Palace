@@ -31,7 +31,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-StopAwaiter.Wait(host.RunAsync());
+StopAwaiter.WaitForStopFromWebApi(host.RunAsync());
 
 await host.StopAsync();
 

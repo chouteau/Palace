@@ -8,17 +8,19 @@ namespace PalaceClient
 {
     public static class StopAwaiter
     {
-        public static void Wait()
+        public const string PALACE_STOPPER_EVENT = "PalaceStopperEvent";
+
+        public static void WaitForStopFromWebApi()
         {
             var mre = new ManualResetEvent(false);
-            AppDomain.CurrentDomain.SetData("StopperEvent", mre);
+            AppDomain.CurrentDomain.SetData(PALACE_STOPPER_EVENT, mre);
             mre.WaitOne();
         }
 
-        public static void Wait(Task task)
+        public static void WaitForStopFromWebApi(Task task)
         {
             var mre = new ManualResetEvent(false);
-            AppDomain.CurrentDomain.SetData("StopperEvent", mre);
+            AppDomain.CurrentDomain.SetData(PALACE_STOPPER_EVENT, mre);
             task.ConfigureAwait(false).GetAwaiter();
             mre.WaitOne();
         }

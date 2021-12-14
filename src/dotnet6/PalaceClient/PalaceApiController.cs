@@ -56,7 +56,7 @@ namespace PalaceClient
         {
             EnsureGoodAuthorization(authorization);
 
-            var mre = AppDomain.CurrentDomain.GetData("StopperEvent") as ManualResetEvent;
+            var mre = AppDomain.CurrentDomain.GetData(StopAwaiter.PALACE_STOPPER_EVENT) as ManualResetEvent;
             if (mre == null)
             {
                 return Ok(new PalaceClient.StopResult
