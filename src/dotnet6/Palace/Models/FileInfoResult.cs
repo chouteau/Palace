@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Palace.Models
 {
-    public class DownloadFileInfo
+    public class FileInfoResult
     {
         public string ZipFileName { get; set; }
         public string Version { get; set; }

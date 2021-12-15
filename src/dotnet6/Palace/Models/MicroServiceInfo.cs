@@ -10,11 +10,13 @@ namespace Palace.Models
     {
         public string Version { get; set; }
         public string Name { get; set; }
-        public string Location { get; set; }
+        public string InstallationFolder { get; set; }
         public string MainFileName { get; set; }
+        public string Arguments { get; set; }
         public bool LocalInstallationExists { get; set; } = false;
         public DateTime? LastWriteTime { get; set; }
-        
+        public bool InstallationFailed { get; set; }
+
         [System.Text.Json.Serialization.JsonIgnore]
         public System.Diagnostics.Process Process { get; set; }
         

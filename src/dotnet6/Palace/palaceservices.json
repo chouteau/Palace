@@ -1,8 +1,19 @@
 [
   {
+    "PackageFileName": "DemoSvc.zip",
     "ServiceName": "DemoSvc",
-    "MainFileName": ".\\host\\demosvc\\DemoSvc.dll",
+    "MainAssembly": "DemoSvc.dll",
     "AdminServiceUrl": "http://localhost:888",
+    "AlwaysStarted": false,
+    "PalaceApiKey": "test"
+  },
+  {
+    "PackageFileName": "DemoSvc2.zip",
+    "ServiceName": "DemoSvc2",
+    "MainAssembly": "DemoSvc.dll",
+    "Arguments": " --port 889",
+    "AdminServiceUrl": "http://localhost:889",
+    "AlwaysStarted": false,
     "PalaceApiKey": "test"
   }
 ]

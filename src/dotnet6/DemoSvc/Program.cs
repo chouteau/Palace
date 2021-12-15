@@ -7,7 +7,24 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         webBuilder.UseKestrel(cfg =>
         {
-            cfg.ListenLocalhost(888);
+            var port = 888;
+            if (args.Any())
+            {
+                var nextisport = false;
+                foreach (var item in args)
+                {
+                    if (nextisport)
+                    {
+                        port = Convert.ToInt32(item);
+                        break;
+                    }
+                    if (item.Equals("--port", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        nextisport = true;
+                    }
+                }
+            }
+            cfg.ListenLocalhost(port);
         });
         webBuilder.Configure((ctx, app) =>
         {

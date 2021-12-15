@@ -52,6 +52,12 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="exclude.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 	<!--<ItemGroup>
 		<InternalsVisibleTo Include ="Palace.Tests"/>
 	</ItemGroup>-->

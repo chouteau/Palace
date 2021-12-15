@@ -1,9 +1,8 @@
 ﻿namespace PalaceServer.Models
 {
-    public class AvailableMicroServiceInfo
+    public class AvailablePackage
     {
-        public string ServiceName { get; set; }
-        public string ZipFileName { get; set; }
+        public string PackageFileName { get; set; }
         public DateTime LastWriteTime { get; set; }
         public string LockedBy { get; set; }
     }

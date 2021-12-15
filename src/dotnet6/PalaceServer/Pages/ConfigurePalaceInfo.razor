@@ -2,9 +2,16 @@
 
 <h3>EditPalace @PalaceInfo.HostName</h3>
 
-<EditForm Model="PalaceInfo" OnValidSubmit="Validate">
-    <InputTextArea @bind-Value="PalaceInfo.RawJsonConfiguration" class="form-control" rows="20">
+<EditForm Model="Configuration" OnValidSubmit="Validate">
+    <ValidationSummary></ValidationSummary>
+    <DataAnnotationsValidator/>
+    <CustomValidator @ref="CustomValidator"></CustomValidator>
+    <InputTextArea @bind-Value="Configuration" class="form-control" rows="20">
 
     </InputTextArea>
+    <small>
+            <ValidationMessage For="() => Configuration"/>
+    </small>
+    <br/>
     <button type="submit" class="btn btn-primary">Save</button>
 </EditForm>

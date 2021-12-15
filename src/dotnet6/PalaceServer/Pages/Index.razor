@@ -6,7 +6,6 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Service Name</th>
             <th>Zip File</th>
             <th>Date</th>
             <th>Locked By</th>
@@ -16,8 +15,7 @@
         @foreach (var item in AvailableMicroServiceList)
        {
         <tr>
-            <td>@item.ServiceName</td>
-            <td>@item.ZipFileName</td>
+            <td>@item.PackageFileName</td>
             <td>@item.LastWriteTime</td>
             <td>@item.LockedBy</td>
         </tr>
@@ -33,6 +31,7 @@
             <th>Os</th>
             <th>Machine Name</th>
             <th>Ip</th>
+            <th>Last Hit</th>
         </tr>
     </thead>
     <tbody>
@@ -47,6 +46,7 @@
             <td>@item.Os</td>
             <td>@item.MachineName</td>
             <td>@item.Ip</td>
+            <td>@item.LastHitDate</td>
         </tr>
        }
     </tbody>

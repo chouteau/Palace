@@ -15,6 +15,7 @@ namespace Palace.Configuration
 			BackupDirectory = @".\backup";
 			UpdateDirectory = @".\update";
 			DownloadDirectory = @".\download";
+			InstallationDirectory = @".\microservices";
 			WaitingUpdateTimeoutInSecond = 30;
 			StopAllMicroServicesWhenStop = false;
 			PalaceServicesFileName = @".\palaceservices.json";
@@ -24,6 +25,7 @@ namespace Palace.Configuration
         public string BackupDirectory { get; set; }
         public string UpdateDirectory { get; set; }
         public string DownloadDirectory { get; set; }
+        public string InstallationDirectory { get; set; }
 
         public string HostName { get; set; }
 
@@ -50,6 +52,10 @@ namespace Palace.Configuration
 			if (DownloadDirectory.StartsWith(@".\"))
 			{
 				DownloadDirectory = System.IO.Path.Combine(currentDirectory, DownloadDirectory.Replace(@".\", string.Empty));
+			}
+			if (InstallationDirectory.StartsWith(@".\"))
+			{
+				InstallationDirectory = System.IO.Path.Combine(currentDirectory, InstallationDirectory.Replace(@".\", string.Empty));
 			}
 		}
 	}

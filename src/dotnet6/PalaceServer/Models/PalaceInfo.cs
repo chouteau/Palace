@@ -6,14 +6,17 @@
         {
 			ParseUserAgent(userAgent);
 			Ip = userHostAddress;
+			LastHitDate = DateTime.Now;
         }
         public string Os { get; set; }
         public string MachineName { get; set; }
         public string HostName { get; set; }
         public string Version { get; set; }
         public string Ip { get; set; }
+        public DateTime LastHitDate { get; set; }
 
         public string RawJsonConfiguration { get; set; }
+        public DateTime? LastConfigurationUpdate { get; set; }
 
         public string Key
         {

@@ -12,7 +12,7 @@ namespace PalaceServer.Pages
         [Inject] Services.PalaceInfoManager PalaceInfoManager { get; set; }
 
 
-        public List<Models.AvailableMicroServiceInfo> AvailableMicroServiceList { get; set; }
+        public List<Models.AvailablePackage> AvailableMicroServiceList { get; set; }
         public List<Models.ExtendedRunningMicroServiceInfo> RunningMicroServiceList { get; set; }
         public IEnumerable<Models.PalaceInfo> PalaceInfoList { get; set; }
 

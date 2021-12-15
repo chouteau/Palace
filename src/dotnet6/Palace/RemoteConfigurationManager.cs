@@ -56,10 +56,13 @@ namespace Palace
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
             httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
             HttpResponseMessage response = null;
+
+            var configFileInfo = new System.IO.FileInfo(PalaceSettings.PalaceServicesFileName);
             try
             {
                 var url = $"/api/microservices/synchronize-configuration";
                 var httpContent = new StringContent(rawJsonConfiguration, Encoding.UTF8, "text/plain");
+                httpClient.DefaultRequestHeaders.IfModifiedSince = configFileInfo.LastWriteTime;
                 response = await httpClient.PostAsync(url, httpContent);
             }
             catch (Exception ex)

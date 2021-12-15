@@ -27,14 +27,14 @@ namespace PalaceServer.Services
 		protected Configuration.PalaceServerSettings Settings { get; }
 		protected PalaceInfoManager PalaceInfoManager { get; }
 
-		public List<Models.AvailableMicroServiceInfo> GetAvailableList()
+		public List<Models.AvailablePackage> GetAvailableList()
 		{
-			Cache.TryGetValue(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY, out List<Models.AvailableMicroServiceInfo> result);
+			Cache.TryGetValue(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY, out List<Models.AvailablePackage> result);
 			if (result != null)
 			{
 				return result;
 			}
-			result = new List<Models.AvailableMicroServiceInfo>();
+			result = new List<Models.AvailablePackage>();
 
 			var zipFileList = from f in System.IO.Directory.GetFiles(Settings.MicroServiceRepositoryFolder, "*.zip", System.IO.SearchOption.AllDirectories)
 					  	      let fileInfo = new System.IO.FileInfo(f)
@@ -42,10 +42,9 @@ namespace PalaceServer.Services
 			
 			foreach (var item in zipFileList)
 			{
-				var info = new Models.AvailableMicroServiceInfo
+				var info = new Models.AvailablePackage
 				{
-					ServiceName = item.Name.Replace(".zip",""),
-					ZipFileName = item.Name,
+					PackageFileName = item.Name,
 					LastWriteTime = item.LastWriteTime
 				};
 				result.Add(info);
@@ -75,13 +74,12 @@ namespace PalaceServer.Services
 			var list = GetAvailableList();
 			var fi = new System.IO.FileInfo(zipFileFullPath);
 			var zipFileName = System.IO.Path.GetFileName(zipFileFullPath);
-			var item = list.FirstOrDefault(i => i.ZipFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
+			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
 			if (item == null)
             {
-				var info = new Models.AvailableMicroServiceInfo
+				var info = new Models.AvailablePackage
 				{
-					ServiceName = zipFileName.Replace(".zip", ""),
-					ZipFileName = zipFileName,
+					PackageFileName = zipFileName,
 					LastWriteTime = fi.LastWriteTime
 				};
 				list.Add(info);
@@ -99,7 +97,7 @@ namespace PalaceServer.Services
             {
 				return;
             }
-
+			palaceInfo.LastHitDate = DateTime.Now;
 			var runningList = GetRunningList();
 
 			var key = $"{palaceInfo.MachineName}.{palaceInfo.HostName}.{runningMicroserviceInfo.ServiceName}".ToLower();
@@ -143,6 +141,7 @@ namespace PalaceServer.Services
 				return;
 			}
 
+			palaceInfo.LastHitDate = DateTime.Now;
 			var runningList = GetRunningList();
 
 			var key = $"{palaceInfo.MachineName}.{palaceInfo.HostName}.{serviceProperties.ServiceName}".ToLower();
@@ -176,10 +175,10 @@ namespace PalaceServer.Services
 			OnChanged?.Invoke();
 		}
 
-		private void UnLockDownload(string serviceName)
+		private void UnLockDownload(string packageFileName)
 		{
 			var list = GetAvailableList();
-			var item = list.FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
+			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
 			if (item != null)
 			{
 				item.LockedBy = null;
@@ -187,10 +186,10 @@ namespace PalaceServer.Services
 			OnChanged?.Invoke();
 		}
 
-		private void LockDownload(string serviceName, string palaceInfoKey)
+		private void LockDownload(string packageFileName, string palaceInfoKey)
         {
 			var list = GetAvailableList();
-			var item = list.FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
+			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
 			if (item != null)
             {
 				item.LockedBy = palaceInfoKey;

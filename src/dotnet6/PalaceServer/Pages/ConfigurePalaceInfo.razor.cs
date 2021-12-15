@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Text.Json.Nodes;
 
 namespace PalaceServer.Pages
 {
@@ -11,22 +12,32 @@ namespace PalaceServer.Pages
 
         public Models.PalaceInfo PalaceInfo { get; set; }
         public string Configuration { get; set; }
+        public Services.CustomValidator CustomValidator { get; set; } = new();
 
         protected override void OnInitialized()
         { 
             PalaceInfo = PalaceInfoManager.GetPalaceInfoList().SingleOrDefault(i => i.Key == PalaceName);
-            Configuration = PalaceInfo.RawJsonConfiguration;
+            var node = JsonNode.Parse(PalaceInfo.RawJsonConfiguration);
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            Configuration = node.ToJsonString(options);
         }
 
         protected void Validate()
         {
             try
             {
-                System.Text.Json.JsonSerializer.Deserialize(Configuration, typeof(object));
+                JsonNode.Parse(Configuration);
                 PalaceInfo.RawJsonConfiguration = Configuration;
+                PalaceInfo.LastConfigurationUpdate = DateTime.Now;
             }
-            catch
+            catch(Exception ex)
             {
+                var errors = new Dictionary<string, List<string>>();
+                errors.Add(nameof(Configuration), new List<string> { ex.Message });
+                CustomValidator.DisplayErrors(errors);
             }
         }
     }

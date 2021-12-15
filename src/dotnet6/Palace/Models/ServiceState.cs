@@ -18,5 +18,6 @@ namespace Palace.Models
         UpdateDetected = 4,
         UpdateInProgress = 5,
         Updated = 6,
+        InstallationFailed = 7,
     }
 }

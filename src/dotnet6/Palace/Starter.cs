@@ -99,11 +99,8 @@ namespace Palace
 
                     if (serviceInfo.ServiceState == Models.ServiceState.NotInstalled)
                     {
-                        serviceInfo.Location = System.IO.Path.GetDirectoryName(serviceSettings.MainFileName);
-                        serviceInfo.MainFileName = serviceSettings.MainFileName;
                         Logger.LogInformation("Install this service {0}", serviceInfo.Name);
-                        await ServiceManager.InstallMicroService(serviceInfo);
-                        await Task.Delay(10 * 1000);
+                        await ServiceManager.InstallMicroService(serviceInfo, serviceSettings);
                         continue;
                     }
 
@@ -114,6 +111,7 @@ namespace Palace
 
         public async Task<bool> ApplyAction()
         {
+            var result = false;
             foreach (var item in PalaceSettings.MicroServiceInfoList)
             {
                 var actionResult = await ServiceManager.GetNextAction(item);
@@ -126,16 +124,20 @@ namespace Palace
                         {
                             Logger.LogWarning("start {0} fail", item.ServiceName);
                         }
-                        return true;
+                        result = true;
+                        break;
 
                     case PalaceServer.Models.ServiceAction.Stop:
                         await StopMicroService(item);
-                        return true;
-                    default:
-                        return false;
+                        result = true;
+                        break;
+                }
+                if (result)
+                {
+                    break;
                 }
             }
-            return false;
+            return result;
         }
         public async Task CheckHealth()
         {
@@ -158,6 +160,7 @@ namespace Palace
                 }
                 instancied.ServiceState = Models.ServiceState.Started;
                 info.ServiceState = $"{instancied.ServiceState}";
+                info.ServiceName = item.ServiceName;
                 if (instancied.Process != null)
                 {
                     info.PeakWorkingSet = instancied.Process.PeakWorkingSet64;
@@ -174,10 +177,26 @@ namespace Palace
         {
             foreach (var item in PalaceSettings.MicroServiceInfoList)
             {
+                if (item.InstallationFailed)
+                {
+                    continue;
+                }
                 var instancied = InstanciedServiceList.SingleOrDefault(i => i.Name.Equals(item.ServiceName, StringComparison.InvariantCultureIgnoreCase));
                 if (instancied == null)
                 {
-                    continue;
+                    Logger.LogInformation($"instance of {item.ServiceName} does not exists");
+                    instancied = new Models.MicroServiceInfo();
+                    instancied.Name = item.ServiceName;
+                    instancied.ServiceState = Models.ServiceState.NotInstalled;
+                    await AddInstantiatedService(instancied);
+                    var result = await ServiceManager.InstallMicroService(instancied, item);
+                    if (!result)
+                    {
+                        instancied.ServiceState = Models.ServiceState.InstallationFailed;
+                        item.InstallationFailed = true;
+                        continue;
+                    }
+                    ServiceManager.StartMicroService(instancied);
                 }
 
                 if (instancied.ServiceState == Models.ServiceState.UpdateInProgress)
@@ -187,7 +206,7 @@ namespace Palace
                     continue;
                 }
 
-                var remoteServiceInfo = await ServiceManager.GetAvailableMicroServiceInfo(item);
+                var remoteServiceInfo = await ServiceManager.GetAvailablePackage(item);
                 var totalMinute = (instancied.LastWriteTime.GetValueOrDefault(DateTime.MinValue) - remoteServiceInfo.LastWriteTime).TotalMinutes;
                 if (totalMinute <= 0)
                 {
@@ -199,7 +218,7 @@ namespace Palace
 
                     ServiceManager.BackupMicroServiceFiles(instancied);
 
-                    var update = await ServiceManager.DownloadMicroService(instancied);
+                    var update = await ServiceManager.DownloadPackage(item.PackageFileName);
                     if (update != null)
                     {
                         var stopResult = await ServiceManager.StopRunningMicroService(item);
@@ -290,7 +309,7 @@ namespace Palace
             if (serviceInfo == null)
             {
                 // S'il 'est pas présent localement, on verifie s'il est présent sur le serveur
-                var remoteServiceInfo = await ServiceManager.GetAvailableMicroServiceInfo(serviceSettings);
+                var remoteServiceInfo = await ServiceManager.GetAvailablePackage(serviceSettings);
                 if (remoteServiceInfo == null)
                 {
                     serviceInfo = new Models.MicroServiceInfo();
@@ -301,7 +320,7 @@ namespace Palace
                 else
                 {
                     serviceInfo = new Models.MicroServiceInfo();
-                    serviceInfo.Name = remoteServiceInfo.ServiceName;
+                    serviceInfo.Name = serviceSettings.ServiceName;
                     serviceInfo.ServiceState = Models.ServiceState.NotInstalled;
                 }
             }
@@ -356,7 +375,7 @@ namespace Palace
                     ServiceName = serviceInfo.Name,
                     StartedDate = DateTime.Now,
                     ServiceState = $"{serviceInfo.ServiceState}",
-                    Location = serviceInfo.Location,
+                    Location = serviceInfo.InstallationFolder,
                 });
             }
         }
