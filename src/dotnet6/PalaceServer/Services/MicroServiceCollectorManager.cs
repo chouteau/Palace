@@ -87,6 +87,11 @@ namespace PalaceServer.Services
             else
             {
 				item.LastWriteTime = fi.LastWriteTime;
+			}
+
+            foreach (var running in GetRunningList())
+            {
+				running.NextAction = Models.ServiceAction.ResetInstallationInfo;
             }
 		}
 

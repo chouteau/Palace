@@ -1,0 +1,11 @@
+﻿@page "/uploadpackage"
+
+<PageTitle>Palace Server - UploadPackage</PageTitle>
+
+<EditForm Model="UploadedFile">
+<CustomValidator @ref="CustomValidator"></CustomValidator>
+<ValidationSummary></ValidationSummary>
+Upload Zip File :<br/>
+<InputFile OnChange="@LoadFile" />
+<br/>
+</EditForm>

@@ -73,4 +73,7 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
+var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+loggerFactory.AddProvider(new PalaceServer.Logging.PalaceLoggerProvider(app.Services));
+
 app.Run();

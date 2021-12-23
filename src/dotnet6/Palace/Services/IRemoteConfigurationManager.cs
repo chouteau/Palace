@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Palace
+namespace Palace.Services
 {
-    public interface IAlertNotification
+    public interface IRemoteConfigurationManager
     {
-        void Notify(string message);
+        Task SynchronizeConfiguration();
     }
 }

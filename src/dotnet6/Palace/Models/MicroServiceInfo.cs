@@ -21,5 +21,6 @@ namespace Palace.Models
         public System.Diagnostics.Process Process { get; set; }
         
         public ServiceState ServiceState { get; set; }
+        public string StartFailedMessage { get; set; }
     }
 }

@@ -5,26 +5,29 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Palace
+namespace Palace.Services
 {
     internal class RemoteConfigurationManager : IRemoteConfigurationManager
     {
         public RemoteConfigurationManager(Configuration.PalaceSettings palaceSettings,
             IHttpClientFactory httpClientFactory,
-            ILogger<RemoteConfigurationManager> logger)
+            ILogger<RemoteConfigurationManager> logger,
+            MicroServicesCollectionManager microServicesCollection)
         {
             this.PalaceSettings = palaceSettings;
             this.HttpClientFactory = httpClientFactory;
             this.Logger = logger;   
+            this.MicroServicesCollection = microServicesCollection; 
         }
 
         protected Configuration.PalaceSettings PalaceSettings { get; }
         protected IHttpClientFactory HttpClientFactory { get; } 
-        public ILogger Logger { get; }
+        protected ILogger Logger { get; }
+        protected MicroServicesCollectionManager MicroServicesCollection { get; }
 
         public async Task SynchronizeConfiguration()
         {
-            var rawJsonConfiguration = System.Text.Json.JsonSerializer.Serialize(PalaceSettings.MicroServiceInfoList);
+            var rawJsonConfiguration = System.Text.Json.JsonSerializer.Serialize(MicroServicesCollection.GetList());
             var result = await SynchronizeConfiguration(rawJsonConfiguration);
             if (result == null)
             {
@@ -37,8 +40,11 @@ namespace Palace
             if (!result.Configuration.Equals(rawJsonConfiguration))
             {
                 Logger.LogInformation("Configuration changed detected");
-                var list = System.Text.Json.JsonSerializer.Deserialize<List<Configuration.MicroServiceSettings>>(result.Configuration);
-                PalaceSettings.MicroServiceInfoList = list;
+                var list = System.Text.Json.JsonSerializer.Deserialize<List<Models.MicroServiceSettings>>(result.Configuration);
+                foreach (var item in list)
+                {
+                    MicroServicesCollection.Add(item);
+                }
                 try
                 {
                     System.IO.File.Copy(PalaceSettings.PalaceServicesFileName, $"{PalaceSettings.PalaceServicesFileName}.bak", true);

@@ -1,0 +1,11 @@
+[
+  {
+    "PackageFileName": "DemoSvc.zip",
+    "ServiceName": "DemoSvc",
+    "MainAssembly": "DemoSvc.dll",
+    "Arguments": " --port 12345",
+    "AdminServiceUrl": "http://localhost:12345",
+    "PalaceApiKey": "test"
+  }
+]
+

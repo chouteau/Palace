@@ -5,11 +5,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Palace
+namespace Palace.Services
 {
-    public partial class MicroServicesManager
+    public partial class MicroServicesOrchestrator
     {
-        public async Task<PalaceServer.Models.AvailablePackage> GetAvailablePackage(Configuration.MicroServiceSettings microServiceSettings)
+        public async Task<PalaceServer.Models.AvailablePackage> GetAvailablePackage(Models.MicroServiceSettings microServiceSettings)
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
 
@@ -133,7 +133,7 @@ namespace Palace
             }
         }
 
-        public async Task<PalaceServer.Models.NextActionResult> GetNextAction(Configuration.MicroServiceSettings microServiceSettings)
+        public async Task<PalaceServer.Models.NextActionResult> GetNextAction(Models.MicroServiceSettings microServiceSettings)
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
             httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);

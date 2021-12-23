@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
 
-namespace Palace
+namespace Palace.Services
 {
-    public partial class MicroServicesManager : IMicroServicesManager
+    public partial class MicroServicesOrchestrator : IMicroServicesOrchestrator
     {
-        public MicroServicesManager(ILogger<MicroServicesManager> logger,
+        public MicroServicesOrchestrator(ILogger<MicroServicesOrchestrator> logger,
             IHttpClientFactory httpClientFactory,
             Configuration.PalaceSettings palaceSettings)
         {
@@ -34,14 +34,15 @@ namespace Palace
             var process = new Process();
             process.StartInfo = psi;
             process.EnableRaisingEvents = true;
-            var errorMessages = new List<string>();
             process.ErrorDataReceived += (s, arg) =>
             {
                 if (string.IsNullOrWhiteSpace(arg.Data))
                 {
                     return;
                 }
-                errorMessages.Add(arg.Data);
+                Logger.LogCritical(arg.Data);
+                microServiceInfo.ServiceState = Models.ServiceState.StartFail;
+                microServiceInfo.StartFailedMessage = arg.Data;
             };
 
             try
@@ -52,13 +53,6 @@ namespace Palace
                     microServiceInfo.ServiceState = Models.ServiceState.StartFail;
                 }
                 process.BeginErrorReadLine();
-                if (errorMessages.Any())
-                {
-                    var error = string.Join(System.Environment.NewLine, errorMessages);
-                    Logger.LogError(error);
-                    microServiceInfo.ServiceState = Models.ServiceState.StartFail;
-                    return;
-                }
 
                 microServiceInfo.Process = process;
                 microServiceInfo.ServiceState = Models.ServiceState.Starting;
@@ -71,7 +65,7 @@ namespace Palace
             }
         }
 
-        public async Task<bool> InstallMicroService(Models.MicroServiceInfo microServiceInfo, Configuration.MicroServiceSettings serviceSettings)
+        public async Task<bool> InstallMicroService(Models.MicroServiceInfo microServiceInfo, Models.MicroServiceSettings serviceSettings)
         {
             microServiceInfo.InstallationFolder = System.IO.Path.Combine(PalaceSettings.InstallationDirectory, serviceSettings.ServiceName);
             microServiceInfo.MainFileName = serviceSettings.MainAssembly;
@@ -111,7 +105,7 @@ namespace Palace
             return true;
         }
 
-        public async Task UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string zipFileName)
+        public async Task UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string packageFileName)
         {
             var version = 1;
             string extractDirectory = null;
@@ -126,7 +120,7 @@ namespace Palace
                 }
                 break;
             }
-            System.IO.Compression.ZipFile.ExtractToDirectory(zipFileName, extractDirectory, true);
+            System.IO.Compression.ZipFile.ExtractToDirectory(packageFileName, extractDirectory, true);
 
             // Deploy dans son repertoire d'installation
             await DeployMicroService(microServiceInfo, extractDirectory);
@@ -134,6 +128,13 @@ namespace Palace
 
         public void BackupMicroServiceFiles(Models.MicroServiceInfo microServiceInfo)
         {
+            if (!System.IO.Directory.Exists(microServiceInfo.InstallationFolder))
+            {
+                // Le service n'est pas encore installé
+                Logger.LogInformation("No backup for not already installed service {0}", microServiceInfo.Name);
+                return;
+            }
+
             var fileList = from f in System.IO.Directory.GetFiles(microServiceInfo.InstallationFolder, "*.*", SearchOption.AllDirectories)
                            select f;
 
@@ -151,59 +152,6 @@ namespace Palace
                 }
                 System.IO.File.Copy(file, destinationFile);
             }
-        }
-
-
-        public async Task<PalaceClient.RunningMicroserviceInfo> GetRunningMicroServiceInfo(Configuration.MicroServiceSettings microServiceSettings)
-        {
-            var httpClient = HttpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {microServiceSettings.PalaceApiKey}");
-            HttpResponseMessage response = null;
-            try
-            {
-                var url = $"{microServiceSettings.AdminServiceUrl}/api/palace/infos";
-                response = await httpClient.GetAsync(url);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return null;
-            }
-
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<PalaceClient.RunningMicroserviceInfo>();
-            return result;
-        }
-
-        public async Task<PalaceClient.StopResult> StopRunningMicroService(Configuration.MicroServiceSettings microServiceSettings)
-        {
-            var httpClient = HttpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {microServiceSettings.PalaceApiKey}");
-            HttpResponseMessage response = null;
-            try
-            {
-                Logger.LogInformation("Try to stop service {0}", microServiceSettings.ServiceName);
-                var url = $"{microServiceSettings.AdminServiceUrl}/api/palace/stop";
-                response = await httpClient.GetAsync(url);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return null;
-            }
-
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                Logger.LogWarning("Stop service {0} failed", microServiceSettings.ServiceName);
-                return null;
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<PalaceClient.StopResult>();
-            return result;
         }
 
         public bool KillProcess(Models.MicroServiceInfo msi)
@@ -227,7 +175,7 @@ namespace Palace
             return false;
         }
 
-        public Models.MicroServiceInfo GetLocallyInstalledMicroServiceInfo(Configuration.MicroServiceSettings microServiceSettings)
+        public Models.MicroServiceInfo GetLocallyInstalledMicroServiceInfo(Models.MicroServiceSettings microServiceSettings)
         {
             Models.MicroServiceInfo result = null;
             var directoryName = System.IO.Path.Combine(PalaceSettings.InstallationDirectory, microServiceSettings.ServiceName);
@@ -251,7 +199,6 @@ namespace Palace
 
             return result;
         }
-
 
         private string GetNewBackupDirectory(Models.MicroServiceInfo microServiceInfo)
         {
@@ -291,7 +238,7 @@ namespace Palace
 
                 if (System.IO.Path.GetFileName(destFile).Equals(microServiceInfo.MainFileName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var lastWriteTime = DateTime.Now.AddMinutes(1);
+                    var lastWriteTime = DateTime.Now.AddSeconds(10);
                     File.SetLastWriteTime(destFile, lastWriteTime);
                     microServiceInfo.LastWriteTime = lastWriteTime;
                 }

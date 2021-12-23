@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using PalaceClient;
+using DemoSvc;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(webBuilder =>
@@ -8,21 +9,10 @@ IHost host = Host.CreateDefaultBuilder(args)
         webBuilder.UseKestrel(cfg =>
         {
             var port = 888;
-            if (args.Any())
+            var portCommandLine = args.GetParameterValue("port");
+            if (!string.IsNullOrWhiteSpace(portCommandLine))
             {
-                var nextisport = false;
-                foreach (var item in args)
-                {
-                    if (nextisport)
-                    {
-                        port = Convert.ToInt32(item);
-                        break;
-                    }
-                    if (item.Equals("--port", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        nextisport = true;
-                    }
-                }
+                port = Convert.ToInt32(portCommandLine);
             }
             cfg.ListenLocalhost(port);
         });
@@ -47,6 +37,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         });
     })
     .Build();
+
+if (!string.IsNullOrWhiteSpace(System.Environment.GetCommandLineArgs().GetParameterValue("crash")))
+{
+    throw new Exception();
+}
 
 StopAwaiter.WaitForStopFromWebApi(host.RunAsync());
 
