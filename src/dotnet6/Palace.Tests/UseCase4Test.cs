@@ -45,6 +45,7 @@ namespace Palace.Tests
             settings.PalaceServicesFileName = null;
 
             var starter = host.Services.GetRequiredService<Palace.Services.IStarter>();
+            var palaceSettings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
 
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
             msm.Add(new Models.MicroServiceSettings
@@ -74,7 +75,7 @@ namespace Palace.Tests
             TestsHelper.PublishDemoProject(host);
 
             // Temps de mise à jour du package LastWriteTime
-            await Task.Delay(12 * 1000);
+            await Task.Delay((palaceSettings.ScanIntervalInSeconds + 2) * 1000);
 
             await starter.CheckHealth();
             await starter.CheckUpdate();

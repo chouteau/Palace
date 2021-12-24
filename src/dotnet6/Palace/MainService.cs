@@ -26,9 +26,10 @@ namespace Palace
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
 			await Starter.Start();
-		}
+			await base.StartAsync(cancellationToken);
+        }
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{

@@ -21,12 +21,22 @@
             </NavLink>
         </div>
     </nav>
+    <div class="text-center">
+        <small class="text-white">Version : @version</small>
+    </div>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private string version = "1.0.0.0";
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override void OnInitialized()
+    {
+        version = $"{typeof(Program).Assembly.GetName()?.Version}";
+        base.OnInitialized();
+    }
 
     private void ToggleNavMenu()
     {

@@ -22,7 +22,7 @@ namespace Palace.Services
             }
             catch (Exception ex)
             {
-                Logger.LogCritical("Bind micro services collection from fileName fail", ex.Message);
+                Logger.LogCritical("Bind micro services collection from fileName fail with error : {0}", ex.Message);
             }
         }
 

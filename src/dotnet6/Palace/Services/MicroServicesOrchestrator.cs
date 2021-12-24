@@ -238,7 +238,7 @@ namespace Palace.Services
 
                 if (System.IO.Path.GetFileName(destFile).Equals(microServiceInfo.MainFileName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var lastWriteTime = DateTime.Now.AddSeconds(10);
+                    var lastWriteTime = DateTime.Now.AddSeconds(PalaceSettings.ScanIntervalInSeconds + 1);
                     File.SetLastWriteTime(destFile, lastWriteTime);
                     microServiceInfo.LastWriteTime = lastWriteTime;
                 }
