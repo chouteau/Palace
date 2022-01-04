@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Palace.Tests
 {
-    internal class PalaceServerApplication : WebApplicationFactory<Program>
+    internal class PalaceServerApplication : WebApplicationFactory<global::PalaceServer.App>
     {
         public PalaceServerApplication(Palace.Configuration.PalaceSettings palaceSettings)
         {

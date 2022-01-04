@@ -17,12 +17,13 @@ namespace PalaceClient
             mre.WaitOne();
         }
 
-        public static void WaitForStopFromWebApi(Task task)
+        public static Task WaitForStopFromWebApi(this Task task)
         {
             var mre = new ManualResetEvent(false);
             AppDomain.CurrentDomain.SetData(PALACE_STOPPER_EVENT, mre);
             task.ConfigureAwait(false).GetAwaiter();
             mre.WaitOne();
+            return task;
         }
 
     }

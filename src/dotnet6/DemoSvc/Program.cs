@@ -38,12 +38,14 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
+await host.StartAsync();
+
 if (!string.IsNullOrWhiteSpace(System.Environment.GetCommandLineArgs().GetParameterValue("crash")))
 {
     throw new Exception();
 }
 
-StopAwaiter.WaitForStopFromWebApi(host.RunAsync());
+StopAwaiter.WaitForStopFromWebApi();
 
 await host.StopAsync();
 

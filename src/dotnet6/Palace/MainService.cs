@@ -49,6 +49,7 @@ namespace Palace
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
 			await Starter.Stop();
+			await base.StopAsync(cancellationToken);
 		}
 	}
 }

@@ -25,15 +25,14 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllers();
 
 builder.Services.AddSingleton(palaceSettings);
 builder.Services.AddSingleton<PalaceServer.Services.LogCollector>();
 builder.Services.AddSingleton<PalaceServer.Services.MicroServiceCollectorManager>();
 builder.Services.AddSingleton<PalaceServer.Services.PalaceInfoManager>();
-builder.Services.AddHostedService<PalaceServer.Services.ZipRepositoryWatcher>();   
-
-builder.Services.AddControllers();
 builder.Services.AddSingleton<PalaceServer.Services.AdminLoginContext>();
+builder.Services.AddHostedService<PalaceServer.Services.ZipRepositoryWatcher>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
