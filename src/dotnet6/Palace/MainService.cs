@@ -8,49 +8,48 @@ namespace Palace
 {
 	public class MainService : BackgroundService
 	{
-		private bool _running = false;
-
-		public MainService(IStarter starter, IServiceProvider serviceProvider,
+		public MainService(Services.IStarter starter, 
+			Services.IRemoteConfigurationManager remoteConfigurationManager,
 			Configuration.PalaceSettings palaceSettings)
 		{
-			this.ServiceProvider = serviceProvider;
+			this.Starter = starter;
+			this.RemoteConfigurationManager = remoteConfigurationManager;
 			this.PalaceSettings = palaceSettings;
 		}
 
 		protected Configuration.PalaceSettings PalaceSettings { get; }
-		protected IServiceProvider ServiceProvider { get; }
+		protected Services.IStarter Starter { get; }
+		protected Services.IRemoteConfigurationManager RemoteConfigurationManager { get; }
+
 		protected System.Timers.Timer Timer { get; }
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
+        {
+			await Starter.Start();
+			await base.StartAsync(cancellationToken);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				var starter = ServiceProvider.GetRequiredService<IStarter>();
-				if (!_running)
+				var applyAction = await Starter.ApplyAction();
+				if (!applyAction)
 				{
-					await starter.Start();
-					_running = true;
+					await Starter.CheckHealth();
+					await Starter.CheckUpdate();
 				}
-				else
-				{
-					var applyAction = await starter.ApplyAction();
-					if (!applyAction)
-					{
-						await starter.CheckHealth();
-						await starter.CheckUpdate();
-					}
-				}
+				
+				await RemoteConfigurationManager.SynchronizeConfiguration();
+
 				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 			}
 		}
 
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
-			var starter = ServiceProvider.GetRequiredService<IStarter>();
-			if (_running)
-			{
-				await starter.Stop();
-			}
+			await Starter.Stop();
+			await base.StopAsync(cancellationToken);
 		}
 	}
 }

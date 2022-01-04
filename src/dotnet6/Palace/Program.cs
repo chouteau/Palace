@@ -1,6 +1,9 @@
 #define FOR_WINDOWS
 
 using Palace;
+using Palace.Extensions;
+
+// [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Palace.Tests")]
 
 var configuration = new ConfigurationBuilder()
                     .AddJsonFile("appSettings.json")
@@ -15,9 +18,11 @@ var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddSingleton(palaceSettings);
-        services.AddTransient<IStarter, Starter>();
-        services.AddTransient<IMicroServicesManager, MicroServicesManager>();
-        services.AddTransient<IAlertNotification, VoidAlertNotification>();
+        services.AddSingleton<Palace.Services.IStarter, Palace.Services.Starter>();
+        services.AddSingleton<Palace.Services.IRemoteConfigurationManager, Palace.Services.RemoteConfigurationManager>();
+
+        services.AddTransient<Palace.Services.IMicroServicesOrchestrator, Palace.Services.MicroServicesOrchestrator>();
+        services.AddSingleton<Palace.Services.MicroServicesCollectionManager>();
 
         services.AddLogging(configure =>
         {

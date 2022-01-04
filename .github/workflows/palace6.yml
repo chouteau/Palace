@@ -26,3 +26,4 @@ jobs:
         PACKAGE_NAME: PalaceClient
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
+

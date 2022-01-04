@@ -5,6 +5,7 @@
         DoNothing = 0,
         Start = 1,
         Stop = 2,
-        Restart = 3
+        Restart = 3,
+        ResetInstallationInfo = 4
     }
 }

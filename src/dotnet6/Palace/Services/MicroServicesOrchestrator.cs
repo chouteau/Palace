@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
 
-namespace Palace
+namespace Palace.Services
 {
-    public partial class MicroServicesManager : IMicroServicesManager
+    public partial class MicroServicesOrchestrator : IMicroServicesOrchestrator
     {
-        public MicroServicesManager(ILogger<MicroServicesManager> logger,
+        public MicroServicesOrchestrator(ILogger<MicroServicesOrchestrator> logger,
             IHttpClientFactory httpClientFactory,
             Configuration.PalaceSettings palaceSettings)
         {
@@ -23,7 +23,8 @@ namespace Palace
             Logger.LogInformation($"Try to start {microServiceInfo.Name} with {microServiceInfo.MainFileName}");
             var psi = new System.Diagnostics.ProcessStartInfo("dotnet");
 
-            psi.Arguments = microServiceInfo.MainFileName;
+            var mainFileName = System.IO.Path.Combine(PalaceSettings.InstallationDirectory, microServiceInfo.Name, microServiceInfo.MainFileName);
+            psi.Arguments = $"{mainFileName} {microServiceInfo.Arguments}".Trim();
             psi.CreateNoWindow = false;
             psi.UseShellExecute = false;
             psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
@@ -33,14 +34,15 @@ namespace Palace
             var process = new Process();
             process.StartInfo = psi;
             process.EnableRaisingEvents = true;
-            var errorMessages = new List<string>();
             process.ErrorDataReceived += (s, arg) =>
             {
                 if (string.IsNullOrWhiteSpace(arg.Data))
                 {
                     return;
                 }
-                errorMessages.Add(arg.Data); 
+                Logger.LogCritical(arg.Data);
+                microServiceInfo.ServiceState = Models.ServiceState.StartFail;
+                microServiceInfo.StartFailedMessage = arg.Data;
             };
 
             try
@@ -51,13 +53,6 @@ namespace Palace
                     microServiceInfo.ServiceState = Models.ServiceState.StartFail;
                 }
                 process.BeginErrorReadLine();
-                if (errorMessages.Any())
-                {
-                    var error = string.Join(System.Environment.NewLine, errorMessages);
-                    Logger.LogError(error);
-                    microServiceInfo.ServiceState = Models.ServiceState.StartFail;
-                    return;
-                }
 
                 microServiceInfo.Process = process;
                 microServiceInfo.ServiceState = Models.ServiceState.Starting;
@@ -65,19 +60,24 @@ namespace Palace
             catch (Exception ex)
             {
                 ex.Data.Add("ServiceName", microServiceInfo.Name);
-                ex.Data.Add("ServiceLocation", microServiceInfo.Location);
+                ex.Data.Add("ServiceLocation", microServiceInfo.InstallationFolder);
                 Logger.LogError(ex, ex.Message);
             }
         }
 
-        public async Task InstallMicroService(Models.MicroServiceInfo microServiceInfo)
+        public async Task<bool> InstallMicroService(Models.MicroServiceInfo microServiceInfo, Models.MicroServiceSettings serviceSettings)
         {
+            microServiceInfo.InstallationFolder = System.IO.Path.Combine(PalaceSettings.InstallationDirectory, serviceSettings.ServiceName);
+            microServiceInfo.MainFileName = serviceSettings.MainAssembly;
+            microServiceInfo.Arguments = serviceSettings.Arguments;
+
+            Logger.LogInformation("Try to install MicroService{0} in {1}", microServiceInfo.MainFileName, microServiceInfo.InstallationFolder);
             // On recupere le zip sur le serveur
-            var zipFileInfo = await DownloadMicroService(microServiceInfo);
+            var zipFileInfo = await DownloadPackage(serviceSettings.PackageFileName);
             if (zipFileInfo == null)
             {
                 Logger.LogWarning("Download zipfile for service {0} failed", microServiceInfo.Name);
-                return;
+                return false;
             }
 
             var version = 1;
@@ -102,9 +102,10 @@ namespace Palace
 
             // Deploy dans son repertoire d'installation
             await DeployMicroService(microServiceInfo, extractDirectory);
+            return true;
         }
 
-        public async Task UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string zipFileName)
+        public async Task UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string packageFileName)
         {
             var version = 1;
             string extractDirectory = null;
@@ -119,7 +120,7 @@ namespace Palace
                 }
                 break;
             }
-            System.IO.Compression.ZipFile.ExtractToDirectory(zipFileName, extractDirectory, true);
+            System.IO.Compression.ZipFile.ExtractToDirectory(packageFileName, extractDirectory, true);
 
             // Deploy dans son repertoire d'installation
             await DeployMicroService(microServiceInfo, extractDirectory);
@@ -127,7 +128,14 @@ namespace Palace
 
         public void BackupMicroServiceFiles(Models.MicroServiceInfo microServiceInfo)
         {
-            var fileList = from f in System.IO.Directory.GetFiles(microServiceInfo.Location, "*.*", SearchOption.AllDirectories)
+            if (!System.IO.Directory.Exists(microServiceInfo.InstallationFolder))
+            {
+                // Le service n'est pas encore installé
+                Logger.LogInformation("No backup for not already installed service {0}", microServiceInfo.Name);
+                return;
+            }
+
+            var fileList = from f in System.IO.Directory.GetFiles(microServiceInfo.InstallationFolder, "*.*", SearchOption.AllDirectories)
                            select f;
 
             var backupDirectory = GetNewBackupDirectory(microServiceInfo);
@@ -135,7 +143,7 @@ namespace Palace
 
             foreach (var file in fileList)
             {
-                var destinationFile = file.Replace(microServiceInfo.Location, string.Empty).Trim('\\');
+                var destinationFile = file.Replace(microServiceInfo.InstallationFolder, string.Empty).Trim('\\');
                 destinationFile = System.IO.Path.Combine(backupDirectory, destinationFile);
                 var destinationDirectory = System.IO.Path.GetDirectoryName(destinationFile);
                 if (!System.IO.Directory.Exists(destinationDirectory))
@@ -146,68 +154,34 @@ namespace Palace
             }
         }
 
-
-        public async Task<PalaceClient.RunningMicroserviceInfo> GetRunningMicroServiceInfo(Configuration.MicroServiceSettings microServiceSettings)
+        public bool KillProcess(Models.MicroServiceInfo msi)
         {
-            var httpClient = HttpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {microServiceSettings.PalaceApiKey}");
-            HttpResponseMessage response = null;
+            if (msi == null
+                || msi.Process == null)
+            {
+                return true;
+            }
             try
             {
-                var url = $"{microServiceSettings.AdminServiceUrl}/api/palace/infos";
-                response = await httpClient.GetAsync(url);
+                Logger.LogWarning("Try to kill service {0} on processId {1}", msi.Name, msi.Process.Id);
+                msi.Process.Kill(true);
+                msi.Process = null;
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
-                return null;
             }
-
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<PalaceClient.RunningMicroserviceInfo>();
-            return result;
+            return false;
         }
 
-        public async Task<PalaceClient.StopResult> StopRunningMicroService(Configuration.MicroServiceSettings microServiceSettings)
-        {
-            var httpClient = HttpClientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {microServiceSettings.PalaceApiKey}");
-            HttpResponseMessage response = null;
-            try
-            {
-                Logger.LogInformation("Try to stop service {0}", microServiceSettings.ServiceName);
-                var url = $"{microServiceSettings.AdminServiceUrl}/api/palace/stop";
-                response = await httpClient.GetAsync(url);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, ex.Message);
-                return null;
-            }
-
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                Logger.LogWarning("Stop service {0} failed", microServiceSettings.ServiceName);
-                return null;
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<PalaceClient.StopResult>();
-            return result;
-        }
-
-        public Models.MicroServiceInfo GetLocallyInstalledMicroServiceInfo(Configuration.MicroServiceSettings microServiceSettings)
+        public Models.MicroServiceInfo GetLocallyInstalledMicroServiceInfo(Models.MicroServiceSettings microServiceSettings)
         {
             Models.MicroServiceInfo result = null;
-            if (microServiceSettings.MainFileName.StartsWith(@".\"))
-            {
-                var directoryName = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
-                microServiceSettings.MainFileName = System.IO.Path.Combine(directoryName, microServiceSettings.MainFileName.Replace(@".\", ""));
-            }
-            var fileInfo = new System.IO.FileInfo(microServiceSettings.MainFileName);
+            var directoryName = System.IO.Path.Combine(PalaceSettings.InstallationDirectory, microServiceSettings.ServiceName);
+            var mainAssemblyFileName = System.IO.Path.Combine(directoryName, microServiceSettings.MainAssembly.Replace(@".\", ""));
+
+            var fileInfo = new System.IO.FileInfo(mainAssemblyFileName);
             if (!fileInfo.Exists)
             {
                 return null;
@@ -215,8 +189,9 @@ namespace Palace
 
             result = new Models.MicroServiceInfo
             {
-                Location = fileInfo.DirectoryName,
-                MainFileName = microServiceSettings.MainFileName,
+                InstallationFolder = directoryName,
+                MainFileName =  microServiceSettings.MainAssembly,
+                Arguments = microServiceSettings.Arguments,
                 Name = microServiceSettings.ServiceName,
                 LocalInstallationExists = true,
                 LastWriteTime = fileInfo.LastWriteTime
@@ -224,7 +199,6 @@ namespace Palace
 
             return result;
         }
-
 
         private string GetNewBackupDirectory(Models.MicroServiceInfo microServiceInfo)
         {
@@ -247,12 +221,12 @@ namespace Palace
         {
             var fileList = System.IO.Directory.GetFiles(unZipFolder, "*.*", System.IO.SearchOption.AllDirectories);
             
-            Logger.LogInformation($"try to deploy {fileList.Count()} files from {unZipFolder} to {microServiceInfo.Location}");
+            Logger.LogInformation($"try to deploy {fileList.Count()} files from {unZipFolder} to {microServiceInfo.InstallationFolder}");
 
             foreach (var sourceFile in fileList)
             {
                 var destFile = sourceFile.Replace(unZipFolder, "").Trim('\\');
-                destFile = System.IO.Path.Combine(microServiceInfo.Location, destFile);
+                destFile = System.IO.Path.Combine(microServiceInfo.InstallationFolder,  destFile);
 
                 var destDirectory = System.IO.Path.GetDirectoryName(destFile);
                 if (!System.IO.Directory.Exists(destDirectory))
@@ -262,16 +236,16 @@ namespace Palace
 
                 await CopyUpdateFile(sourceFile, destFile);
 
-                if (destFile.Equals(microServiceInfo.MainFileName, StringComparison.InvariantCultureIgnoreCase))
+                if (System.IO.Path.GetFileName(destFile).Equals(microServiceInfo.MainFileName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var lastWriteTime = DateTime.Now.AddMinutes(1);
+                    var lastWriteTime = DateTime.Now.AddSeconds(PalaceSettings.ScanIntervalInSeconds + 1);
                     File.SetLastWriteTime(destFile, lastWriteTime);
                     microServiceInfo.LastWriteTime = lastWriteTime;
                 }
 
             }
 
-            Logger.LogInformation($"micro service files updated in location {microServiceInfo.Location}");
+            Logger.LogInformation($"micro service files updated in location {microServiceInfo.InstallationFolder}");
         }
 
         private async Task CopyUpdateFile(string sourceFile, string destFile)

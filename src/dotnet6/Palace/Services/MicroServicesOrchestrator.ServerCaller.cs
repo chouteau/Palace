@@ -5,15 +5,15 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Palace
+namespace Palace.Services
 {
-    public partial class MicroServicesManager
+    public partial class MicroServicesOrchestrator
     {
-        public async Task<PalaceServer.Models.AvailableMicroServiceInfo> GetAvailableMicroServiceInfo(Configuration.MicroServiceSettings microServiceSettings)
+        public async Task<PalaceServer.Models.AvailablePackage> GetAvailablePackage(Models.MicroServiceSettings microServiceSettings)
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
 
-            var url = $"{PalaceSettings.UpdateServerUrl}/api/microservices/info/{microServiceSettings.ServiceName}";
+            var url = $"{PalaceSettings.UpdateServerUrl}/api/microservices/info/{microServiceSettings.PackageFileName}";
             HttpResponseMessage response = null;
             try
             {
@@ -31,16 +31,16 @@ namespace Palace
                 return null;
             }
 
-            var remoteServiceInfo = await response.Content.ReadFromJsonAsync<PalaceServer.Models.AvailableMicroServiceInfo>();
+            var remoteServiceInfo = await response.Content.ReadFromJsonAsync<PalaceServer.Models.AvailablePackage>();
             return remoteServiceInfo;
         }
 
-        public async Task<Models.DownloadFileInfo> DownloadMicroService(Models.MicroServiceInfo microServiceInfo)
+        public async Task<Models.FileInfoResult> DownloadPackage(string packageFileName)
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
             httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
 
-            var url = $"/api/microservices/download/{microServiceInfo.Name}";
+            var url = $"/api/microservices/download/{packageFileName}";
             HttpResponseMessage response = null;
             try
             {
@@ -54,20 +54,20 @@ namespace Palace
 
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                Logger.LogWarning("service {0} response fail for {1}", microServiceInfo.Name, url);
+                Logger.LogWarning("response fail for download {0}", url);
                 return null;
             }
 
             if (!response.Content.Headers.Contains("content-disposition"))
             {
-                Logger.LogWarning("service {0} response fail for {1} header content-disposition not found", microServiceInfo.Name, url);
+                Logger.LogWarning("response fail for {0} header content-disposition not found", url);
                 return null;
             }
 
             var contentDisposition = response.Content.Headers.GetValues("content-disposition").FirstOrDefault();
             if (string.IsNullOrWhiteSpace(contentDisposition))
             {
-                Logger.LogWarning("service {0} response fail for {1} header content-disposition empty", microServiceInfo.Name, url);
+                Logger.LogWarning("response fail for {0} header content-disposition empty", url);
                 return null;
             }
 
@@ -76,7 +76,7 @@ namespace Palace
                 System.IO.Directory.CreateDirectory(PalaceSettings.DownloadDirectory);
             }
 
-            var result = new Models.DownloadFileInfo();
+            var result = new Models.FileInfoResult();
             result.ZipFileName = System.IO.Path.Combine(PalaceSettings.DownloadDirectory, contentDisposition.Split(';')[1].Split('=')[1]);
 
             if (File.Exists(result.ZipFileName))
@@ -133,7 +133,7 @@ namespace Palace
             }
         }
 
-        public async Task<PalaceServer.Models.NextActionResult> GetNextAction(Configuration.MicroServiceSettings microServiceSettings)
+        public async Task<PalaceServer.Models.NextActionResult> GetNextAction(Models.MicroServiceSettings microServiceSettings)
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
             httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);

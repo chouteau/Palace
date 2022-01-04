@@ -2,7 +2,7 @@
   "profiles": {
     "DemoSvc": {
       "commandName": "Project",
-      "commandLineArgs": "--port 888",
+      "commandLineArgs": "--port 889",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },

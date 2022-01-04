@@ -1,5 +1,4 @@
 ﻿@page "/"
-@attribute [Authorize]
 
 <PageTitle>Palace Server - Dashboard</PageTitle>
 
@@ -7,7 +6,6 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Service Name</th>
             <th>Zip File</th>
             <th>Date</th>
             <th>Locked By</th>
@@ -17,8 +15,7 @@
         @foreach (var item in AvailableMicroServiceList)
        {
         <tr>
-            <td>@item.ServiceName</td>
-            <td>@item.ZipFileName</td>
+            <td>@item.PackageFileName</td>
             <td>@item.LastWriteTime</td>
             <td>@item.LockedBy</td>
         </tr>
@@ -30,20 +27,28 @@
 <table class="table table-bordered">
     <thead>
         <tr>
+            <th>Host Name</th>
+            <th>Version</th>
             <th>Os</th>
             <th>Machine Name</th>
-            <th>Host Name</th>
             <th>Ip</th>
+            <th>Last Hit</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in PalaceInfoList)
        {
         <tr>
+            <td>
+                <a href="/palace/configuration/@item.Key">
+                    @item.HostName
+                </a>
+            </td>
+            <td>@item.Version</td>
             <td>@item.Os</td>
             <td>@item.MachineName</td>
-            <td>@item.HostName</td>
             <td>@item.Ip</td>
+            <td>@item.LastHitDate</td>
         </tr>
        }
     </tbody>
@@ -90,7 +95,7 @@
             <td>
                 <button class="btn btn-primary" @onclick="() => Start(item)">Start</button>
                 <button class="btn btn-primary" @onclick="() => Stop(item)">Stop</button>
-                <button class="btn btn-primary">Restart</button>
+                <!--<button class="btn btn-primary">Restart</button>-->
             </td>
         </tr>
        }

@@ -33,4 +33,10 @@
     <ProjectReference Include="..\Palace\Palace.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="palaceservices.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -196,3 +196,4 @@ ModelManifest.xml
 /.vs
 /host/demosvc
 /server
+/src/dotnet6/PalaceServer/.config

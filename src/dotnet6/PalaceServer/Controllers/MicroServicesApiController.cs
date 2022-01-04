@@ -33,49 +33,50 @@ namespace PalaceServer.Controllers
         }
 
         [HttpGet]
-        [Route("download/{serviceName}")]
-        public IActionResult DownloadMicroService([FromHeader] string authorization, string serviceName)
+        [Route("download/{packageFileName}")]
+        public IActionResult DownloadPackage([FromHeader] string authorization, string packageFileName)
         {
-            if (string.IsNullOrWhiteSpace(serviceName))
+            if (string.IsNullOrWhiteSpace(packageFileName))
             {
-                return BadRequest($"Bad serviceName {serviceName}");
+                return BadRequest();
             }
 
             EnsureGoodAuthorization(authorization);
 
             var list = Collector.GetAvailableList();
-            var serviceInfo = list.FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
-            if (serviceName == null)
+            var serviceInfo = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
+            if (serviceInfo == null)
             {
-                return NotFound($"this service name {serviceName} does not exist");
+                return NotFound($"this service name {packageFileName} does not exist");
             }
 
             var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
+
             if (serviceInfo.LockedBy != null
                 && serviceInfo.LockedBy != palaceInfo.Key)
             {
                 return NoContent();
             }
 
-            var fileName = System.IO.Path.Combine(PalaceServerSettings.MicroServiceRepositoryFolder, serviceInfo.ZipFileName);
+            var fileName = System.IO.Path.Combine(PalaceServerSettings.MicroServiceRepositoryFolder, packageFileName);
 
             var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-            return File(stream, "application/zip", serviceInfo.ZipFileName);
+            return File(stream, "application/zip", packageFileName);
         }
 
         [HttpGet]
-        [Route("info/{serviceName}")]
-        public IActionResult GetMicroServicesInfo([FromHeader] string authorization, string serviceName)
+        [Route("info/{packageFileName}")]
+        public IActionResult GetMicroServicesInfo([FromHeader] string authorization, string packageFileName)
         {
-            if (string.IsNullOrWhiteSpace(serviceName))
+            if (string.IsNullOrWhiteSpace(packageFileName))
             {
-                return BadRequest($"Bad serviceName {serviceName}");
+                return BadRequest($"Bad packageName {packageFileName}");
             }
 
             EnsureGoodAuthorization(authorization);
 
             var list = Collector.GetAvailableList();
-            var serviceInfo = list.FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
+            var serviceInfo = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
             return Ok(serviceInfo);
         }
 
@@ -113,6 +114,8 @@ namespace PalaceServer.Controllers
         [Route("getnextaction/{serviceName}")]
         public IActionResult GetAction([FromHeader] string authorization, string serviceName)
         {
+            EnsureGoodAuthorization(authorization);
+
             var svc = Collector.GetRunningList().FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
             if (svc == null)
             {
@@ -128,6 +131,45 @@ namespace PalaceServer.Controllers
             return Ok(new Models.NextActionResult
             {
                 Action = nextAction
+            });
+        }
+
+        [HttpPost]
+        [Route("synchronize-configuration")]
+        public async Task<IActionResult> SynchronizeConfiguration([FromHeader] string authorization)
+        {
+            EnsureGoodAuthorization(authorization);
+
+            var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
+            if (palaceInfo == null)
+            {
+                return NoContent();
+            }
+
+            using var reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8);
+            var configuration = await reader.ReadToEndAsync();
+
+            if (string.IsNullOrWhiteSpace(palaceInfo.RawJsonConfiguration))
+            {
+                palaceInfo.RawJsonConfiguration = configuration;
+            }
+
+            var lastModifiedHeader = $"{Request.Headers["If-Modified-Since"]}";
+            if (lastModifiedHeader != null)
+            {
+                DateTime.TryParse(lastModifiedHeader, out var lastModified);
+                if (!palaceInfo.LastConfigurationUpdate.HasValue
+                    || lastModified >= palaceInfo.LastConfigurationUpdate.Value)
+                {
+                    return NoContent();
+                }
+            }
+
+            configuration = palaceInfo.RawJsonConfiguration;
+
+            return Ok(new Models.RawJsonConfigurationResult
+            {
+                Configuration = configuration
             });
         }
 
