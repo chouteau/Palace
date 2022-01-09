@@ -127,6 +127,9 @@ namespace PalaceServer.Services
 			rms.PeakPagedMem = runningMicroserviceInfo.PeakPagedMem;
 			rms.PeakVirtualMem = runningMicroserviceInfo.PeakVirtualMem;	
 			rms.PeakWorkingSet = runningMicroserviceInfo.PeakWorkingSet;
+			rms.AdminUrl = runningMicroserviceInfo.AdminUrl;
+			rms.EnvironmentName = runningMicroserviceInfo.EnvironmentName;
+			rms.PalaceClientVersion =	runningMicroserviceInfo.PalaceClientVersion;	
 			if (rms.ServiceState == "Started")
 			{
 				UnLockDownload(rms.ServiceName);

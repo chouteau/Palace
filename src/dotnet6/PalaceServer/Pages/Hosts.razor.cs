@@ -5,24 +5,13 @@ using System.Security.Claims;
 
 namespace PalaceServer.Pages
 {
-    public partial class Index
+    public partial class Hosts
     {
         [Inject] ILogger<Index> Logger { get; set; }
         [Inject] Services.MicroServiceCollectorManager MicroServicesCollector { get; set; }
         [Inject] Services.PalaceInfoManager PalaceInfoManager { get; set; }
 
-
-        public List<Models.ExtendedRunningMicroServiceInfo> RunningMicroServiceList { get; set; }
-
-        public void Stop(Models.ExtendedRunningMicroServiceInfo ermsi)
-        {
-            ermsi.NextAction = Models.ServiceAction.Stop;
-        }
-
-        public void Start(Models.ExtendedRunningMicroServiceInfo ermsi)
-        {
-            ermsi.NextAction = Models.ServiceAction.Start;
-        }
+        public IEnumerable<Models.PalaceInfo> PalaceInfoList { get; set; }
 
         protected override void OnInitialized()
         {
@@ -39,7 +28,7 @@ namespace PalaceServer.Pages
 
         void UpdateLists()
         {
-            RunningMicroServiceList = MicroServicesCollector.GetRunningList();
+            PalaceInfoList = PalaceInfoManager.GetPalaceInfoList();
         }
 
     }

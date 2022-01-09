@@ -1,0 +1,26 @@
+﻿@page "/packages"
+
+<PageTitle>Palace Server - Packages</PageTitle>
+
+<h2>Available packages</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Zip File</th>
+            <th>Date</th>
+            <th>Locked By</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in AvailablePackageList)
+       {
+        <tr>
+            <td>@item.PackageFileName</td>
+            <td>@item.LastWriteTime</td>
+            <td>@item.LockedBy</td>
+        </tr>
+       }
+    </tbody>
+</table>
+
+

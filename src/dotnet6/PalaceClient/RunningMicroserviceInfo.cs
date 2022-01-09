@@ -17,5 +17,8 @@ namespace PalaceClient
         public long PeakWorkingSet { get; set; }
         public long PeakPagedMem { get; set; }
         public long PeakVirtualMem { get; set; }
+        public string EnvironmentName { get; set; }
+        public string AdminUrl { get; set; }
+        public string PalaceClientVersion { get; set; }
     }
 }

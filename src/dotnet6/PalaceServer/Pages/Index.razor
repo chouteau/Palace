@@ -2,64 +2,14 @@
 
 <PageTitle>Palace Server - Dashboard</PageTitle>
 
-<h2>Available service list :</h2>
+<h2>Running services</h2>
+
+@foreach (var host in RunningMicroServiceList.GroupBy(i => i.PalaceInfo))
+{
+    <h3>@host.Key.Key</h3>
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Zip File</th>
-            <th>Date</th>
-            <th>Locked By</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in AvailableMicroServiceList)
-       {
-        <tr>
-            <td>@item.PackageFileName</td>
-            <td>@item.LastWriteTime</td>
-            <td>@item.LockedBy</td>
-        </tr>
-       }
-    </tbody>
-</table>
-
-<h2>Palace list :</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Host Name</th>
-            <th>Version</th>
-            <th>Os</th>
-            <th>Machine Name</th>
-            <th>Ip</th>
-            <th>Last Hit</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in PalaceInfoList)
-       {
-        <tr>
-            <td>
-                <a href="/palace/configuration/@item.Key">
-                    @item.HostName
-                </a>
-            </td>
-            <td>@item.Version</td>
-            <td>@item.Os</td>
-            <td>@item.MachineName</td>
-            <td>@item.Ip</td>
-            <td>@item.LastHitDate</td>
-        </tr>
-       }
-    </tbody>
-</table>
-
-
-<h2>Running service list :</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Host</th>
             <th>Service Infos</th>
             <th>Started Date</th>
             <th>Last update date</th>
@@ -70,26 +20,25 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in RunningMicroServiceList)
+        @foreach (var item in host.OrderBy(i => i.ServiceName))
        {
         <tr @key=item>
-            <td>
-                @item.PalaceInfo.Key
-            </td>
             <td>
                     @{
                         var workingSet = item.PeakWorkingSet / 1024;
                     }
                 <b>@item.ServiceName @item.Version</b> <br/>
-                @item.Location<br/>
-                Last Write Time : @item.LastWriteTime<br/>
-                User Interactive : @item.UserInteractive<br/>
-                Command Line : @item.CommandLine<br/>
-                Process Id : @item.ProcessId 
+                Last Write Time : <b>@item.LastWriteTime</b><br/>
+                User Interactive : <b>@item.UserInteractive</b><br/>
+                Command Line : <b>@item.CommandLine</b><br/>
+                Process Id : <b>@item.ProcessId</b><br/>
+                Environment : <b>@item.EnvironmentName</b><br/>
+                AdminUrl : <b>@item.AdminUrl</b><br/>
+                PalaceClientVersion : <b>@item.PalaceClientVersion</b><br/>
             </td>
             <td>@item.StartedDate</td>
             <td>@item.LastUpdateDate</td>
-            <td>@item.ServiceState</td>
+            <td><b>@item.ServiceState</b></td>
             <td>@item.ThreadCount</td>
             <td>@workingSet.ToString("# ###") K</td>
             <td>
@@ -100,4 +49,6 @@
         </tr>
        }
     </tbody>
-</table>
+</table>    
+}
+

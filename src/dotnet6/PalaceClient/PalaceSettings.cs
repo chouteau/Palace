@@ -13,6 +13,7 @@ namespace PalaceClient
         public string ApiKey { get; set; }
         public string ServiceName { get; set; }
         public string Version { get; set; }
+        public string PalaceClientVersion { get; set; }
         public string Location { get; set; }
         public DateTime LastWriteTime { get; set; }
         public DateTime StartedDate { get; set; }

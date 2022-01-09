@@ -49,16 +49,17 @@ namespace Palace.Services
                 Logger.LogWarning("microServiceSettings is null");
                 return;
             }
-            if (_list.Keys.Any(i => i.Equals(microServiceSettings.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                Logger.LogWarning("microServiceSettings {0} already referenced", microServiceSettings.ServiceName);
-                return;
-            }
 
             var validate = Validate(microServiceSettings);
             if (!validate.IsValid)
             {
                 Logger.LogWarning("microServiceSettings {0} is invalid\r{1}", microServiceSettings.ServiceName, string.Join("\r", validate.BrokenRules));
+                return;
+            }
+
+            if (_list.Keys.Any(i => i.Equals(microServiceSettings.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                _list[microServiceSettings.ServiceName] = microServiceSettings;
                 return;
             }
 
