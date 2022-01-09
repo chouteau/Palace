@@ -15,13 +15,10 @@ namespace PalaceClient
     public class PalaceApiController : ControllerBase
     {
         private readonly PalaceSettings _palaceSettings;
-        private readonly IHostEnvironment _hostEnvironment;
 
-        public PalaceApiController(PalaceSettings palaceSettings,
-            IHostEnvironment hostEnvironment)
+        public PalaceApiController(PalaceSettings palaceSettings)
         {
             this._palaceSettings = palaceSettings;  
-            this._hostEnvironment = hostEnvironment;
         }
 
         [HttpGet]
@@ -51,7 +48,7 @@ namespace PalaceClient
                 ProcessId = System.Diagnostics.Process.GetCurrentProcess().Id,
                 StartedDate = _palaceSettings.StartedDate,
                 CommandLine = System.Environment.CommandLine,
-                EnvironmentName = _hostEnvironment.EnvironmentName,
+                EnvironmentName = _palaceSettings.HostEnvironmentName,
                 AdminUrl = $"{Request.Scheme}://{Request.Host}",
                 PalaceClientVersion = _palaceSettings.PalaceClientVersion,
             });
