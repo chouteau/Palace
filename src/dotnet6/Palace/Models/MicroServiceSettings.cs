@@ -16,6 +16,7 @@ namespace Palace.Models
         public bool AlwaysStarted { get; set; }
         public string PalaceApiKey { get; set; }
         public string PackageFileName { get; set; }
+        public string SSLCertificate { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
         public bool InstallationFailed { get; set; }

@@ -101,11 +101,11 @@ namespace Palace.Services
             System.IO.Compression.ZipFile.ExtractToDirectory(zipFileInfo.ZipFileName, extractDirectory, true);
 
             // Deploy dans son repertoire d'installation
-            await DeployMicroService(microServiceInfo, extractDirectory);
-            return true;
+            var deploySuccess = await DeployMicroService(microServiceInfo, extractDirectory);
+            return deploySuccess;
         }
 
-        public async Task UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string packageFileName)
+        public async Task<bool> UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string packageFileName)
         {
             var version = 1;
             string extractDirectory = null;
@@ -123,7 +123,8 @@ namespace Palace.Services
             System.IO.Compression.ZipFile.ExtractToDirectory(packageFileName, extractDirectory, true);
 
             // Deploy dans son repertoire d'installation
-            await DeployMicroService(microServiceInfo, extractDirectory);
+            var deploySuccess = await DeployMicroService(microServiceInfo, extractDirectory);
+            return deploySuccess;
         }
 
         public void BackupMicroServiceFiles(Models.MicroServiceInfo microServiceInfo)
@@ -217,8 +218,9 @@ namespace Palace.Services
             return backupDirectory;
         }
 
-        private async Task DeployMicroService(Models.MicroServiceInfo microServiceInfo, string unZipFolder)
+        private async Task<bool> DeployMicroService(Models.MicroServiceInfo microServiceInfo, string unZipFolder)
         {
+            var deploySuccess = true;
             var fileList = System.IO.Directory.GetFiles(unZipFolder, "*.*", System.IO.SearchOption.AllDirectories);
             
             Logger.LogInformation($"try to deploy {fileList.Count()} files from {unZipFolder} to {microServiceInfo.InstallationFolder}");
@@ -234,7 +236,12 @@ namespace Palace.Services
                     System.IO.Directory.CreateDirectory(destDirectory);
                 }
 
-                await CopyUpdateFile(sourceFile, destFile);
+                var isCopySuccess = await CopyUpdateFile(sourceFile, destFile);
+                if (!isCopySuccess)
+                {
+                    deploySuccess = false;
+                    break;
+                }
 
                 if (System.IO.Path.GetFileName(destFile).Equals(microServiceInfo.MainFileName, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -245,11 +252,21 @@ namespace Palace.Services
 
             }
 
-            Logger.LogInformation($"micro service files updated in location {microServiceInfo.InstallationFolder}");
+            if (deploySuccess)
+            {
+                Logger.LogInformation($"micro service files updated in location {microServiceInfo.InstallationFolder}");
+            }
+            else
+            {
+                Logger.LogInformation("deploy failed for service {0}", microServiceInfo.InstallationFolder);
+            }
+
+            return deploySuccess;
         }
 
-        private async Task CopyUpdateFile(string sourceFile, string destFile)
+        private async Task<bool> CopyUpdateFile(string sourceFile, string destFile)
         {
+            bool copySuccess = true;
             var loop = 0;
             while (true)
             {
@@ -258,12 +275,14 @@ namespace Palace.Services
                     System.IO.File.Delete(destFile);
                     System.IO.File.Copy(sourceFile, destFile, true);
                     Logger.LogDebug($"Copy {sourceFile} to {destFile}");
+                    copySuccess = true;
                     break;
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, ex.Message);
                     loop++;
+                    copySuccess = false;
                 }
 
                 if (loop > 3)
@@ -272,8 +291,10 @@ namespace Palace.Services
                 }
 
                 // Le service n'est peut etre pas encore arreté
-                await Task.Delay(10 * 1000);
+                await Task.Delay(2 * 1000);
             }
+
+            return copySuccess;
         }
     }
 }

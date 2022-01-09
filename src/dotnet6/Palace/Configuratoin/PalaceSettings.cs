@@ -10,7 +10,7 @@ namespace Palace.Configuration
 	{
 		public PalaceSettings()
 		{
-			ScanIntervalInSeconds = 60;
+			ScanIntervalInSeconds = 15;
 			BackupDirectory = @".\backup";
 			UpdateDirectory = @".\update";
 			DownloadDirectory = @".\download";

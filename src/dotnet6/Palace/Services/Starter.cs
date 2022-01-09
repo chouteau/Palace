@@ -215,9 +215,10 @@ namespace Palace.Services
                         var stopResult = await Orchestrator.StopRunningMicroService(item);
                         if (stopResult == null)
                         {
-                            Logger.LogWarning("Stop service fail");
+                            Logger.LogWarning("Stop soft service fail");
                             if (instancied.Process != null)
                             {
+                                Logger.LogWarning("Try to kill service");
                                 var killSuccess = Orchestrator.KillProcess(instancied);
                                 if (!killSuccess)
                                 {
@@ -242,7 +243,13 @@ namespace Palace.Services
                             sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{instancied.ServiceState}");
                             await Orchestrator.UpdateRunningMicroServiceProperty(sps);
 
-                            await Orchestrator.UpdateMicroService(instancied, update.ZipFileName);
+                            var updateSuccess = await Orchestrator.UpdateMicroService(instancied, update.ZipFileName);
+                            if (!updateSuccess)
+                            {
+                                // Le service est probablement encore en route
+                                // On attend le prochain round pour le mettre à jour
+                                continue;
+                            }
 
                             sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{Models.ServiceState.Updated}");
                             await Orchestrator.UpdateRunningMicroServiceProperty(sps);

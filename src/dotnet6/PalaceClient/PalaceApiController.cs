@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,13 @@ namespace PalaceClient
     public class PalaceApiController : ControllerBase
     {
         private readonly PalaceSettings _palaceSettings;
+        private readonly IHostEnvironment _hostEnvironment;
 
-        public PalaceApiController(PalaceSettings palaceSettings)
+        public PalaceApiController(PalaceSettings palaceSettings,
+            IHostEnvironment hostEnvironment)
         {
             this._palaceSettings = palaceSettings;  
+            this._hostEnvironment = hostEnvironment;
         }
 
         [HttpGet]
@@ -46,7 +50,10 @@ namespace PalaceClient
                 ThreadCount = System.Diagnostics.Process.GetCurrentProcess().Threads.Count,
                 ProcessId = System.Diagnostics.Process.GetCurrentProcess().Id,
                 StartedDate = _palaceSettings.StartedDate,
-                CommandLine = System.Environment.CommandLine
+                CommandLine = System.Environment.CommandLine,
+                EnvironmentName = _hostEnvironment.EnvironmentName,
+                AdminUrl = $"{Request.Scheme}://{Request.Host}",
+                PalaceClientVersion = _palaceSettings.PalaceClientVersion,
             });
         }
 

@@ -22,6 +22,7 @@ namespace PalaceClient
             var serviceName = productAttribute?.Product;
             var fileInfo = new System.IO.FileInfo(entryAssembly.Location);
 
+            palaceSettings.PalaceClientVersion = $"{typeof(StartupExtensions).Assembly.GetName().Version}";
             palaceSettings.Version = version;
             palaceSettings.ServiceName = serviceName;
             palaceSettings.LastWriteTime = fileInfo.LastWriteTime;
