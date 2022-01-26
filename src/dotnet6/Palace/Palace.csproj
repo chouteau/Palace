@@ -14,7 +14,6 @@
     <Compile Include="..\PalaceServer\Models\AvailablePackage.cs" Link="Models\AvailablePackage.cs" />
     <Compile Include="..\PalaceServer\Models\LogInfo.cs" Link="Models\LogInfo.cs" />
     <Compile Include="..\PalaceServer\Models\NextActionResult.cs" Link="Models\NextActionResult.cs" />
-    <Compile Include="..\PalaceServer\Models\RawJsonConfigurationResult.cs" Link="Models\RawJsonConfigurationResult.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceAction.cs" Link="Models\ServiceAction.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperties.cs" Link="Models\ServiceProperties.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperty.cs" Link="Models\ServiceProperty.cs" />

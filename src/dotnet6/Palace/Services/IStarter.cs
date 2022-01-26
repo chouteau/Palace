@@ -12,6 +12,7 @@ namespace Palace.Services
         Task<bool> ApplyAction();
         Task CheckHealth();
         Task CheckUpdate();
+        Task CheckRemove();
         Task Start();
         Task Stop();
     }

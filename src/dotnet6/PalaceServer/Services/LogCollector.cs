@@ -25,6 +25,11 @@
             OnChanged?.Invoke();
         }
 
+        public void Clear()
+        {
+            _logDic.Clear();
+        }
+
         public IEnumerable<Models.LogInfo> GetLogInfoList(Func<Models.LogInfo, bool> predicate = null)
         {
             var result = _logDic.Values.OrderByDescending(i => i.CreationDate).ToList();

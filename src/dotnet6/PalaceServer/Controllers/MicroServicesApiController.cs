@@ -136,7 +136,7 @@ namespace PalaceServer.Controllers
 
         [HttpPost]
         [Route("synchronize-configuration")]
-        public async Task<IActionResult> SynchronizeConfiguration([FromHeader] string authorization)
+        public async Task<IActionResult> SynchronizeConfiguration([FromHeader] string authorization, IEnumerable<Models.MicroServiceSettings> mslist)
         {
             EnsureGoodAuthorization(authorization);
 
@@ -146,31 +146,23 @@ namespace PalaceServer.Controllers
                 return NoContent();
             }
 
-            using var reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8);
-            var configuration = await reader.ReadToEndAsync();
-
-            if (string.IsNullOrWhiteSpace(palaceInfo.RawJsonConfiguration))
-            {
-                palaceInfo.RawJsonConfiguration = configuration;
-            }
-
             var lastModifiedHeader = $"{Request.Headers["If-Modified-Since"]}";
             if (lastModifiedHeader != null)
             {
                 DateTime.TryParse(lastModifiedHeader, out var lastModified);
-                if (!palaceInfo.LastConfigurationUpdate.HasValue
-                    || lastModified >= palaceInfo.LastConfigurationUpdate.Value)
+                if (!palaceInfo.LastConfigurationUpdate.HasValue)
+                {
+                    palaceInfo.MicroServiceSettingsList = mslist;
+                    palaceInfo.LastConfigurationUpdate = lastModified;
+                    return NoContent();
+                }
+                else if (palaceInfo.LastConfigurationUpdate.Value <= lastModified)
                 {
                     return NoContent();
                 }
             }
 
-            configuration = palaceInfo.RawJsonConfiguration;
-
-            return Ok(new Models.RawJsonConfigurationResult
-            {
-                Configuration = configuration
-            });
+            return Ok(palaceInfo.MicroServiceSettingsList);
         }
 
         private void EnsureGoodAuthorization(string authorization)

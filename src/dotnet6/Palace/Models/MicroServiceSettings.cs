@@ -19,6 +19,11 @@ namespace Palace.Models
         public string SSLCertificate { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
-        public bool InstallationFailed { get; set; }
+        public bool InstallationFailed { get; set; } = false;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool MarkToDelete { get; set; } = false;
+
+
+
     }
 }

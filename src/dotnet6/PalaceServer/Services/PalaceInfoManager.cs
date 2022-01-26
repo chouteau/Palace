@@ -4,10 +4,13 @@
     {
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Models.PalaceInfo> _palaceInfoDictionary;
 
-        public PalaceInfoManager()
+        public PalaceInfoManager(ILogger<PalaceInfoManager> logger)
         {
+            this.Logger = logger;   
             _palaceInfoDictionary = new System.Collections.Concurrent.ConcurrentDictionary<string, Models.PalaceInfo>();
         }
+
+        protected ILogger Logger { get; }
 
         public Models.PalaceInfo GetOrCreatePalaceInfo(string userAgent, string userHostAddress)
         {
@@ -20,5 +23,8 @@
         {
             return _palaceInfoDictionary.Values;
         }
+
+
+
     }
 }

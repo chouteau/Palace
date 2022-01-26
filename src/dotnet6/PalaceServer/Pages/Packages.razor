@@ -8,15 +8,18 @@
         <tr>
             <th>Zip File</th>
             <th>Date</th>
+            <th>Size</th>
             <th>Locked By</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in AvailablePackageList)
        {
-        <tr>
+            var size = item.Size / 1024.0;
+            <tr>
             <td>@item.PackageFileName</td>
             <td>@item.LastWriteTime</td>
+            <td>@string.Format("{0:0.00}", size) Ko</td>
             <td>@item.LockedBy</td>
         </tr>
        }

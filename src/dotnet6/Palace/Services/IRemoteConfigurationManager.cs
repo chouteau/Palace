@@ -8,6 +8,6 @@ namespace Palace.Services
 {
     public interface IRemoteConfigurationManager
     {
-        Task SynchronizeConfiguration();
+        Task<IEnumerable<Models.MicroServiceSettings>> SynchronizeConfiguration(IEnumerable<Models.MicroServiceSettings> list);
     }
 }

@@ -11,10 +11,12 @@ namespace Palace.Services
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Models.MicroServiceSettings> _list;
 
         public MicroServicesCollectionManager(Configuration.PalaceSettings palaceSettings,
-            ILogger<MicroServicesCollectionManager> logger)
+            ILogger<MicroServicesCollectionManager> logger,
+            IRemoteConfigurationManager remoteConfigurationManager)
         {
             this.PalaceSettings = palaceSettings;
             this.Logger = logger;
+            this.RemoteConfigurationManager = remoteConfigurationManager;   
             _list = new System.Collections.Concurrent.ConcurrentDictionary<string, Models.MicroServiceSettings>();
             try
             {
@@ -26,8 +28,9 @@ namespace Palace.Services
             }
         }
 
-        protected Configuration.PalaceSettings PalaceSettings { get; set; }
-        protected ILogger Logger { get; set; }
+        protected Configuration.PalaceSettings PalaceSettings { get; }
+        protected ILogger Logger { get;  }
+        protected IRemoteConfigurationManager RemoteConfigurationManager { get; }  
 
         internal void BindFromFileName()
         {
@@ -37,12 +40,12 @@ namespace Palace.Services
                 var list = System.Text.Json.JsonSerializer.Deserialize<List<Models.MicroServiceSettings>>(content);
                 foreach (var item in list)
                 {
-                    Add(item);                    
+                    AddOrUpdate(item);                    
                 }
             }
         }
 
-        public void Add(Models.MicroServiceSettings microServiceSettings)
+        public void AddOrUpdate(Models.MicroServiceSettings microServiceSettings)
         {
             if (microServiceSettings == null)
             {
@@ -64,6 +67,15 @@ namespace Palace.Services
             }
 
             _list.TryAdd(microServiceSettings.ServiceName, microServiceSettings);
+        }
+
+        public void Remove(Models.MicroServiceSettings microServiceSettings)
+        {
+            if (_list.Keys.Any(i => i.Equals(microServiceSettings.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                _list.TryRemove(microServiceSettings.ServiceName, out var remove);
+                Logger.LogInformation("service {0} removed", remove.ServiceName);
+            }
         }
 
         public IEnumerable<Models.MicroServiceSettings> GetList()
@@ -122,5 +134,96 @@ namespace Palace.Services
 
             return (result, brokenRules);
         }
+
+        public async Task SynchronizeConfiguration()
+        {
+            var mslist = GetList();
+            var result = await RemoteConfigurationManager.SynchronizeConfiguration(mslist);
+            if (result == null)
+            {
+                return;
+            }
+
+            var isDirty = false;
+
+            var servicesToDelete = mslist.Select(i => i.ServiceName)
+                                .Except(result.Select(i => i.ServiceName))
+                                .ToList();
+
+            var servicesToAdd = result.Select(i => i.ServiceName)
+                                .Except(mslist.Select(i => i.ServiceName))
+                                .ToList();
+
+            // Existing
+            foreach (var existing in mslist)
+            {
+                var remote = result.SingleOrDefault(i => i.ServiceName == existing.ServiceName);
+                if (remote == null)
+                {
+                    AddOrUpdate(remote);
+                    continue;
+                }
+                var deco = new Models.MicroServiceSettingsDecorator(existing);
+                deco.AdminServiceUrl = remote.AdminServiceUrl;
+                deco.ServiceName = remote.ServiceName;
+                deco.AlwaysStarted = remote.AlwaysStarted;
+                deco.MainAssembly = remote.MainAssembly;
+                deco.PalaceApiKey = remote.PalaceApiKey;
+                deco.SSLCertificate = remote.SSLCertificate;
+                deco.Arguments = remote.Arguments;
+                deco.InstallationFolder = remote.InstallationFolder;
+                deco.PackageFileName = remote.PackageFileName;
+
+                if (deco.IsDirty)
+                {
+                    AddOrUpdate(remote);
+                    isDirty = true;
+                }
+            }
+
+            foreach (var serviceName in servicesToAdd)
+            {
+                var serviceToAdd = result.SingleOrDefault(i => i.ServiceName == serviceName);
+                if (serviceToAdd != null)
+                {
+                    AddOrUpdate(serviceToAdd);
+                    isDirty = true;
+                }
+            }
+
+            foreach (var delete in servicesToDelete)
+            {
+                var existing = mslist.SingleOrDefault(i => i.ServiceName == delete);
+                if (existing != null)
+                {
+                    existing.MarkToDelete = true;
+                }
+            }
+
+            if (isDirty)
+            {
+                Logger.LogInformation("Configuration changed detected");
+                SaveConfiguration();
+            }
+        }
+
+        public void SaveConfiguration()
+        {
+            try
+            {
+                System.IO.File.Copy(PalaceSettings.PalaceServicesFileName, $"{PalaceSettings.PalaceServicesFileName}.bak", true);
+                var content = System.Text.Json.JsonSerializer.Serialize(GetList(), new System.Text.Json.JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                });
+                System.IO.File.WriteAllText(PalaceSettings.PalaceServicesFileName, content);
+                Logger.LogInformation("Configuration file saved {0}", PalaceSettings.PalaceServicesFileName);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+            }
+        }
+
     }
 }

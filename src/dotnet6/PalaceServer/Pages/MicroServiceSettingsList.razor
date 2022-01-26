@@ -1,0 +1,47 @@
+﻿@page "/palace/{PalaceName}/services"
+<PageTitle>Palace @PalaceInfo.HostName service list</PageTitle>
+
+<h3>Palace @PalaceInfo.HostName service list</h3>
+
+<br/>
+<a href="/palace/@PalaceInfo.Key/EditService/new" class="btn btn-success">Add</a>
+<br/>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ServiceName</th>
+            <th>AdminServiceUrl</th>
+            <th>Arguments</th>
+            <th>InstallationFolder</th>
+            <th>MainAssembly</th>
+            <th>PackageFileName</th>
+            <th>PalaceApiKey</th>
+            <th>SSLCertificate</th>
+            <th>AlwaysStarted</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in PalaceInfo.MicroServiceSettingsList)
+        {
+            <tr>
+                <td>
+                    <a href="/palace/@PalaceInfo.Key/EditService/@item.ServiceName">
+                        @item.ServiceName
+                    </a>
+                </td>
+                <td>@item.AdminServiceUrl</td>
+                <td>@item.Arguments</td>
+                <td>@item.InstallationFolder</td>
+                <td>@item.MainAssembly</td>
+                <td>@item.PackageFileName</td>
+                <td>@item.PalaceApiKey</td>
+                <td>@item.SSLCertificate</td>
+                <td>@item.AlwaysStarted</td>
+                <td><button class="btn btn-danger" @onclick="() => ConfirmRemove(item.ServiceName)" >Remove</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<ConfirmDialog Title="Confirm delete" @ref="ConfirmDialog" Accept="RemoveService"></ConfirmDialog>

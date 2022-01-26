@@ -157,7 +157,6 @@ namespace Palace.Services
                 Logger.LogDebug("service {0} is up", info.ServiceName);
             }
         }
-
         public async Task CheckUpdate()
         {
             foreach (var item in MicroServicesCollection.GetList())
@@ -261,7 +260,37 @@ namespace Palace.Services
 
             }
         }
+        public async Task CheckRemove()
+        {
+            while(true)
+            {
+                var item = MicroServicesCollection.GetList().FirstOrDefault(i => i.MarkToDelete);
+                if (item == null)
+                {
+                    break;
+                }
 
+                var instancied = InstanciedServiceList.SingleOrDefault(i => i.Name.Equals(item.ServiceName, StringComparison.InvariantCultureIgnoreCase));
+
+                Logger.LogInformation("Try to remove service {0}", item.ServiceName);
+                await StopMicroService(item);
+
+                var uninstallResult = await Orchestrator.UninstallMicroService(item);
+                if (!uninstallResult)
+                {
+                    Logger.LogCritical("remove service {0} failed", item.ServiceName);
+                    return;
+                }
+                MicroServicesCollection.Remove(item);
+                var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{Models.ServiceState.Removed}");
+                await Orchestrator.UpdateRunningMicroServiceProperty(sps);
+                MicroServicesCollection.SaveConfiguration();
+                if (instancied != null)
+                {
+                    InstanciedServiceList.Remove(instancied);
+                }
+            }
+        }
         public async Task Stop()
         {
             Logger.LogInformation("Stop services");

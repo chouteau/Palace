@@ -45,7 +45,8 @@ namespace PalaceServer.Services
 				var info = new Models.AvailablePackage
 				{
 					PackageFileName = item.Name,
-					LastWriteTime = item.LastWriteTime
+					LastWriteTime = item.LastWriteTime,
+					Size = item.Length
 				};
 				result.Add(info);
 			}

@@ -26,7 +26,9 @@ namespace PalaceServer.Pages
 
         void UpdateLists()
         {
-            LogInfoList = LogCollector.GetLogInfoList();
+            LogInfoList = LogCollector
+                                .GetLogInfoList()
+                                .Take(500);
         }
     }
 }

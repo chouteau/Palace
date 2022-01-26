@@ -41,7 +41,7 @@ namespace Palace.Tests
             starter.InstanciedServiceCount.Should().Be(0);
 
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
-            msm.Add(new Models.MicroServiceSettings
+            msm.AddOrUpdate(new Models.MicroServiceSettings
             {
                 PackageFileName = "DemoSvc.zip",
                 ServiceName = "DemoSvc",
