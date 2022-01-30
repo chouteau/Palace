@@ -41,22 +41,28 @@ jobs:
         del *.json
         7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
 
+    - name: Build Palace Server
+      run: dotnet publish src\dotnet6\palaceserver\palaceserver.csproj -c Release --no-restore -v d
+
+    - name: Zip Palace
+      run: |
+        cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Release\net6.0\publish
+        dir *.*
+        del *.json
+        7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
       env:
         GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
       with: 
-        tag_name: Latest
+        tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
 
-    - name: Info
-      run: echo ${{ steps.create_release.outputs.upload_url }}
-
-    - name: Upload Release Asset
-      id: upload-release-asset 
+    - name: Upload Release Palace
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,3 +72,12 @@ jobs:
         asset_name: palace.zip
         asset_content_type: application/zip
 
+    - name: Upload Release PalaceServer
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{github.workspace}}\palaceserver.zip
+        asset_name: palaceserver.zip
+        asset_content_type: application/zip
