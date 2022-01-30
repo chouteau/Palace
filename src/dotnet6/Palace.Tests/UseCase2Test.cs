@@ -49,15 +49,17 @@ namespace Palace.Tests
             starter.InstanciedServiceCount.Should().Be(0);
 
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
-            msm.AddOrUpdate(new Models.MicroServiceSettings
-            {
-                PackageFileName = "DemoSvc.zip",
-                ServiceName = "DemoSvc2",
-                MainAssembly = "DemoSvc.dll",
-                Arguments = "--port 12346",
-                AdminServiceUrl = "http://localhost:12346",
-                PalaceApiKey = "test"
-            });
+            await msm.SynchronizeConfiguration();
+
+            //msm.AddOrUpdate(new Models.MicroServiceSettings
+            //{
+            //    PackageFileName = "DemoSvc.zip",
+            //    ServiceName = "DemoSvc2",
+            //    MainAssembly = "DemoSvc.dll",
+            //    Arguments = "--port 12346",
+            //    AdminServiceUrl = "http://localhost:12346",
+            //    PalaceApiKey = "test"
+            //});
 
             await starter.CheckUpdate();
 
@@ -97,25 +99,27 @@ namespace Palace.Tests
             starter.InstanciedServiceCount.Should().Be(0);
 
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
-            msm.AddOrUpdate(new Models.MicroServiceSettings
-            {
-                PackageFileName = "DemoSvc.zip",
-                ServiceName = "DemoSvc",
-                MainAssembly = "DemoSvc.dll",
-                Arguments = "--port 12346",
-                AdminServiceUrl = "http://localhost:12346",
-                PalaceApiKey = "test"
-            });
+            await msm.SynchronizeConfiguration();
 
-            msm.AddOrUpdate(new Models.MicroServiceSettings
-            {
-                PackageFileName = "DemoSvc2.zip",
-                ServiceName = "DemoSvc2",
-                MainAssembly = "DemoSvc.dll",
-                Arguments = "--port 12347",
-                AdminServiceUrl = "http://localhost:12347",
-                PalaceApiKey = "test"
-            });
+            //msm.AddOrUpdate(new Models.MicroServiceSettings
+            //{
+            //    PackageFileName = "DemoSvc.zip",
+            //    ServiceName = "DemoSvc",
+            //    MainAssembly = "DemoSvc.dll",
+            //    Arguments = "--port 12346",
+            //    AdminServiceUrl = "http://localhost:12346",
+            //    PalaceApiKey = "test"
+            //});
+
+            //msm.AddOrUpdate(new Models.MicroServiceSettings
+            //{
+            //    PackageFileName = "DemoSvc2.zip",
+            //    ServiceName = "DemoSvc2",
+            //    MainAssembly = "DemoSvc.dll",
+            //    Arguments = "--port 12347",
+            //    AdminServiceUrl = "http://localhost:12347",
+            //    PalaceApiKey = "test"
+            //});
 
             await starter.CheckUpdate();
 

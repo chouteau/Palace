@@ -1,5 +1,6 @@
 #define FOR_WINDOWS
 
+using LogRPush;
 using Palace;
 using Palace.Extensions;
 
@@ -19,7 +20,6 @@ var builder = Host.CreateDefaultBuilder(args)
     {
         services.AddSingleton(palaceSettings);
         services.AddSingleton<Palace.Services.IStarter, Palace.Services.Starter>();
-        services.AddSingleton<Palace.Services.IRemoteConfigurationManager, Palace.Services.RemoteConfigurationManager>();
 
         services.AddTransient<Palace.Services.IMicroServicesOrchestrator, Palace.Services.MicroServicesOrchestrator>();
         services.AddSingleton<Palace.Services.MicroServicesCollectionManager>();
@@ -42,6 +42,13 @@ var builder = Host.CreateDefaultBuilder(args)
             configure.DefaultRequestHeaders.UserAgent.ParseAdd($"Palace/{version} ({System.Environment.OSVersion}; {System.Environment.MachineName}; {palaceSettings.HostName})");
         });
 
+        services.AddLogRPush(cfg =>
+        {
+            cfg.HostName = palaceSettings.HostName;
+            cfg.LogServerUrlList.Add(palaceSettings.UpdateServerUrl);
+            cfg.LogLevel = palaceSettings.LogLevel;
+        });
+
         services.AddHostedService<MainService>();
     });
 
@@ -51,7 +58,6 @@ var builder = Host.CreateDefaultBuilder(args)
 
 var host = builder.Build();
 
-var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-loggerFactory.AddProvider(new Palace.Logging.PalaceLoggerProvider(host.Services));
+host.Services.UseLogRPush();
 
 await host.RunAsync();

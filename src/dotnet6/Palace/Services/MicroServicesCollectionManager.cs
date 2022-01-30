@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,133 +13,31 @@ namespace Palace.Services
 
         public MicroServicesCollectionManager(Configuration.PalaceSettings palaceSettings,
             ILogger<MicroServicesCollectionManager> logger,
-            IRemoteConfigurationManager remoteConfigurationManager)
+            IHttpClientFactory httpClientFactory)
         {
             this.PalaceSettings = palaceSettings;
             this.Logger = logger;
-            this.RemoteConfigurationManager = remoteConfigurationManager;   
+            this.HttpClientFactory = httpClientFactory;
             _list = new System.Collections.Concurrent.ConcurrentDictionary<string, Models.MicroServiceSettings>();
-            try
-            {
-                BindFromFileName();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogCritical("Bind micro services collection from fileName fail with error : {0}", ex.Message);
-            }
         }
 
         protected Configuration.PalaceSettings PalaceSettings { get; }
         protected ILogger Logger { get;  }
-        protected IRemoteConfigurationManager RemoteConfigurationManager { get; }  
-
-        internal void BindFromFileName()
-        {
-            if (System.IO.File.Exists(PalaceSettings.PalaceServicesFileName))
-            {
-                var content = System.IO.File.ReadAllText(PalaceSettings.PalaceServicesFileName);
-                var list = System.Text.Json.JsonSerializer.Deserialize<List<Models.MicroServiceSettings>>(content);
-                foreach (var item in list)
-                {
-                    AddOrUpdate(item);                    
-                }
-            }
-        }
-
-        public void AddOrUpdate(Models.MicroServiceSettings microServiceSettings)
-        {
-            if (microServiceSettings == null)
-            {
-                Logger.LogWarning("microServiceSettings is null");
-                return;
-            }
-
-            var validate = Validate(microServiceSettings);
-            if (!validate.IsValid)
-            {
-                Logger.LogWarning("microServiceSettings {0} is invalid\r{1}", microServiceSettings.ServiceName, string.Join("\r", validate.BrokenRules));
-                return;
-            }
-
-            if (_list.Keys.Any(i => i.Equals(microServiceSettings.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                _list[microServiceSettings.ServiceName] = microServiceSettings;
-                return;
-            }
-
-            _list.TryAdd(microServiceSettings.ServiceName, microServiceSettings);
-        }
-
-        public void Remove(Models.MicroServiceSettings microServiceSettings)
-        {
-            if (_list.Keys.Any(i => i.Equals(microServiceSettings.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                _list.TryRemove(microServiceSettings.ServiceName, out var remove);
-                Logger.LogInformation("service {0} removed", remove.ServiceName);
-            }
-        }
+        protected IHttpClientFactory HttpClientFactory { get; }
 
         public IEnumerable<Models.MicroServiceSettings> GetList()
-        { 
+        {
             return _list.Values;
         }
 
-        internal (bool IsValid, List<string> BrokenRules) Validate(Models.MicroServiceSettings mss)
+        public void Remove(Models.MicroServiceSettings item)
         {
-            var result = true;
-            var brokenRules = new List<string>();
-            if (string.IsNullOrWhiteSpace(mss.ServiceName))
-            {
-                brokenRules.Add("Service name is null or empty");
-                result = false;
-            }
-            else if (_list.Any(i => i.Key.Equals(mss.ServiceName, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                brokenRules.Add("Service name already exists");
-                result = false;
-            }
-
-            if (string.IsNullOrWhiteSpace(mss.MainAssembly))
-            {
-                brokenRules.Add("MainAssembly is null or empty");
-                result = false;
-            }
-            if (string.IsNullOrWhiteSpace(mss.PackageFileName))
-            {
-                brokenRules.Add("PackageFileName is null or empty");
-                result = false;
-            }
-            else if (!mss.PackageFileName.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
-            {
-                brokenRules.Add("PackageFileName is not zip file");
-                result = false;
-            }
-            if (string.IsNullOrWhiteSpace(mss.AdminServiceUrl))
-            {
-                brokenRules.Add("AdminServiceUrl is null or empty");
-                result = false;
-            }
-            else
-            {
-                try
-                {
-                    new Uri(mss.AdminServiceUrl);
-                }
-                catch
-                {
-                    brokenRules.Add("AdminServiceUrl is not uri");
-                    result = false;
-                }
-            }
-
-
-            return (result, brokenRules);
+            _list.TryRemove(item.ServiceName, out var removed);
         }
 
         public async Task SynchronizeConfiguration()
         {
-            var mslist = GetList();
-            var result = await RemoteConfigurationManager.SynchronizeConfiguration(mslist);
+            var result = await GetConfiguration();
             if (result == null)
             {
                 return;
@@ -146,39 +45,31 @@ namespace Palace.Services
 
             var isDirty = false;
 
-            var servicesToDelete = mslist.Select(i => i.ServiceName)
+            var servicesToDelete = _list.Select(i => i.Key)
                                 .Except(result.Select(i => i.ServiceName))
                                 .ToList();
 
             var servicesToAdd = result.Select(i => i.ServiceName)
-                                .Except(mslist.Select(i => i.ServiceName))
+                                .Except(_list.Select(i => i.Key))
                                 .ToList();
 
             // Existing
-            foreach (var existing in mslist)
+            foreach (var existing in _list)
             {
-                var remote = result.SingleOrDefault(i => i.ServiceName == existing.ServiceName);
+                var remote = result.SingleOrDefault(i => i.ServiceName == existing.Key);
                 if (remote == null)
                 {
-                    AddOrUpdate(remote);
                     continue;
                 }
-                var deco = new Models.MicroServiceSettingsDecorator(existing);
-                deco.AdminServiceUrl = remote.AdminServiceUrl;
-                deco.ServiceName = remote.ServiceName;
-                deco.AlwaysStarted = remote.AlwaysStarted;
-                deco.MainAssembly = remote.MainAssembly;
-                deco.PalaceApiKey = remote.PalaceApiKey;
-                deco.SSLCertificate = remote.SSLCertificate;
-                deco.Arguments = remote.Arguments;
-                deco.InstallationFolder = remote.InstallationFolder;
-                deco.PackageFileName = remote.PackageFileName;
-
-                if (deco.IsDirty)
-                {
-                    AddOrUpdate(remote);
-                    isDirty = true;
-                }
+                existing.Value.AdminServiceUrl = remote.AdminServiceUrl;
+                existing.Value.ServiceName = remote.ServiceName;
+                existing.Value.AlwaysStarted = remote.AlwaysStarted;
+                existing.Value.MainAssembly = remote.MainAssembly;
+                existing.Value.PalaceApiKey = remote.PalaceApiKey;
+                existing.Value.SSLCertificate = remote.SSLCertificate;
+                existing.Value.Arguments = remote.Arguments;
+                existing.Value.InstallationFolder = remote.InstallationFolder;
+                existing.Value.PackageFileName = remote.PackageFileName;
             }
 
             foreach (var serviceName in servicesToAdd)
@@ -186,44 +77,63 @@ namespace Palace.Services
                 var serviceToAdd = result.SingleOrDefault(i => i.ServiceName == serviceName);
                 if (serviceToAdd != null)
                 {
-                    AddOrUpdate(serviceToAdd);
+                    _list.TryAdd(serviceName, serviceToAdd);
                     isDirty = true;
                 }
             }
 
             foreach (var delete in servicesToDelete)
             {
-                var existing = mslist.SingleOrDefault(i => i.ServiceName == delete);
-                if (existing != null)
+                var existing = _list.SingleOrDefault(i => i.Key == delete);
+                if (existing.Key != null)
                 {
-                    existing.MarkToDelete = true;
+                    existing.Value.MarkToDelete = true;
                 }
             }
 
             if (isDirty)
             {
                 Logger.LogInformation("Configuration changed detected");
-                SaveConfiguration();
             }
         }
 
-        public void SaveConfiguration()
+        private async Task<IEnumerable<Models.MicroServiceSettings>> GetConfiguration()
         {
+            var httpClient = HttpClientFactory.CreateClient("PalaceServer");
+            httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
+            HttpResponseMessage response = null;
+
+            var configFileInfo = new System.IO.FileInfo(PalaceSettings.PalaceServicesFileName);
             try
             {
-                System.IO.File.Copy(PalaceSettings.PalaceServicesFileName, $"{PalaceSettings.PalaceServicesFileName}.bak", true);
-                var content = System.Text.Json.JsonSerializer.Serialize(GetList(), new System.Text.Json.JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                });
-                System.IO.File.WriteAllText(PalaceSettings.PalaceServicesFileName, content);
-                Logger.LogInformation("Configuration file saved {0}", PalaceSettings.PalaceServicesFileName);
+                var url = $"/api/microservices/configuration";
+                httpClient.DefaultRequestHeaders.IfModifiedSince = configFileInfo.LastWriteTime;
+                response = await httpClient.GetAsync(url);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, ex.Message);
+                return null;
             }
+
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            try
+            {
+                var result = await response.Content.ReadFromJsonAsync<IEnumerable<Models.MicroServiceSettings>>();
+                return result;
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+            }
+
+            return new List<Models.MicroServiceSettings>();
         }
+
 
     }
 }

@@ -42,7 +42,7 @@ namespace PalaceServer.Pages
             using var fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             await fileContent.CopyToAsync(fs);
             Logger.LogInformation("File {0} uploaded", fileName);
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/Packages");
         }
     }
 }

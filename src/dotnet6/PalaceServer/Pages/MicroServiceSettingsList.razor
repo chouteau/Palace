@@ -4,7 +4,8 @@
 <h3>Palace @PalaceInfo.HostName service list</h3>
 
 <br/>
-<a href="/palace/@PalaceInfo.Key/EditService/new" class="btn btn-success">Add</a>
+<a href="/palace/@PalaceInfo.Key/EditService/new" class="btn btn-success">Add Service</a>
+<br/>
 <br/>
 <table class="table table-bordered">
     <thead>
@@ -12,7 +13,6 @@
             <th>ServiceName</th>
             <th>AdminServiceUrl</th>
             <th>Arguments</th>
-            <th>InstallationFolder</th>
             <th>MainAssembly</th>
             <th>PackageFileName</th>
             <th>PalaceApiKey</th>
@@ -32,7 +32,6 @@
                 </td>
                 <td>@item.AdminServiceUrl</td>
                 <td>@item.Arguments</td>
-                <td>@item.InstallationFolder</td>
                 <td>@item.MainAssembly</td>
                 <td>@item.PackageFileName</td>
                 <td>@item.PalaceApiKey</td>
@@ -44,4 +43,4 @@
     </tbody>
 </table>
 
-<ConfirmDialog Title="Confirm delete" @ref="ConfirmDialog" Accept="RemoveService"></ConfirmDialog>
+<ConfirmDialog Title="Confirm remove" @ref="ConfirmDialog" Accept="RemoveService"></ConfirmDialog>

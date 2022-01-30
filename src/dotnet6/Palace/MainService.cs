@@ -25,6 +25,7 @@ namespace Palace
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
+			await MicroServicesCollectionManager.SynchronizeConfiguration();
 			await Starter.Start();
 			await base.StartAsync(cancellationToken);
         }
@@ -33,6 +34,8 @@ namespace Palace
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
+				await MicroServicesCollectionManager.SynchronizeConfiguration();
+
 				var applyAction = await Starter.ApplyAction();
 				if (!applyAction)
 				{
@@ -41,8 +44,6 @@ namespace Palace
 					await Starter.CheckRemove();
 				}
 				
-				await MicroServicesCollectionManager.SynchronizeConfiguration();
-
 				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 			}
 		}

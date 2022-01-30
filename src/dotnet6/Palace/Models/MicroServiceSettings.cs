@@ -13,17 +13,16 @@ namespace Palace.Models
         public string InstallationFolder { get; set; }
         public string Arguments { get; set; }
         public string AdminServiceUrl { get; set; }
-        public bool AlwaysStarted { get; set; }
+        public bool AlwaysStarted { get; set; } = true;
         public string PalaceApiKey { get; set; }
         public string PackageFileName { get; set; }
         public string SSLCertificate { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
+        public bool StartForced { get; set; } = false;
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool InstallationFailed { get; set; } = false;
         [System.Text.Json.Serialization.JsonIgnore]
         public bool MarkToDelete { get; set; } = false;
-
-
-
     }
 }

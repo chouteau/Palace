@@ -43,7 +43,7 @@ namespace PalaceServer.Controllers
 
             EnsureGoodAuthorization(authorization);
 
-            var list = Collector.GetAvailableList();
+            var list = Collector.GetAvailablePackageList();
             var serviceInfo = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
             if (serviceInfo == null)
             {
@@ -75,7 +75,7 @@ namespace PalaceServer.Controllers
 
             EnsureGoodAuthorization(authorization);
 
-            var list = Collector.GetAvailableList();
+            var list = Collector.GetAvailablePackageList();
             var serviceInfo = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
             return Ok(serviceInfo);
         }
@@ -86,7 +86,7 @@ namespace PalaceServer.Controllers
         {
             EnsureGoodAuthorization(authorization);
 
-            var list = Collector.GetAvailableList();
+            var list = Collector.GetAvailablePackageList();
             return Ok(list);
         }
 
@@ -134,9 +134,9 @@ namespace PalaceServer.Controllers
             });
         }
 
-        [HttpPost]
-        [Route("synchronize-configuration")]
-        public async Task<IActionResult> SynchronizeConfiguration([FromHeader] string authorization, IEnumerable<Models.MicroServiceSettings> mslist)
+        [HttpGet]
+        [Route("configuration")]
+        public async Task<IActionResult> GetConfiguration([FromHeader] string authorization)
         {
             EnsureGoodAuthorization(authorization);
 
@@ -144,22 +144,6 @@ namespace PalaceServer.Controllers
             if (palaceInfo == null)
             {
                 return NoContent();
-            }
-
-            var lastModifiedHeader = $"{Request.Headers["If-Modified-Since"]}";
-            if (lastModifiedHeader != null)
-            {
-                DateTime.TryParse(lastModifiedHeader, out var lastModified);
-                if (!palaceInfo.LastConfigurationUpdate.HasValue)
-                {
-                    palaceInfo.MicroServiceSettingsList = mslist;
-                    palaceInfo.LastConfigurationUpdate = lastModified;
-                    return NoContent();
-                }
-                else if (palaceInfo.LastConfigurationUpdate.Value <= lastModified)
-                {
-                    return NoContent();
-                }
             }
 
             return Ok(palaceInfo.MicroServiceSettingsList);

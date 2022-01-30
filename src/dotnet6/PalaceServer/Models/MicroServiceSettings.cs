@@ -26,6 +26,7 @@ namespace PalaceServer.Models
         [Required]
         public string PackageFileName { get; set; }
         public string SSLCertificate { get; set; }
+        public int InstanceCount { get; set; } = 1;
 
         public object Clone()
         {

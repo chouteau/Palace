@@ -30,13 +30,13 @@
             <ValidationMessage For="() => MicroServiceSettings.Arguments"/>
         </small>
     </div>
-    <div class="mb-3">
+    @*<div class="mb-3">
         <label class="form-label">InstallationFolder :</label>
         <InputText type="text" @bind-Value="MicroServiceSettings.InstallationFolder" class="form-control" />
         <small>
             <ValidationMessage For="() => MicroServiceSettings.InstallationFolder"/>
         </small>
-    </div>
+    </div>*@
     <div class="mb-3">
         <label class="form-label">MainAssembly :</label>
         <InputText type="text" @bind-Value="MicroServiceSettings.MainAssembly" class="form-control" />
@@ -63,6 +63,13 @@
         <InputText type="text" @bind-Value="MicroServiceSettings.SSLCertificate" class="form-control" />
         <small>
             <ValidationMessage For="() => MicroServiceSettings.SSLCertificate"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">SSLCertificate :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.InstanceCount" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.InstanceCount"/>
         </small>
     </div>
     <div class="mb-3">

@@ -4,13 +4,15 @@ namespace PalaceServer.Models
 {
     public class PalaceInfo
     {
-        public PalaceInfo(string userAgent, string userHostAddress)
+        public PalaceInfo(string userAgent, string userHostAddress, Configuration.PalaceServerSettings palaceServerSettings)
         {
 			ParseUserAgent(userAgent);
 			Ip = userHostAddress;
 			LastHitDate = DateTime.Now;
-			MicroServiceSettingsList = new List<MicroServiceSettings>();
+            this.Settings = palaceServerSettings;
 		}
+
+        protected Configuration.PalaceServerSettings Settings { get; }
 
         public string Os { get; set; }
         public string MachineName { get; set; }
@@ -19,7 +21,28 @@ namespace PalaceServer.Models
         public string Ip { get; set; }
         public DateTime LastHitDate { get; set; }
 
-        public IEnumerable<MicroServiceSettings> MicroServiceSettingsList { get; set; }
+        private IEnumerable<MicroServiceSettings> _microServiceSettingsList;
+        public IEnumerable<MicroServiceSettings> MicroServiceSettingsList 
+        { 
+            get
+            {
+                if (_microServiceSettingsList == null)
+                {
+                    var configFileName = System.IO.Path.Combine(Settings.MicroServiceConfigurationFolder, $"{Key}.json");
+                    if (System.IO.File.Exists(configFileName))
+                    {
+                        var content = System.IO.File.ReadAllText(configFileName);
+                        var list = System.Text.Json.JsonSerializer.Deserialize<List<MicroServiceSettings>>(content);
+                        _microServiceSettingsList = list;
+                    }
+                    else
+                    {
+                        _microServiceSettingsList = new List<MicroServiceSettings>();
+                    }
+                }
+                return _microServiceSettingsList;
+            }
+        }
         public DateTime? LastConfigurationUpdate { get; set; }
 
         public string Key
@@ -75,6 +98,7 @@ namespace PalaceServer.Models
             }
             ((List<MicroServiceSettings>)MicroServiceSettingsList).Add(settings);
             LastConfigurationUpdate = DateTime.Now;
+            SaveConfiguration();
             return new Dictionary<string, List<string>>();
         }
 
@@ -128,15 +152,17 @@ namespace PalaceServer.Models
                 isDirty = true;
             }
             existing.ServiceName = settings.ServiceName;
-            if (existing.SSLCertificate != settings.SSLCertificate)
-            {
-                isDirty = true;
-            }
+
+            isDirty = existing.SSLCertificate != settings.SSLCertificate;
             existing.SSLCertificate = settings.SSLCertificate;
+
+            isDirty = existing.InstanceCount != settings.InstanceCount;
+            existing.InstanceCount = settings.InstanceCount;
 
             if (isDirty)
             {
                 LastConfigurationUpdate = DateTime.Now;
+                SaveConfiguration();
             }
             return new Dictionary<string, List<string>>();
         }
@@ -213,7 +239,22 @@ namespace PalaceServer.Models
             {
                 ((List<MicroServiceSettings>)MicroServiceSettingsList).Remove(existing);
                 LastConfigurationUpdate = DateTime.Now;
+                SaveConfiguration();
             }
+        }
+
+        private void SaveConfiguration()
+        {
+            var configFileName = System.IO.Path.Combine(Settings.MicroServiceConfigurationFolder, $"{Key}.json");
+            var content = System.Text.Json.JsonSerializer.Serialize(MicroServiceSettingsList, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+            });
+            if (System.IO.File.Exists(configFileName))
+            {
+                System.IO.File.Copy(configFileName, $"{configFileName}.bak", true);
+            }
+            System.IO.File.WriteAllText(configFileName, content);
         }
     }
 }

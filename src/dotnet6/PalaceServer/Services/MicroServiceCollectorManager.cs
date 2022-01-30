@@ -27,7 +27,7 @@ namespace PalaceServer.Services
 		protected Configuration.PalaceServerSettings Settings { get; }
 		protected PalaceInfoManager PalaceInfoManager { get; }
 
-		public List<Models.AvailablePackage> GetAvailableList()
+		public List<Models.AvailablePackage> GetAvailablePackageList()
 		{
 			Cache.TryGetValue(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY, out List<Models.AvailablePackage> result);
 			if (result != null)
@@ -72,7 +72,7 @@ namespace PalaceServer.Services
 
 		public void UpdateFile(string zipFileFullPath)
 		{
-			var list = GetAvailableList();
+			var list = GetAvailablePackageList();
 			var fi = new System.IO.FileInfo(zipFileFullPath);
 			var zipFileName = System.IO.Path.GetFileName(zipFileFullPath);
 			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
@@ -94,6 +94,7 @@ namespace PalaceServer.Services
             {
 				running.NextAction = Models.ServiceAction.ResetInstallationInfo;
             }
+			Cache.Remove(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY);
 		}
 
 		public void AddOrUpdateRunningMicroServiceInfo(PalaceClient.RunningMicroserviceInfo runningMicroserviceInfo, string userAgent, string userHostAddress)
@@ -184,9 +185,28 @@ namespace PalaceServer.Services
 			OnChanged?.Invoke();
 		}
 
+		public string RemovePackage(string packageFileName)
+		{
+			var fileName = System.IO.Path.Combine(Settings.MicroServiceRepositoryFolder, packageFileName);
+			if (System.IO.File.Exists(fileName))
+			{
+				try
+				{
+					System.IO.File.Delete(fileName);
+					Cache.Remove(RUNNING_MICROSERVICE_LIST_CACHE_KEY);
+				}
+				catch (Exception ex)
+				{
+					return ex.Message;
+				}
+			}
+			return null;
+		}
+
+
 		private void UnLockDownload(string packageFileName)
 		{
-			var list = GetAvailableList();
+			var list = GetAvailablePackageList();
 			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
 			if (item != null)
 			{
@@ -197,7 +217,7 @@ namespace PalaceServer.Services
 
 		private void LockDownload(string packageFileName, string palaceInfoKey)
         {
-			var list = GetAvailableList();
+			var list = GetAvailablePackageList();
 			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
 			if (item != null)
             {
