@@ -38,7 +38,8 @@ jobs:
       run: |
         cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0\publish
         dir *.*
-        7z.exe a -tzip ${{github.workspace}}\palace.zip * -r -x!*.json
+        del *.json /Q
+        7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
 
     - name: Create Release
       id: create_release
@@ -50,6 +51,9 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
+
+    - name: Info
+      run: echo ${{ steps.create_release.outputs.upload_url }}
 
     - name: Upload Release Asset
       id: upload-release-asset 
