@@ -17,9 +17,6 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Install zip
-      uses: montudor/action-zip@v1
-
     - name: Restore dependencies
       run: dotnet restore palace-6.sln
 
