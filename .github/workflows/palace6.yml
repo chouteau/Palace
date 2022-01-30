@@ -32,11 +32,12 @@ jobs:
         NUGET_KEY: ${{secrets.nuget}}
 
     - name: Build Palace
-      run: dotnet publish src\dotnet6\palace\palace.csproj -c Release --no-restore
+      run: dotnet publish src\dotnet6\palace\palace.csproj -c Release --no-restore -v d
 
     - name: Zip Palace
       run: |
-        cd ${{github.workspace}}\src\dotnet6\Palace\bin\Release\net6.0\
+        cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0
+        echo dir *.*
         7z.exe a -xr@exclude.txt -tzip -r palace.zip *
 
     - name: Publish Palace Service to Release
