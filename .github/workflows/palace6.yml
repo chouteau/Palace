@@ -42,11 +42,13 @@ jobs:
         7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
 
     - name: Build Palace Server
-      run: dotnet publish src\dotnet6\palaceserver\palaceserver.csproj -c Release --no-restore -v d
+      run: |
+        cd ${{github.workspace}}\src\dotnet6\palacesever
+        dotnet publish -p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
 
     - name: Zip Palace
       run: |
-        cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Release\net6.0\publish
+        cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Debug\net6.0\publish
         dir *.*
         del *.json
         7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
