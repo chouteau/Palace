@@ -32,11 +32,14 @@ jobs:
         NUGET_KEY: ${{secrets.nuget}}
 
     - name: Publish Palace Service
-      uses: actions/create-release@master
-      env: 
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
       with: 
+        tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
+        body: |
+          ${{ steps.Changelog.outputs.changelog }}
         draft: false
         prerelease: false
 
