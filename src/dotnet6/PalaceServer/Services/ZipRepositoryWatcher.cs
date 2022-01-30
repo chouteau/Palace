@@ -50,6 +50,9 @@ public class ZipRepositoryWatcher : BackgroundService
         if (_watcher != null)
         {
             _watcher.EnableRaisingEvents = false;
+            _watcher.Changed -= OnChanged;
+            _watcher.Created -= OnChanged;
+            _watcher.Deleted -= OnChanged;
         }
 
         return base.StopAsync(cancellationToken);

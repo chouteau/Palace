@@ -19,6 +19,7 @@ namespace Palace.Models
         UpdateInProgress = 5,
         Updated = 6,
         InstallationFailed = 7,
-        NotExitedAfterStop = 8
+        NotExitedAfterStop = 8,
+        Removed = 9,
     }
 }

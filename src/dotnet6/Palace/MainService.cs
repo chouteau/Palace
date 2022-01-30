@@ -9,22 +9,23 @@ namespace Palace
 	public class MainService : BackgroundService
 	{
 		public MainService(Services.IStarter starter, 
-			Services.IRemoteConfigurationManager remoteConfigurationManager,
+			Services.MicroServicesCollectionManager microServicesCollectionManager,
 			Configuration.PalaceSettings palaceSettings)
 		{
 			this.Starter = starter;
-			this.RemoteConfigurationManager = remoteConfigurationManager;
+			this.MicroServicesCollectionManager = microServicesCollectionManager;
 			this.PalaceSettings = palaceSettings;
 		}
 
 		protected Configuration.PalaceSettings PalaceSettings { get; }
 		protected Services.IStarter Starter { get; }
-		protected Services.IRemoteConfigurationManager RemoteConfigurationManager { get; }
+		protected Services.MicroServicesCollectionManager MicroServicesCollectionManager { get; }
 
 		protected System.Timers.Timer Timer { get; }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
+			await MicroServicesCollectionManager.SynchronizeConfiguration();
 			await Starter.Start();
 			await base.StartAsync(cancellationToken);
         }
@@ -33,15 +34,16 @@ namespace Palace
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
+				await MicroServicesCollectionManager.SynchronizeConfiguration();
+
 				var applyAction = await Starter.ApplyAction();
 				if (!applyAction)
 				{
 					await Starter.CheckHealth();
 					await Starter.CheckUpdate();
+					await Starter.CheckRemove();
 				}
 				
-				await RemoteConfigurationManager.SynchronizeConfiguration();
-
 				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 			}
 		}

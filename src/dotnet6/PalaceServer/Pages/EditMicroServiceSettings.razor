@@ -1,0 +1,81 @@
+﻿@page "/palace/{PalaceName}/editservice/{ServiceName}"
+
+<h3>Edit Settings for service : @MicroServiceSettings.ServiceName</h3>
+
+<EditForm Model="MicroServiceSettings" OnValidSubmit="ValidateAndSave">
+    <ValidationSummary></ValidationSummary>
+    <DataAnnotationsValidator/>
+    <CustomValidator @ref="CustomValidator"></CustomValidator>
+    @if (_isNew)
+    {
+        <div class="mb-3">
+            <label class="form-label">ServiceName :</label>
+            <InputText type="text" @bind-Value="MicroServiceSettings.ServiceName" class="form-control" />
+            <small>
+                <ValidationMessage For="() => MicroServiceSettings.ServiceName"/>
+            </small>
+        </div>
+    }
+    <div class="mb-3">
+        <label class="form-label">AdminServiceUrl :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.AdminServiceUrl" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.AdminServiceUrl"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Arguments :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.Arguments" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.Arguments"/>
+        </small>
+    </div>
+    @*<div class="mb-3">
+        <label class="form-label">InstallationFolder :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.InstallationFolder" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.InstallationFolder"/>
+        </small>
+    </div>*@
+    <div class="mb-3">
+        <label class="form-label">MainAssembly :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.MainAssembly" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.MainAssembly"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">PackageFileName :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.PackageFileName" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.PackageFileName"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">PalaceApiKey :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.PalaceApiKey" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.PalaceApiKey"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">SSLCertificate :</label>
+        <InputText type="text" @bind-Value="MicroServiceSettings.SSLCertificate" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.SSLCertificate"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">SSLCertificate :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.InstanceCount" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.InstanceCount"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">AlwaysStarted :</label>
+        <InputCheckbox @bind-Value="MicroServiceSettings.AlwaysStarted" class="form-check-input" />
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>

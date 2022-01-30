@@ -70,16 +70,23 @@ namespace Palace.Services
             if (microServiceSettings.AdminServiceUrl.StartsWith("https")
                 && !string.IsNullOrWhiteSpace(microServiceSettings.SSLCertificate))
             {
-                var certificate = new X509Certificate2(microServiceSettings.SSLCertificate);
-                handler.ClientCertificates.Add(certificate);
-                handler.ServerCertificateCustomValidationCallback = (sender, certificate, chain, errors) =>
+                if (System.IO.File.Exists(microServiceSettings.SSLCertificate))
                 {
-                    if (errors == System.Net.Security.SslPolicyErrors.RemoteCertificateNotAvailable)
+                    var certificate = new X509Certificate2(microServiceSettings.SSLCertificate);
+                    handler.ClientCertificates.Add(certificate);
+                    handler.ServerCertificateCustomValidationCallback = (sender, certificate, chain, errors) =>
                     {
-                        return false;
-                    }
-                    return true;
-                };
+                        if (errors == System.Net.Security.SslPolicyErrors.RemoteCertificateNotAvailable)
+                        {
+                            return false;
+                        }
+                        return true;
+                    };
+                }
+                else
+                {
+                    Logger.LogWarning("SSLCertifiate filename does not exists {0}", microServiceSettings.SSLCertificate);
+                }
             }
             var httpClient = new HttpClient(handler);
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {microServiceSettings.PalaceApiKey}");

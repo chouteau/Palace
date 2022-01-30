@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
+using PalaceServer.Pages.Components;
 using System.Security.Claims;
 
 namespace PalaceServer.Pages
@@ -10,7 +11,10 @@ namespace PalaceServer.Pages
         [Inject] ILogger<Index> Logger { get; set; }
         [Inject] Services.MicroServiceCollectorManager MicroServicesCollector { get; set; }
         [Inject] Services.PalaceInfoManager PalaceInfoManager { get; set; }
+        [Inject] Configuration.PalaceServerSettings PalaceServerSettings { get; set; }
 
+        ConfirmDialog ConfirmDialog { get; set; }
+        string errorReport { get; set; }
 
         public List<Models.AvailablePackage> AvailablePackageList { get; set; }
 
@@ -29,8 +33,23 @@ namespace PalaceServer.Pages
 
         void UpdateLists()
         {
-            AvailablePackageList = MicroServicesCollector.GetAvailableList();
+            AvailablePackageList = MicroServicesCollector.GetAvailablePackageList();
         }
 
+        void ConfirmRemove(string packageName)
+        {
+            ConfirmDialog.Tag = packageName;
+            ConfirmDialog.ShowDialog($"Confirm remove {packageName} package ?");
+        }
+
+        void RemovePackage(object packageFileName)
+        {
+            var result = MicroServicesCollector.RemovePackage($"{packageFileName}");
+            if (result != null)
+            {
+                errorReport = result;
+            }
+            StateHasChanged();
+        }
     }
 }

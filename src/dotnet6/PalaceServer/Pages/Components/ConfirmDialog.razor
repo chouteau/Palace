@@ -1,0 +1,48 @@
+﻿<div class="modal @modalClass" tabindex="-1" role="dialog" style="display:@modalDisplay; overflow-y: auto;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">@Title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="() => Confirm(false)">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+         @Body
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" @onclick="() => Confirm(true)">Accept</button>
+        <button type="button" class="btn btn-secondary" @onclick="() => Confirm(false)" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public EventCallback<object> Accept { get; set; }
+    
+    public object Tag { get; set; }
+    string Body { get; set; }
+
+    private string modalDisplay = "none;";
+    private string modalClass = "";
+
+    public void ShowDialog(string body)
+    {
+        modalDisplay = "block;";
+        modalClass = "show";
+        Body = body;
+        StateHasChanged();
+    }
+
+    async Task Confirm(bool confirm)
+    {
+        modalDisplay = "none";
+        modalClass = "";
+        if (confirm)
+        {
+            await Accept.InvokeAsync(Tag);
+        }
+    }
+}

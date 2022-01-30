@@ -3,24 +3,41 @@
 <PageTitle>Palace Server - Packages</PageTitle>
 
 <h2>Available packages</h2>
+
+<br/>
+<a href="/UploadPackage" class="btn btn-success">Upload Package</a>
+<br/>
+<br/>
+
+
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Zip File</th>
             <th>Date</th>
+            <th>Size</th>
             <th>Locked By</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in AvailablePackageList)
        {
-        <tr>
+            var size = item.Size / 1024.0;
+            <tr>
             <td>@item.PackageFileName</td>
             <td>@item.LastWriteTime</td>
+            <td>@string.Format("{0:0.00}", size) Ko</td>
             <td>@item.LockedBy</td>
+            <td><button class="btn btn-danger" @onclick="() => ConfirmRemove(item.PackageFileName)" >Remove</button></td>
         </tr>
        }
     </tbody>
 </table>
 
+<ConfirmDialog Title="Confirm remove" @ref="ConfirmDialog" Accept="RemovePackage"></ConfirmDialog>
 
+@if (errorReport != null)
+{
+    <span class="alert">@errorReport</span>
+}

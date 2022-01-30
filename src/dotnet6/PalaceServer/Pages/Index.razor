@@ -42,9 +42,16 @@
             <td>@item.ThreadCount</td>
             <td>@workingSet.ToString("# ###") K</td>
             <td>
-                <button class="btn btn-primary" @onclick="() => Start(item)">Start</button>
-                <button class="btn btn-primary" @onclick="() => Stop(item)">Stop</button>
-                <!--<button class="btn btn-primary">Restart</button>-->
+                @if (item.ServiceState != "Started"
+                     && item.ServiceState != "InstallationFailed"
+                    && item.ServiceState != "Removed")
+                {
+                    <button class="btn btn-primary" @onclick="() => Start(item)">Start</button>            
+                }
+                @if (item.ServiceState == "Started")
+                {
+                    <button class="btn btn-danger" @onclick="() => Stop(item)">Stop</button>
+                }
             </td>
         </tr>
        }

@@ -43,7 +43,7 @@ namespace PalaceServer.Controllers
 
             EnsureGoodAuthorization(authorization);
 
-            var list = Collector.GetAvailableList();
+            var list = Collector.GetAvailablePackageList();
             var serviceInfo = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
             if (serviceInfo == null)
             {
@@ -75,7 +75,7 @@ namespace PalaceServer.Controllers
 
             EnsureGoodAuthorization(authorization);
 
-            var list = Collector.GetAvailableList();
+            var list = Collector.GetAvailablePackageList();
             var serviceInfo = list.FirstOrDefault(i => i.PackageFileName.Equals(packageFileName, StringComparison.InvariantCultureIgnoreCase));
             return Ok(serviceInfo);
         }
@@ -86,7 +86,7 @@ namespace PalaceServer.Controllers
         {
             EnsureGoodAuthorization(authorization);
 
-            var list = Collector.GetAvailableList();
+            var list = Collector.GetAvailablePackageList();
             return Ok(list);
         }
 
@@ -134,9 +134,9 @@ namespace PalaceServer.Controllers
             });
         }
 
-        [HttpPost]
-        [Route("synchronize-configuration")]
-        public async Task<IActionResult> SynchronizeConfiguration([FromHeader] string authorization)
+        [HttpGet]
+        [Route("configuration")]
+        public async Task<IActionResult> GetConfiguration([FromHeader] string authorization)
         {
             EnsureGoodAuthorization(authorization);
 
@@ -146,31 +146,7 @@ namespace PalaceServer.Controllers
                 return NoContent();
             }
 
-            using var reader = new StreamReader(Request.Body, System.Text.Encoding.UTF8);
-            var configuration = await reader.ReadToEndAsync();
-
-            if (string.IsNullOrWhiteSpace(palaceInfo.RawJsonConfiguration))
-            {
-                palaceInfo.RawJsonConfiguration = configuration;
-            }
-
-            var lastModifiedHeader = $"{Request.Headers["If-Modified-Since"]}";
-            if (lastModifiedHeader != null)
-            {
-                DateTime.TryParse(lastModifiedHeader, out var lastModified);
-                if (!palaceInfo.LastConfigurationUpdate.HasValue
-                    || lastModified >= palaceInfo.LastConfigurationUpdate.Value)
-                {
-                    return NoContent();
-                }
-            }
-
-            configuration = palaceInfo.RawJsonConfiguration;
-
-            return Ok(new Models.RawJsonConfigurationResult
-            {
-                Configuration = configuration
-            });
+            return Ok(palaceInfo.MicroServiceSettingsList);
         }
 
         private void EnsureGoodAuthorization(string authorization)

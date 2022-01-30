@@ -105,6 +105,45 @@ namespace Palace.Services
             return deploySuccess;
         }
 
+        public Task<bool> UninstallMicroService(Models.MicroServiceSettings microServiceSettings)
+        {
+            bool uninstallSuccess = true;
+            var directory = System.IO.Path.Combine(PalaceSettings.InstallationDirectory, microServiceSettings.ServiceName);
+            var fileList = System.IO.Directory.GetFiles(directory, "*.*", System.IO.SearchOption.AllDirectories);
+            var directoryList = System.IO.Directory.GetDirectories(directory, "*.*", SearchOption.AllDirectories);
+
+            Logger.LogInformation($"try to remove {fileList.Count()} files from {microServiceSettings.InstallationFolder}");
+
+            foreach (var removeFile in fileList)
+            {
+                try
+                {
+                    System.IO.File.Delete(removeFile);
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError(ex, ex.Message);
+                    uninstallSuccess = false;
+                }
+            }
+            foreach (var removeDirectory in directoryList)
+            {
+                try
+                {
+                    System.IO.Directory.Delete(removeDirectory);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, ex.Message);
+                    uninstallSuccess = false;
+                }
+            }
+
+            System.IO.Directory.Delete(directory, true);
+
+            return Task.FromResult(uninstallSuccess);
+        }
+
         public async Task<bool> UpdateMicroService(Models.MicroServiceInfo microServiceInfo, string packageFileName)
         {
             var version = 1;

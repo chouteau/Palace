@@ -4,14 +4,24 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.0.8</Version>
+    <Version>1.2.12</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Logging\**" />
     <Compile Remove="Temp\**" />
+    <Content Remove="Logging\**" />
     <Content Remove="Temp\**" />
+    <EmbeddedResource Remove="Logging\**" />
     <EmbeddedResource Remove="Temp\**" />
+    <None Remove="Logging\**" />
     <None Remove="Temp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\LoggerApiController.cs" />
+    <Compile Remove="Pages\Logs.razor.cs" />
+    <Compile Remove="Services\LogCollector.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,8 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
+    <PackageReference Include="LogRWebMonitor" Version="1.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.1" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

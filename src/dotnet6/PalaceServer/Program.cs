@@ -1,3 +1,4 @@
+using LogRWebMonitor;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -19,6 +20,10 @@ if (palaceSettings.MicroServiceRepositoryFolder.StartsWith(@".\"))
         System.IO.Directory.CreateDirectory(palaceSettings.MicroServiceRepositoryFolder);
     }
 }
+if (string.IsNullOrWhiteSpace(palaceSettings.MicroServiceConfigurationFolder))
+{
+    palaceSettings.MicroServiceConfigurationFolder = palaceSettings.MicroServiceRepositoryFolder;
+}
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -27,8 +32,12 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
+builder.AddLogRWebMonitor(cfg =>
+{
+    cfg.HostName = "PalaceServer";
+});
+
 builder.Services.AddSingleton(palaceSettings);
-builder.Services.AddSingleton<PalaceServer.Services.LogCollector>();
 builder.Services.AddSingleton<PalaceServer.Services.MicroServiceCollectorManager>();
 builder.Services.AddSingleton<PalaceServer.Services.PalaceInfoManager>();
 builder.Services.AddSingleton<PalaceServer.Services.AdminLoginContext>();
@@ -72,7 +81,6 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-loggerFactory.AddProvider(new PalaceServer.Logging.PalaceLoggerProvider(app.Services));
+app.UseLogRWebMonitor();
 
 app.Run();
