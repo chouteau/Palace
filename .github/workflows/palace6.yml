@@ -38,7 +38,7 @@ jobs:
       run: |
         cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0
         dir *.*
-        7z.exe a -xr@exclude.txt -tzip -r palace.zip *
+        7z.exe a -x!*.json -tzip -r palace.zip *
 
     - name: Publish Palace Service to Release
       uses: actions/create-release@latest
