@@ -36,7 +36,6 @@ jobs:
 
     - name: Zip Palace
       run: zip -qq -r palace.zip src\dotnet6\Palace\bin\Release\net6.0
-      working-directory: path/to/work-dir
 
     - name: Publish Palace Service to Release
       uses: actions/create-release@latest
