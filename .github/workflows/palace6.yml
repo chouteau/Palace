@@ -36,21 +36,18 @@ jobs:
 
     - name: Zip Palace
       run: |
-        cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0
+        cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0\publish
         dir *.*
-        7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
-    - name: Publish Palace Service to Release
+        7z.exe a -r -tzip -x!*.json ${{github.workspace}}\palace.zip * 
+
+    - name: Create Release
       id: create_release
       uses: actions/create-release@latest
       env:
         GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
       with: 
-        artifacts: |
-          palace.zip
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          ${{ steps.Changelog.outputs.changelog }}
+        release_name: Latest
         draft: false
         prerelease: false
 
@@ -60,7 +57,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{github.workspace}}\palace.zip
         asset_name: palace.zip
         asset_content_type: application/zip
