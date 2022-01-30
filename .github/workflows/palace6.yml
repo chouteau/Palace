@@ -17,11 +17,14 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
+    - name: Install zip
+      uses: montudor/action-zip@v1
+
     - name: Restore dependencies
       run: dotnet restore palace-6.sln
 
-    - name: Build
-      run: dotnet build palace-6.sln -c Release --no-restore
+    - name: Build PalaceClient
+      run: dotnet build src\dotnet6\PalaceClient\PalaceClient.csproj -c Release --no-restore
 
     - name: Publish PalaceClient to nuget
       uses: rohith/publish-nuget@v2
@@ -31,11 +34,20 @@ jobs:
         NUGET_SOURCE: https://api.nuget.org
         NUGET_KEY: ${{secrets.nuget}}
 
-    - name: Publish Palace Service
+    - name: Build Palace
+      run: dotnet publish src\dotnet6\palace\palace.csproj -c Release --no-restore
+
+    - name: Zip Palace
+      run: zip -qq -r palace.zip src\dotnet6\Palace\bin\Release\net6.0
+      working-directory: path/to/work-dir
+
+    - name: Publish Palace Service to Release
       uses: actions/create-release@latest
       env:
         GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
       with: 
+        artifacts: |
+          palace.zip
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         body: |
