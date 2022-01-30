@@ -38,7 +38,7 @@ jobs:
       run: |
         cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0\publish
         dir *.*
-        del *.json /Q
+        del *.json
         7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
 
     - name: Create Release
