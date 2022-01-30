@@ -43,10 +43,10 @@ jobs:
 
     - name: Build Palace Server
       run: |
-        cd ${{github.workspace}}\src\dotnet6\palacesever
+        cd ${{github.workspace}}\src\dotnet6\palaceserver
         dotnet publish -p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
 
-    - name: Zip Palace
+    - name: Zip Palace Server
       run: |
         cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Debug\net6.0\publish
         dir *.*
