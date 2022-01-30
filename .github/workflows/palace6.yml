@@ -35,7 +35,7 @@ jobs:
       run: dotnet publish src\dotnet6\palace\palace.csproj -c Release --no-restore
 
     - name: Zip Palace
-      run: zip -qq -r palace.zip src\dotnet6\Palace\bin\Release\net6.0
+      run: 7z.exe a -xr@exclude.txt -tzip -r palace.zip src\dotnet6\Palace\bin\Release\net6.0\*
 
     - name: Publish Palace Service to Release
       uses: actions/create-release@latest
