@@ -53,13 +53,20 @@ jobs:
         del *.json
         7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
 
+    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        delete_release: true # default: false
+        tag_name: Latest # tag name to delete
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
       env:
-        GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with: 
-        tag_name: ${{ github.ref }}
+        tag_name: Latest
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
