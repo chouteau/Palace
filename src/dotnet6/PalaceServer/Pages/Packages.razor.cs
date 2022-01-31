@@ -42,9 +42,9 @@ namespace PalaceServer.Pages
             ConfirmDialog.ShowDialog($"Confirm remove {packageName} package ?");
         }
 
-        void RemovePackage(object packageFileName)
+        async Task RemovePackage(object packageFileName)
         {
-            var result = MicroServicesCollector.RemovePackage($"{packageFileName}");
+            var result = await MicroServicesCollector.RemovePackage($"{packageFileName}");
             if (result != null)
             {
                 errorReport = result;

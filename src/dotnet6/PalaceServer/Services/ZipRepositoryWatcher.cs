@@ -22,6 +22,7 @@ public class ZipRepositoryWatcher : BackgroundService
             return base.StartAsync(cancellationToken); 
         }
         _watcher = new FileSystemWatcher(_settings.MicroServiceRepositoryFolder);
+        _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.LastAccess;
         _watcher.Changed += OnChanged;
         _watcher.Created += OnChanged;
         _watcher.Deleted += OnChanged;
@@ -30,14 +31,17 @@ public class ZipRepositoryWatcher : BackgroundService
         return base.StartAsync(cancellationToken);
     }
 
-    private void OnChanged(object sender, FileSystemEventArgs args)
+    private async void OnChanged(object sender, FileSystemEventArgs args)
     {
         // Filtrer sur les zip uniquement
         if (!args.Name.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
         {
             return;
         }
-        _microServiceCollectorManager.UpdateFile(args.FullPath);
+        if (await IsFileLocked(args.FullPath))
+        {
+            _microServiceCollectorManager.UpdateFile(args.FullPath);
+        }
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,6 +66,28 @@ public class ZipRepositoryWatcher : BackgroundService
     {
         _watcher?.Dispose();
         base.Dispose();
+    }
+
+    public async Task<bool> IsFileLocked(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return false;
+        }
+        if (!System.IO.File.Exists(fileName))
+        {
+            return true;
+        }
+        try
+        {
+            await Task.Delay(500);
+            using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
+            return stream.Length > 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
 
