@@ -74,8 +74,10 @@ namespace PalaceServer.Services
 		{
 			var list = GetAvailablePackageList();
 			var fi = new System.IO.FileInfo(zipFileFullPath);
+
 			var zipFileName = System.IO.Path.GetFileName(zipFileFullPath);
 			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
+
 			if (item == null)
             {
 				var info = new Models.AvailablePackage
@@ -87,13 +89,16 @@ namespace PalaceServer.Services
 			}
             else
             {
-				item.LastWriteTime = fi.LastWriteTime;
+				item.LastWriteTime = fi.LastWriteTime.AddSeconds(-60);
 			}
 
             foreach (var running in GetRunningList())
             {
 				running.NextAction = Models.ServiceAction.ResetInstallationInfo;
             }
+
+			OnChanged?.Invoke();
+
 			Cache.Remove(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY);
 		}
 
@@ -185,7 +190,7 @@ namespace PalaceServer.Services
 			OnChanged?.Invoke();
 		}
 
-		public string RemovePackage(string packageFileName)
+		public async Task<string> RemovePackage(string packageFileName)
 		{
 			var fileName = System.IO.Path.Combine(Settings.MicroServiceRepositoryFolder, packageFileName);
 			if (System.IO.File.Exists(fileName))
@@ -193,6 +198,7 @@ namespace PalaceServer.Services
 				try
 				{
 					System.IO.File.Delete(fileName);
+					await Task.Delay(1000);
 					Cache.Remove(RUNNING_MICROSERVICE_LIST_CACHE_KEY);
 				}
 				catch (Exception ex)

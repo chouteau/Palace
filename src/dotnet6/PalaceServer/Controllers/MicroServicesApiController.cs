@@ -60,7 +60,7 @@ namespace PalaceServer.Controllers
 
             var fileName = System.IO.Path.Combine(PalaceServerSettings.MicroServiceRepositoryFolder, packageFileName);
 
-            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
             return File(stream, "application/zip", packageFileName);
         }
 
@@ -136,7 +136,7 @@ namespace PalaceServer.Controllers
 
         [HttpGet]
         [Route("configuration")]
-        public async Task<IActionResult> GetConfiguration([FromHeader] string authorization)
+        public IActionResult GetConfiguration([FromHeader] string authorization)
         {
             EnsureGoodAuthorization(authorization);
 
