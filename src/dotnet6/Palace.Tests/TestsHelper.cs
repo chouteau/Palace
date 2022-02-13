@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Palace.Extensions;
+using System.Net.Http.Json;
 
 namespace Palace.Tests
 {
@@ -208,6 +209,15 @@ namespace Palace.Tests
 
             Console.WriteLine(output);
 
+        }
+
+        public async static Task AddService(IHost host, object service)
+		{
+            var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
+            var httpClient = httpClientFactory.CreateClient("PalaceServer");
+
+            var response = await httpClient.PostAsJsonAsync("/api/microservices/addservice", service);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

@@ -1,0 +1,47 @@
+﻿@page "/package/{packageFileName}"
+
+<h3>Package @package.PackageFileName</h3>
+
+Date : @package.LastWriteTime<br/>
+Size : @package.Size<br/>
+
+Backups
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th>Version</th>
+			<th>Backup</th>
+			<th>Date</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		@{
+			var index = 0;
+			foreach(var backup in backupFileInfoList)
+			{
+				var parts = backup.FullName.Split(@"\");
+				var version = parts[parts.Length - 2];
+				++index;
+				<tr>
+					<td>@version</td>
+					<td>@backup.Name</td>
+					<td>@backup.LastWriteTime</td>
+					<td>
+					@if (index > 1)
+					{
+						<button class="btn btn-warning" @onclick="() => ConfirmRollback(backup)">Rollback</button>
+					}
+					</td>
+				</tr>
+			}
+		}
+	</tbody>
+</table>
+
+<ConfirmDialog Title="Confirm rollback" @ref="ConfirmDialog" Accept="RollbackPackage"></ConfirmDialog>
+
+@if (errorReport != null)
+{
+    <span class="alert">@errorReport</span>
+}

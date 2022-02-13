@@ -26,9 +26,16 @@ namespace Palace.Tests
         {
             var host = TestsHelper.CreateTestHostWithServer();
             TestsHelper.CleanupFolders(host);
-
-            var settings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
-            settings.PalaceServicesFileName = null;
+            await TestsHelper.AddService(host, new
+			{
+                ServiceName = "demo",
+                MainAssembly = "demosvc.dll",
+                Arguments = "",
+                AdminServiceUrl = "http://localhost:888",
+                AlwaysStarted = false,
+                PalaceApiKey = "test",
+                PackageFileName = "demosvc.zip"
+            });
 
             var starter = host.Services.GetRequiredService<Palace.Services.IStarter>();
 

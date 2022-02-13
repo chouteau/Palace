@@ -36,7 +36,6 @@ namespace Palace.Tests
             TestsHelper.CleanupFolders(host);
 
             var settings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
-            settings.PalaceServicesFileName = null;
 
             var starter = host.Services.GetRequiredService<Palace.Services.IStarter>();
 
@@ -86,7 +85,6 @@ namespace Palace.Tests
             TestsHelper.CleanupFolders(host);
 
             var settings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
-            settings.PalaceServicesFileName = null;
 
             var starter = host.Services.GetRequiredService<Palace.Services.IStarter>();
 

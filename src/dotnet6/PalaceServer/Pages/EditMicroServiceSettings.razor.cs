@@ -16,7 +16,7 @@ namespace PalaceServer.Pages
         public string ServiceName { get; set; }
 
         public Models.MicroServiceSettings MicroServiceSettings { get; set; }
-        public Services.CustomValidator CustomValidator { get; set; } = new();
+        public Pages.Components.CustomValidator CustomValidator { get; set; } = new();
         public Models.PalaceInfo PalaceInfo { get; set; }
 
         protected override void OnInitialized()
@@ -36,15 +36,7 @@ namespace PalaceServer.Pages
 
         protected void ValidateAndSave()
         {
-            Dictionary<string, List<string>> errors = null;
-            if (_isNew)
-            {
-                errors = PalaceInfo.AddMicroServiceSettings(MicroServiceSettings);
-            }
-            else
-            {
-                errors = PalaceInfo.UpdateMicroServiceSettings(MicroServiceSettings);
-            }
+            var errors = PalaceInfoManager.SaveMicroServiceSettings(PalaceInfo,MicroServiceSettings);
 
             if (errors != null
                 && errors.Any())
@@ -53,7 +45,6 @@ namespace PalaceServer.Pages
                 return;
             }
 
-            _isNew = false;
             NavigationManager.NavigateTo($"/palace/{PalaceInfo.Key}/services");
         }
     }

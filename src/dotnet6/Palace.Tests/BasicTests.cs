@@ -79,7 +79,6 @@ namespace Palace.Tests
         {
             var host = TestsHelper.CreateTestHostWithServer();
             var settings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
-            settings.PalaceServicesFileName = null;
 
             var starter = host.Services.GetRequiredService<Palace.Services.IStarter>();
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using PalaceServer.Extensions;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Palace.Tests")]
 
@@ -11,21 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 var palaceSection = builder.Configuration.GetSection("PalaceServer");
 var palaceSettings = new PalaceServer.Configuration.PalaceServerSettings();
 palaceSection.Bind(palaceSettings);
-if (palaceSettings.MicroServiceRepositoryFolder.StartsWith(@".\"))
-{
-    var directoryName = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
-    palaceSettings.MicroServiceRepositoryFolder = System.IO.Path.Combine(directoryName, palaceSettings.MicroServiceRepositoryFolder.Replace(@".\", ""));
-    if (!System.IO.Directory.Exists(palaceSettings.MicroServiceRepositoryFolder))
-    {
-        System.IO.Directory.CreateDirectory(palaceSettings.MicroServiceRepositoryFolder);
-    }
-}
-if (string.IsNullOrWhiteSpace(palaceSettings.MicroServiceConfigurationFolder))
-{
-    palaceSettings.MicroServiceConfigurationFolder = palaceSettings.MicroServiceRepositoryFolder;
-}
+palaceSettings.PrepareFolders();
 
-// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
@@ -34,6 +22,10 @@ builder.Services.AddControllers();
 
 builder.AddLogRWebMonitor(cfg =>
 {
+    if (builder.Environment.IsDevelopment())
+	{
+        cfg.LogLevel = LogLevel.Trace;
+	}
     cfg.HostName = "PalaceServer";
 });
 
@@ -61,6 +53,11 @@ builder.Services.AddDataProtection()
         .PersistKeysToFileSystem(new System.IO.DirectoryInfo(folder))
         .SetApplicationName("PalaceServer")
         .SetDefaultKeyLifetime(TimeSpan.FromDays(60));
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Logging.SetMinimumLevel(LogLevel.Trace);
+}
 
 var app = builder.Build();
 

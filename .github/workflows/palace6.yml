@@ -37,8 +37,8 @@ jobs:
     - name: Zip Palace
       run: |
         cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0\publish
-        dir *.*
-        del *.json
+        del appsettings.json
+        del appsettings.*.json
         7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
 
     - name: Build Palace Server
@@ -49,8 +49,8 @@ jobs:
     - name: Zip Palace Server
       run: |
         cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Debug\net6.0\publish
-        dir *.*
-        del *.json
+        del appsettings.*.json
+        del web.config
         7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
 
     - uses: dev-drprasad/delete-tag-and-release@v0.2.0

@@ -27,10 +27,6 @@ namespace Palace.Extensions
             {
                 palaceSettings.InstallationDirectory = System.IO.Path.Combine(currentDirectory, palaceSettings.InstallationDirectory.Replace(@".\", string.Empty));
             }
-            if (palaceSettings.PalaceServicesFileName.StartsWith(@".\"))
-            {
-                palaceSettings.PalaceServicesFileName = System.IO.Path.Combine(currentDirectory, palaceSettings.PalaceServicesFileName.Replace(@".\", ""));
-            }
         }
     }
 }

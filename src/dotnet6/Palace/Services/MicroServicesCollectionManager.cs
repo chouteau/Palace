@@ -103,11 +103,9 @@ namespace Palace.Services
             httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
             HttpResponseMessage response = null;
 
-            var configFileInfo = new System.IO.FileInfo(PalaceSettings.PalaceServicesFileName);
             try
             {
                 var url = $"/api/microservices/configuration";
-                httpClient.DefaultRequestHeaders.IfModifiedSince = configFileInfo.LastWriteTime;
                 response = await httpClient.GetAsync(url);
             }
             catch (Exception ex)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace PalaceServer.Services
+namespace PalaceServer.Pages.Components
 {
     public class CustomValidator : ComponentBase
     {

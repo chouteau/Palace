@@ -26,31 +26,31 @@ namespace Palace.Tests
     public class UseCase6Test
     {
         [TestMethod]
-        public async Task Start_With_2_Hosts()
+        public async Task Start_And_Remove_Service()
         {
-            var host1 = TestsHelper.CreateTestHostWithServer(config => config.HostName = "Host1");
-            TestsHelper.CleanupFolders(host1);
-            TestsHelper.PublishDemoProject(host1);
-            var starter1 = host1.Services.GetRequiredService<Palace.Services.IStarter>();
+            var host = TestsHelper.CreateTestHostWithServer(config => config.HostName = "Host1");
+            TestsHelper.CleanupFolders(host);
+            TestsHelper.PublishDemoProject(host);
+            var starter = host.Services.GetRequiredService<Palace.Services.IStarter>();
 
-            await starter1.Start();
-            await starter1.CheckHealth();
+            await starter.Start();
+            await starter.CheckHealth();
 
-            starter1.InstanciedServiceCount.Should().Be(1);
-            starter1.RunningServiceCount.Should().Be(1);
+            starter.InstanciedServiceCount.Should().Be(1);
+            starter.RunningServiceCount.Should().Be(1);
 
-            var collection = host1.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
+            var collection = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
             var list = collection.GetList();
             list.First().MarkToDelete = true;
 
-            await starter1.CheckRemove();
+            await starter.CheckRemove();
 
             list = collection.GetList();
             list.Count().Should().Be(0);
 
-            await starter1.Stop();
+            await starter.Stop();
 
-            starter1.InstanciedServiceCount.Should().Be(0);
+            starter.InstanciedServiceCount.Should().Be(0);
         }
     }
 }
