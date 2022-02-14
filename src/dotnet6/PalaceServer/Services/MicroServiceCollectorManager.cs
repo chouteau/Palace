@@ -268,15 +268,20 @@ namespace PalaceServer.Services
 					   let fileInfo = new FileInfo(f)
 					   select fileInfo;
 
-			return list.OrderByDescending(i => i.CreationTime).ToList();
+			var result = list.OrderByDescending(i => i.CreationTime).ToList();
+			return result;
 		}
 
 		public string RollbackPackage(Models.AvailablePackage package, FileInfo fileInfo)
 		{
-			var destPackage = System.IO.Path.Combine(Settings.MicroServiceStagingFolder, package.PackageFileName);
+			var destPackage = System.IO.Path.Combine(Settings.MicroServiceRepositoryFolder, package.PackageFileName);
 			try
 			{
+				fileInfo.LastWriteTime = DateTime.Now;
+				fileInfo.CreationTime = DateTime.Now;
 				System.IO.File.Copy(fileInfo.FullName, destPackage, true);
+				Cache.Remove(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY);
+				OnChanged?.Invoke();
 			}
 			catch(Exception ex)
 			{

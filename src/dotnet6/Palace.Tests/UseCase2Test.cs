@@ -99,27 +99,27 @@ namespace Palace.Tests
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
             await msm.SynchronizeConfiguration();
 
-            //msm.AddOrUpdate(new Models.MicroServiceSettings
-            //{
-            //    PackageFileName = "DemoSvc.zip",
-            //    ServiceName = "DemoSvc",
-            //    MainAssembly = "DemoSvc.dll",
-            //    Arguments = "--port 12346",
-            //    AdminServiceUrl = "http://localhost:12346",
-            //    PalaceApiKey = "test"
-            //});
+			await msm.AddOrUpdateService(new Models.MicroServiceSettings
+			{
+				PackageFileName = "DemoSvc.zip",
+				ServiceName = "DemoSvc",
+				MainAssembly = "DemoSvc.dll",
+				Arguments = "--port 12346",
+				AdminServiceUrl = "http://localhost:12346",
+				PalaceApiKey = "test"
+			});
 
-            //msm.AddOrUpdate(new Models.MicroServiceSettings
-            //{
-            //    PackageFileName = "DemoSvc2.zip",
-            //    ServiceName = "DemoSvc2",
-            //    MainAssembly = "DemoSvc.dll",
-            //    Arguments = "--port 12347",
-            //    AdminServiceUrl = "http://localhost:12347",
-            //    PalaceApiKey = "test"
-            //});
+			await msm.AddOrUpdateService(new Models.MicroServiceSettings
+			{
+				PackageFileName = "DemoSvc2.zip",
+				ServiceName = "DemoSvc2",
+				MainAssembly = "DemoSvc.dll",
+				Arguments = "--port 12347",
+				AdminServiceUrl = "http://localhost:12347",
+				PalaceApiKey = "test"
+			});
 
-            await starter.CheckUpdate();
+			await starter.CheckUpdate();
 
             starter.InstanciedServiceCount.Should().Be(2);
             starter.RunningServiceCount.Should().Be(0);

@@ -150,7 +150,7 @@ namespace PalaceServer.Controllers
         }
 
         [HttpPost]
-        [Route("addservice")]
+        [Route("addorupdateservicesettings")]
         public IActionResult AddService([FromHeader] string authorization, Models.MicroServiceSettings serviceSettings)
 		{
             EnsureGoodAuthorization(authorization);

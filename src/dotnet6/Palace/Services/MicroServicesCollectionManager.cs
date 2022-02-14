@@ -97,6 +97,14 @@ namespace Palace.Services
             }
         }
 
+        public async Task AddOrUpdateService(Models.MicroServiceSettings serviceSettings)
+        {
+            var httpClient = HttpClientFactory.CreateClient("PalaceServer");
+
+            var response = await httpClient.PostAsJsonAsync("/api/microservices/addorupdateservicesettings", serviceSettings);
+            response.EnsureSuccessStatusCode();
+        }
+
         private async Task<IEnumerable<Models.MicroServiceSettings>> GetConfiguration()
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
