@@ -23,6 +23,7 @@ namespace Palace.Services
             {
                 ex.Data.Add("url", microServiceSettings.AdminServiceUrl);
                 ex.Data.Add("certificate", microServiceSettings.SSLCertificate);
+                ex.Data.Add("serviceName", microServiceSettings.ServiceName);
                 Logger.LogError(ex, ex.Message);
                 return null;
             }
@@ -67,6 +68,7 @@ namespace Palace.Services
         public HttpClient CreateHttpClient(Models.MicroServiceSettings microServiceSettings)
         {
             var handler = new HttpClientHandler();
+            Version httpVersion = null;
             if (microServiceSettings.AdminServiceUrl.StartsWith("https")
                 && !string.IsNullOrWhiteSpace(microServiceSettings.SSLCertificate))
             {
@@ -87,8 +89,13 @@ namespace Palace.Services
                 {
                     Logger.LogWarning("SSLCertifiate filename does not exists {0}", microServiceSettings.SSLCertificate);
                 }
+                httpVersion = new Version(2, 0);
             }
             var httpClient = new HttpClient(handler);
+            if (httpVersion != null)
+			{
+                httpClient.DefaultRequestVersion = httpVersion;
+            }
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {microServiceSettings.PalaceApiKey}");
             return httpClient;
         }
