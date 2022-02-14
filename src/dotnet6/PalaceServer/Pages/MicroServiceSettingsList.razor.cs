@@ -29,7 +29,7 @@ namespace PalaceServer.Pages
 
         void RemoveService(object serviceName)
         {
-            PalaceInfo.RemoveMicroServiceSettings($"{serviceName}");
+            PalaceInfoManager.RemoveMicroServiceSettings(PalaceInfo, $"{serviceName}");
             StateHasChanged();
         }
     }

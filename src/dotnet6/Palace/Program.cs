@@ -6,31 +6,45 @@ using Palace.Extensions;
 
 // [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Palace.Tests")]
 
-var configuration = new ConfigurationBuilder()
-                    .AddJsonFile("appSettings.json")
-                    .Build();
-
-var palaceSection = configuration.GetSection("Palace");
-var palaceSettings = new Palace.Configuration.PalaceSettings();
-palaceSection.Bind(palaceSettings);
-palaceSettings.Initialize();
-
 var builder = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
+#if FOR_WINDOWS
+    .UseWindowsService()
+#endif
+    .ConfigureAppConfiguration((hostingContext, config) =>
     {
+        var currentDirectory = System.IO.Path.GetDirectoryName(typeof(Program).Assembly.Location);
+        config
+            .SetBasePath(currentDirectory)
+            .AddJsonFile("appSettings.json")
+            .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: false);
+
+        hostingContext.HostingEnvironment.ApplicationName = "Palace";
+    })
+    .ConfigureLogging((hostingContext, logging) =>
+    {
+        logging.ClearProviders();
+        logging.AddFilter("Microsoft", LogLevel.Warning);
+        logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+        if (System.Environment.UserInteractive)
+        {
+            logging.SetMinimumLevel(LogLevel.Trace);
+            logging.AddConsole();
+            logging.AddDebug();
+        }
+    })
+    .ConfigureServices((hostingContext, services) =>
+    {
+        var palaceSection = hostingContext.Configuration.GetSection("Palace");
+        var palaceSettings = new Palace.Configuration.PalaceSettings();
+        palaceSection.Bind(palaceSettings);
+        palaceSettings.Initialize();
+
         services.AddSingleton(palaceSettings);
         services.AddSingleton<Palace.Services.IStarter, Palace.Services.Starter>();
 
         services.AddTransient<Palace.Services.IMicroServicesOrchestrator, Palace.Services.MicroServicesOrchestrator>();
         services.AddSingleton<Palace.Services.MicroServicesCollectionManager>();
 
-        services.AddLogging(configure =>
-        {
-            configure.ClearProviders();
-            configure.AddFilter("Microsoft", LogLevel.Warning);
-            configure.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
-            configure.AddConsole();
-        });
         services.AddMemoryCache();
 
         services.AddHttpClient();
@@ -42,19 +56,15 @@ var builder = Host.CreateDefaultBuilder(args)
             configure.DefaultRequestHeaders.UserAgent.ParseAdd($"Palace/{version} ({System.Environment.OSVersion}; {System.Environment.MachineName}; {palaceSettings.HostName})");
         });
 
-        services.AddLogRPush(cfg =>
-        {
-            cfg.HostName = palaceSettings.HostName;
-            cfg.LogServerUrlList.Add(palaceSettings.UpdateServerUrl);
-            cfg.LogLevel = palaceSettings.LogLevel;
-        });
+		services.AddLogRPush(cfg =>
+		{
+			cfg.HostName = palaceSettings.HostName;
+			cfg.LogServerUrlList.Add(palaceSettings.UpdateServerUrl);
+			cfg.LogLevel = palaceSettings.LogLevel;
+		});
 
-        services.AddHostedService<MainService>();
+		services.AddHostedService<MainService>();
     });
-
-#if FOR_WINDOWS
-    builder.UseWindowsService();
-#endif
 
 var host = builder.Build();
 

@@ -14,7 +14,7 @@ namespace PalaceServer.Pages
         [Inject] NavigationManager NavigationManager { get; set; }
         [Inject] ILogger<UploadPackage> Logger { get; set; }
 
-        public Services.CustomValidator CustomValidator { get; set; } = new();
+        public Pages.Components.CustomValidator CustomValidator { get; set; } = new();
         public UploadedFile UploadedFile { get; set; } = new();
 
         bool uploading = false;
@@ -54,11 +54,10 @@ namespace PalaceServer.Pages
                     }
                 }
             }
-                
 
             // TODO : Verifier si le zip est correct
 
-            var finalFileName = System.IO.Path.Combine(PalaceServerSettings.MicroServiceRepositoryFolder, e.File.Name);
+            var finalFileName = System.IO.Path.Combine(PalaceServerSettings.MicroServiceStagingFolder, e.File.Name);
             await Task.Delay(1000);
             try
             {

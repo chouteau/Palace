@@ -149,6 +149,26 @@ namespace PalaceServer.Controllers
             return Ok(palaceInfo.MicroServiceSettingsList);
         }
 
+        [HttpPost]
+        [Route("addorupdateservicesettings")]
+        public IActionResult AddService([FromHeader] string authorization, Models.MicroServiceSettings serviceSettings)
+		{
+            EnsureGoodAuthorization(authorization);
+
+            var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
+            if (palaceInfo == null)
+            {
+                return NoContent();
+            }
+
+            var result = PalaceInfoManager.SaveMicroServiceSettings(palaceInfo,serviceSettings);
+            if (result.Count > 0)
+			{
+                BadRequest(result);
+            }
+            return Ok();
+        }
+
         private void EnsureGoodAuthorization(string authorization)
         {
             if (string.IsNullOrWhiteSpace(authorization))

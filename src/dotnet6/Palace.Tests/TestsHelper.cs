@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Palace.Extensions;
+using System.Net.Http.Json;
 
 namespace Palace.Tests
 {

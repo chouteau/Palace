@@ -4,44 +4,67 @@ namespace PalaceServer.Services;
 
 public class ZipRepositoryWatcher : BackgroundService
 {
-    private FileSystemWatcher _watcher;
-    private readonly Configuration.PalaceServerSettings _settings;
-    private readonly MicroServiceCollectorManager _microServiceCollectorManager;
-
     public ZipRepositoryWatcher(Configuration.PalaceServerSettings settings,
-        MicroServiceCollectorManager microServiceCollectorManager)
+        MicroServiceCollectorManager microServiceCollectorManager,
+        ILogger<ZipRepositoryWatcher> logger)
     {
-        this._settings = settings;
-        this._microServiceCollectorManager = microServiceCollectorManager;
+        this.Settings = settings;
+        this.MicroServiceCollectorManager = microServiceCollectorManager;
+        this.Logger = logger;
     }
+
+    protected FileSystemWatcher Watcher { get; set; }
+    protected Configuration.PalaceServerSettings Settings { get; }
+    protected MicroServiceCollectorManager MicroServiceCollectorManager { get; }
+    protected ILogger Logger { get; }
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-        if (!System.IO.Directory.Exists( _settings.MicroServiceRepositoryFolder))
+        if (!System.IO.Directory.Exists( Settings.MicroServiceStagingFolder))
         {
             return base.StartAsync(cancellationToken); 
         }
-        _watcher = new FileSystemWatcher(_settings.MicroServiceRepositoryFolder);
-        _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.LastAccess;
-        _watcher.Changed += OnChanged;
-        _watcher.Created += OnChanged;
-        _watcher.Deleted += OnChanged;
-        _watcher.EnableRaisingEvents = true;
+        Watcher = new FileSystemWatcher(Settings.MicroServiceStagingFolder);
+        Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.LastAccess;
+        Watcher.Changed += OnChanged;
+        Watcher.Created += OnChanged;
+        Watcher.EnableRaisingEvents = true;
 
         return base.StartAsync(cancellationToken);
     }
 
     private async void OnChanged(object sender, FileSystemEventArgs args)
     {
+        if (args.Name.EndsWith(".tmp", StringComparison.InvariantCultureIgnoreCase))
+		{
+            Logger.LogTrace("detect temp file {0} {1}", args.Name, args.ChangeType);
+            return;
+		}
+
         // Filtrer sur les zip uniquement
-        if (!args.Name.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
+        if (args.Name.IndexOf(".zip", StringComparison.InvariantCultureIgnoreCase) == -1)
+        {
+            Logger.LogTrace("detect {0} {1} not zip file", args.Name, args.ChangeType);
+            return;
+        }
+
+        if (!IsFileClosed(args.FullPath))
         {
             return;
         }
-        if (await IsFileLocked(args.FullPath))
-        {
-            _microServiceCollectorManager.UpdateFile(args.FullPath);
+
+        var zipFileName = args.FullPath;
+
+        // Prise en compte du patter filename.zip.version
+        var parts = args.Name.Split('.');
+        string version = null;
+        if (!parts.Last().Equals("zip", StringComparison.InvariantCultureIgnoreCase))
+		{
+            version = parts.Last();
+            zipFileName = args.FullPath.Replace($".{version}", "");
         }
+
+        MicroServiceCollectorManager.BackupAndUpdateRepositoryFile(zipFileName, version);
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,12 +74,12 @@ public class ZipRepositoryWatcher : BackgroundService
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        if (_watcher != null)
+        if (Watcher != null)
         {
-            _watcher.EnableRaisingEvents = false;
-            _watcher.Changed -= OnChanged;
-            _watcher.Created -= OnChanged;
-            _watcher.Deleted -= OnChanged;
+            Watcher.EnableRaisingEvents = false;
+            Watcher.Changed -= OnChanged;
+            Watcher.Created -= OnChanged;
+            Watcher.Deleted -= OnChanged;
         }
 
         return base.StopAsync(cancellationToken);
@@ -64,27 +87,18 @@ public class ZipRepositoryWatcher : BackgroundService
 
     public override void Dispose()
     {
-        _watcher?.Dispose();
+        Watcher?.Dispose();
         base.Dispose();
     }
 
-    public async Task<bool> IsFileLocked(string fileName)
+    public bool IsFileClosed(string fileName)
     {
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            return false;
-        }
-        if (!System.IO.File.Exists(fileName))
-        {
-            return true;
-        }
         try
         {
-            await Task.Delay(500);
             using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
-            return stream.Length > 0;
+            return true;
         }
-        catch
+        catch(IOException)
         {
             return false;
         }

@@ -48,6 +48,7 @@ namespace PalaceServer.Services
 					LastWriteTime = item.LastWriteTime,
 					Size = item.Length
 				};
+				SetCurrentVersion(info);
 				result.Add(info);
 			}
 			Cache.Set(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY, result, DateTime.Now.AddDays(1));
@@ -70,29 +71,74 @@ namespace PalaceServer.Services
 			return result;
 		}
 
-		public void UpdateFile(string zipFileFullPath)
+		public void BackupAndUpdateRepositoryFile(string zipFileFullPath, string version = null)
 		{
 			var list = GetAvailablePackageList();
 			var fi = new System.IO.FileInfo(zipFileFullPath);
 
 			var zipFileName = System.IO.Path.GetFileName(zipFileFullPath);
-			var item = list.FirstOrDefault(i => i.PackageFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
-
-			if (item == null)
-            {
-				var info = new Models.AvailablePackage
+			var availablePackage = list.FirstOrDefault(i => i.PackageFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
+			if (availablePackage != null)
+			{
+				if (availablePackage.ChangeDetected)
 				{
-					PackageFileName = zipFileName,
-					LastWriteTime = fi.LastWriteTime
-				};
-				list.Add(info);
-			}
-            else
-            {
-				item.LastWriteTime = fi.LastWriteTime.AddSeconds(-60);
+					return;
+				}
+				availablePackage.ChangeDetected = true;
 			}
 
-            foreach (var running in GetRunningList())
+			var destFileName = System.IO.Path.Combine(Settings.MicroServiceRepositoryFolder, zipFileName);
+			if (System.IO.File.Exists(destFileName))
+			{
+				// Backup
+				string backupDirectory = Settings.MicroServiceBackupFolder;
+				if (string.IsNullOrWhiteSpace(version))
+				{
+					backupDirectory = GetNewBackupDirectory(zipFileName);
+					if (!System.IO.Directory.Exists(backupDirectory))
+					{
+						System.IO.Directory.CreateDirectory(backupDirectory);
+					}
+					var backupFileName = System.IO.Path.Combine(backupDirectory, zipFileName);
+					System.IO.File.Copy(zipFileFullPath, backupFileName, true);
+				}
+				else
+				{
+					var directoryPart = zipFileName.Replace(".zip", "", StringComparison.InvariantCultureIgnoreCase);
+					var existingBackupFileName = System.IO.Path.Combine(backupDirectory, directoryPart, version, zipFileName);
+					if (System.IO.File.Exists(existingBackupFileName))
+					{
+						// Ne pas faire de mise à jour
+						return;
+					}
+					var destDirectory = Path.GetDirectoryName(existingBackupFileName);
+					if (!System.IO.Directory.Exists(destDirectory))
+					{
+						System.IO.Directory.CreateDirectory(destDirectory);
+					}
+					var backupFileName = System.IO.Path.Combine(destDirectory, zipFileName);
+					System.IO.File.Copy(zipFileFullPath, backupFileName, true);
+					zipFileFullPath = $"{zipFileFullPath}.{version}";
+				}
+			}
+
+			try
+			{
+				System.IO.File.Copy(zipFileFullPath, destFileName, true);
+			}
+			catch (IOException)
+			{
+				return;
+			}
+			finally
+			{
+				if (availablePackage != null)
+				{
+					availablePackage.ChangeDetected = false;
+				}
+			}
+
+			foreach (var running in GetRunningList())
             {
 				running.NextAction = Models.ServiceAction.ResetInstallationInfo;
             }
@@ -209,6 +255,41 @@ namespace PalaceServer.Services
 			return null;
 		}
 
+		public List<FileInfo> GetBackupFileList(string packageFileName)
+		{
+			var directoryPart = packageFileName.Replace(".zip", "", StringComparison.InvariantCultureIgnoreCase);
+			var backupDirectory = System.IO.Path.Combine(Settings.MicroServiceBackupFolder, directoryPart);
+
+			if (!System.IO.Directory.Exists(backupDirectory))
+			{
+				return new List<FileInfo>();
+			}
+			var list = from f in System.IO.Directory.GetFiles(backupDirectory, "*.*", SearchOption.AllDirectories)
+					   let fileInfo = new FileInfo(f)
+					   select fileInfo;
+
+			var result = list.OrderByDescending(i => i.CreationTime).ToList();
+			return result;
+		}
+
+		public string RollbackPackage(Models.AvailablePackage package, FileInfo fileInfo)
+		{
+			var destPackage = System.IO.Path.Combine(Settings.MicroServiceRepositoryFolder, package.PackageFileName);
+			try
+			{
+				fileInfo.LastWriteTime = DateTime.Now;
+				fileInfo.CreationTime = DateTime.Now;
+				System.IO.File.Copy(fileInfo.FullName, destPackage, true);
+				Cache.Remove(REPOSITORY_MICROSERVICE_AVAILABLE_LIST_CACHE_KEY);
+				OnChanged?.Invoke();
+			}
+			catch(Exception ex)
+			{
+				return ex.Message;
+			}
+
+			return null;
+		}
 
 		private void UnLockDownload(string packageFileName)
 		{
@@ -232,5 +313,40 @@ namespace PalaceServer.Services
 			OnChanged?.Invoke();
 		}
 
+		private string GetNewBackupDirectory(string fileName)
+		{
+			var version = 1;
+			var directoryPart = fileName.Replace(".zip", "", StringComparison.InvariantCultureIgnoreCase);
+			string backupDirectory = null;
+			while (true)
+			{
+				backupDirectory = System.IO.Path.Combine(Settings.MicroServiceBackupFolder, directoryPart, $"v{version}");
+				if (System.IO.Directory.Exists(backupDirectory))
+				{
+					version++;
+					continue;
+				}
+				break;
+			}
+			return backupDirectory;
+		}
+		private void SetCurrentVersion(Models.AvailablePackage availablePackage)
+		{
+			if (availablePackage == null)
+			{
+				return;
+			}
+			var backupList = GetBackupFileList(availablePackage.PackageFileName);
+			if (backupList == null
+				|| !backupList.Any())
+			{
+				availablePackage.CurrentVersion = "unknown";
+				return;
+			}
+			var lastBackup = backupList.First();
+			var parts = lastBackup.FullName.Split(@"\");
+			var version = parts[parts.Length - 2];
+			availablePackage.CurrentVersion = version;
+		}
 	}
 }

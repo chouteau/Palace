@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.2.15</Version>
+    <Version>1.3.16</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,12 +16,6 @@
     <EmbeddedResource Remove="Temp\**" />
     <None Remove="Logging\**" />
     <None Remove="Temp\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\LoggerApiController.cs" />
-    <Compile Remove="Pages\Logs.razor.cs" />
-    <Compile Remove="Services\LogCollector.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +32,7 @@
 
   <ItemGroup>
     <PackageReference Include="LogRWebMonitor" Version="1.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.2" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
   </ItemGroup>
@@ -62,12 +56,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="exclude.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 	<!--<ItemGroup>

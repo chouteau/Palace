@@ -8,7 +8,7 @@ namespace PalaceServer.Pages
 {
     public partial class Packages
     {
-        [Inject] ILogger<Index> Logger { get; set; }
+        [Inject] ILogger<Packages> Logger { get; set; }
         [Inject] Services.MicroServiceCollectorManager MicroServicesCollector { get; set; }
         [Inject] Services.PalaceInfoManager PalaceInfoManager { get; set; }
         [Inject] Configuration.PalaceServerSettings PalaceServerSettings { get; set; }

@@ -97,17 +97,23 @@ namespace Palace.Services
             }
         }
 
+        public async Task AddOrUpdateService(Models.MicroServiceSettings serviceSettings)
+        {
+            var httpClient = HttpClientFactory.CreateClient("PalaceServer");
+
+            var response = await httpClient.PostAsJsonAsync("/api/microservices/addorupdateservicesettings", serviceSettings);
+            response.EnsureSuccessStatusCode();
+        }
+
         private async Task<IEnumerable<Models.MicroServiceSettings>> GetConfiguration()
         {
             var httpClient = HttpClientFactory.CreateClient("PalaceServer");
             httpClient.BaseAddress = new Uri(PalaceSettings.UpdateServerUrl);
             HttpResponseMessage response = null;
 
-            var configFileInfo = new System.IO.FileInfo(PalaceSettings.PalaceServicesFileName);
             try
             {
                 var url = $"/api/microservices/configuration";
-                httpClient.DefaultRequestHeaders.IfModifiedSince = configFileInfo.LastWriteTime;
                 response = await httpClient.GetAsync(url);
             }
             catch (Exception ex)
