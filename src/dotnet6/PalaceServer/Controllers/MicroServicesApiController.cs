@@ -11,16 +11,19 @@ namespace PalaceServer.Controllers
     {
         public MicroServicesApiController(Configuration.PalaceServerSettings palaceServicerSettings,
             Services.MicroServiceCollectorManager microServicesService,
-            Services.PalaceInfoManager palaceInfoManager)
+            Services.PalaceInfoManager palaceInfoManager,
+            ILogger<MicroServicesApiController> logger)
         {
             this.PalaceServerSettings = palaceServicerSettings;
             this.Collector = microServicesService;
             this.PalaceInfoManager = palaceInfoManager;
+            this.Logger = logger;
         }
 
         protected Configuration.PalaceServerSettings PalaceServerSettings { get; }
         protected Services.MicroServiceCollectorManager Collector { get; }
         protected Services.PalaceInfoManager PalaceInfoManager { get; }
+        protected ILogger Logger { get; }
 
         [Route("ping")]
         [HttpGet]
@@ -126,6 +129,10 @@ namespace PalaceServer.Controllers
             }
 
             var nextAction = svc.NextAction;
+            if (nextAction != Models.ServiceAction.DoNothing)
+			{
+                Logger.LogInformation("Action {0} required for running service {1} on {2}", nextAction, serviceName, svc.Key);
+			}
             svc.NextAction = Models.ServiceAction.DoNothing;
 
             return Ok(new Models.NextActionResult

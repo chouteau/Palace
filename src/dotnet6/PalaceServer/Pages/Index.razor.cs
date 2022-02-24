@@ -16,11 +16,13 @@ namespace PalaceServer.Pages
 
         public void Stop(Models.ExtendedRunningMicroServiceInfo ermsi)
         {
+            Logger.LogInformation("Try to stop {0} on {1}", ermsi.ServiceName, ermsi.Key);
             ermsi.NextAction = Models.ServiceAction.Stop;
         }
 
         public void Start(Models.ExtendedRunningMicroServiceInfo ermsi)
         {
+            Logger.LogInformation("Try to start {0} on {1}", ermsi.ServiceName, ermsi.Key);
             ermsi.NextAction = Models.ServiceAction.Start;
         }
 
