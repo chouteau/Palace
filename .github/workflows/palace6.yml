@@ -23,13 +23,11 @@ jobs:
     - name: Build PalaceClient
       run: dotnet build src\dotnet6\PalaceClient\PalaceClient.csproj -c Release --no-restore
 
-    - name: Publish PalaceClient to nuget
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: ${{github.workspace}}\src\dotnet6\PalaceClient\PalaceClient.csproj
-        PACKAGE_NAME: PalaceClient
-        NUGET_SOURCE: https://api.nuget.org
-        NUGET_KEY: ${{secrets.nuget}}
+    - name: Pack PalaceClient
+      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\dotnet6\PalaceClient\PalaceClient.csproj --output .
+
+    - name: Push Nuget
+      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.nuget}} --skip-duplicate
 
     - name: Build Palace
       run: dotnet publish src\dotnet6\palace\palace.csproj -c Release --no-restore -v d
