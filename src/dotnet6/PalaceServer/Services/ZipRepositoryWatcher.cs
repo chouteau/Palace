@@ -48,23 +48,22 @@ public class ZipRepositoryWatcher : BackgroundService
             return;
         }
 
-        if (!IsFileClosed(args.FullPath))
+        var unlock = await WaitForUnlock(args.FullPath);
+        if (!unlock)
         {
+            Logger.LogWarning("detect {0} file {1} not closed", args.Name, args.ChangeType);
             return;
         }
 
-        var zipFileName = args.FullPath;
-
-        // Prise en compte du patter filename.zip.version
-        var parts = args.Name.Split('.');
-        string version = null;
-        if (!parts.Last().Equals("zip", StringComparison.InvariantCultureIgnoreCase))
+        try
 		{
-            version = parts.Last();
-            zipFileName = args.FullPath.Replace($".{version}", "");
+            MicroServiceCollectorManager.BackupAndUpdateRepositoryFile(args.FullPath);
         }
-
-        MicroServiceCollectorManager.BackupAndUpdateRepositoryFile(zipFileName, version);
+        catch (Exception ex)
+		{
+            ex.Data.Add("FullPath", args.FullPath);
+            Logger.LogError(ex, ex.ToString());
+		}
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -91,17 +90,33 @@ public class ZipRepositoryWatcher : BackgroundService
         base.Dispose();
     }
 
-    public bool IsFileClosed(string fileName)
+    public async Task<bool> WaitForUnlock(string fileName)
     {
-        try
-        {
-            using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
-            return true;
+        var loop = 0;
+        bool success = false;
+        while(true)
+		{
+            try
+            {
+                using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
+                if (stream.Length > 0)
+				{
+                    success = true;
+                    break;
+                }
+            }
+            catch (IOException)
+            {
+                await Task.Delay(500);
+            }
+            loop++;
+            if (loop > 1000)
+			{
+                success = false;
+                break;
+			}
         }
-        catch(IOException)
-        {
-            return false;
-        }
+        return success;
     }
 }
 

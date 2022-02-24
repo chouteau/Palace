@@ -71,21 +71,35 @@ namespace PalaceServer.Services
 			return result;
 		}
 
-		public void BackupAndUpdateRepositoryFile(string zipFileFullPath, string version = null)
+		public void BackupAndUpdateRepositoryFile(string zipFileFullPath)
 		{
-			var list = GetAvailablePackageList();
-			var fi = new System.IO.FileInfo(zipFileFullPath);
+			var zipFileName = System.IO.Path.GetFileName(zipFileFullPath.ToLower());
 
-			var zipFileName = System.IO.Path.GetFileName(zipFileFullPath);
+			// Prise en compte du pattern filename.zip.version.*
+			var parts = zipFileName.Split('.').ToList();
+			string version = null;
+			var index = parts.IndexOf("zip");
+			version = string.Join(".", parts.Skip(index + 1).Take(int.MaxValue));
+			if (!string.IsNullOrWhiteSpace(version))
+			{
+				zipFileName = zipFileName.Replace($".{version}", "");
+			}
+
+			Logger.LogInformation("BackupAndUpdateRepositoryFile {0} with version {1} zipName {2}", zipFileFullPath, version, zipFileName);
+			var list = GetAvailablePackageList();
+
 			var availablePackage = list.FirstOrDefault(i => i.PackageFileName.Equals(zipFileName, StringComparison.InvariantCultureIgnoreCase));
 			if (availablePackage != null)
 			{
 				if (availablePackage.ChangeDetected)
 				{
+					Logger.LogInformation("BackupAndUpdateRepositoryFile {0} with version {1} change already detected", zipFileFullPath, version);
 					return;
 				}
 				availablePackage.ChangeDetected = true;
 			}
+
+			Logger.LogInformation("Start BackupAndUpdateRepositoryFile {0} with version {1}", zipFileFullPath, version);
 
 			var destFileName = System.IO.Path.Combine(Settings.MicroServiceRepositoryFolder, zipFileName);
 			if (System.IO.File.Exists(destFileName))
@@ -94,6 +108,7 @@ namespace PalaceServer.Services
 				string backupDirectory = Settings.MicroServiceBackupFolder;
 				if (string.IsNullOrWhiteSpace(version))
 				{
+					Logger.LogInformation("Try to BackupAndUpdateRepositoryFile {0}", zipFileFullPath);
 					backupDirectory = GetNewBackupDirectory(zipFileName);
 					if (!System.IO.Directory.Exists(backupDirectory))
 					{
@@ -101,13 +116,16 @@ namespace PalaceServer.Services
 					}
 					var backupFileName = System.IO.Path.Combine(backupDirectory, zipFileName);
 					System.IO.File.Copy(zipFileFullPath, backupFileName, true);
+					Logger.LogInformation("Backup from {0} to {1} ", zipFileFullPath, backupFileName);
 				}
 				else
 				{
+					Logger.LogInformation("Try to BackupAndUpdateRepositoryFile {0} with version {1}", zipFileFullPath, version);
 					var directoryPart = zipFileName.Replace(".zip", "", StringComparison.InvariantCultureIgnoreCase);
 					var existingBackupFileName = System.IO.Path.Combine(backupDirectory, directoryPart, version, zipFileName);
 					if (System.IO.File.Exists(existingBackupFileName))
 					{
+						Logger.LogInformation("File {0} with version {1} already backuped without changed", zipFileFullPath, version);
 						// Ne pas faire de mise à jour
 						return;
 					}
@@ -117,17 +135,21 @@ namespace PalaceServer.Services
 						System.IO.Directory.CreateDirectory(destDirectory);
 					}
 					var backupFileName = System.IO.Path.Combine(destDirectory, zipFileName);
+					Logger.LogInformation("Try to Backup from {0} to {1} ", zipFileFullPath, backupFileName);
 					System.IO.File.Copy(zipFileFullPath, backupFileName, true);
-					zipFileFullPath = $"{zipFileFullPath}.{version}";
+					Logger.LogInformation("Backup from {0} to {1} ", zipFileFullPath, backupFileName);
 				}
 			}
 
 			try
 			{
+				Logger.LogInformation("Try to deploy {0} to {1} ", zipFileFullPath, destFileName);
 				System.IO.File.Copy(zipFileFullPath, destFileName, true);
+				Logger.LogInformation("package {0} deployed", destFileName);
 			}
-			catch (IOException)
+			catch (IOException ex)
 			{
+				Logger.LogError(ex, "deploy {0} failed", destFileName);
 				return;
 			}
 			finally
