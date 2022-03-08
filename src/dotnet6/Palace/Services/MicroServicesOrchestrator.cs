@@ -139,7 +139,16 @@ namespace Palace.Services
                 }
             }
 
-            System.IO.Directory.Delete(directory, true);
+            try
+			{
+                System.IO.Directory.Delete(directory, true);
+            }
+            catch(Exception ex)
+			{
+                ex.Data.Add("Directory", directory);
+                Logger.LogError(ex, ex.Message);
+                uninstallSuccess = false;
+            }
 
             return Task.FromResult(uninstallSuccess);
         }

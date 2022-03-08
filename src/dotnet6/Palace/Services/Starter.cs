@@ -115,11 +115,13 @@ namespace Palace.Services
                         break;
 
                     case PalaceServer.Models.ServiceAction.Stop:
+                        Logger.LogInformation("try to stop {0}", item.ServiceName);
                         item.StartForced = false;
                         await StopMicroService(item);
                         result = true;
                         break;
                     case PalaceServer.Models.ServiceAction.ResetInstallationInfo:
+                        Logger.LogInformation("reset installation {0}", item.ServiceName);
                         item.InstallationFailed = false;
                         result = true;
                         break;
