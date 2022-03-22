@@ -154,7 +154,6 @@ namespace Palace.Services
                 var info = await Orchestrator.GetRunningMicroServiceInfo(item);
                 if (info == null)
                 {
-                    var message = $"Service {item.ServiceName} not responding @ {item.AdminServiceUrl}";
                     instancied.ServiceState = Models.ServiceState.NotResponding;
                     var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{instancied.ServiceState}");
                     await Orchestrator.UpdateRunningMicroServiceProperty(sps);
@@ -166,10 +165,18 @@ namespace Palace.Services
                 info.ServiceName = item.ServiceName;
                 if (instancied.Process != null)
                 {
-                    info.PeakWorkingSet = instancied.Process.PeakWorkingSet64;
-                    info.PeakVirtualMem = instancied.Process.PeakVirtualMemorySize64;
-                    info.PeakPagedMem = instancied.Process.PeakPagedMemorySize64;
-                    info.StartedDate = instancied.Process.StartTime;
+                    try
+					{
+                        instancied.Process.Refresh();
+                        info.PeakWorkingSet = instancied.Process.PeakWorkingSet64;
+                        info.PeakVirtualMem = instancied.Process.PeakVirtualMemorySize64;
+                        info.PeakPagedMem = instancied.Process.PeakPagedMemorySize64;
+                        info.StartedDate = instancied.Process.StartTime;
+                    }
+                    catch(Exception ex)
+					{
+                        Logger.LogError(ex, ex.Message);
+					}
                 }
                 else if (info.ProcessId != 0)
                 {
@@ -188,6 +195,12 @@ namespace Palace.Services
             foreach (var item in MicroServicesCollection.GetList())
             {
                 var instancied = InstanciedServiceList.SingleOrDefault(i => i.Name.Equals(item.ServiceName, StringComparison.InvariantCultureIgnoreCase));
+                if (instancied == null
+                    && item.AlwaysStarted)
+                {
+                    instancied = await StartMicroService(item);
+                }
+
                 if (instancied == null)
                 {
                     Logger.LogInformation($"instance of {item.ServiceName} does not exists");
@@ -202,6 +215,7 @@ namespace Palace.Services
                     {
                         instancied.ServiceState = Models.ServiceState.Offline;
                     }
+
                     await AddOrUpdateInstantiatedService(instancied);
                     if ((!item.AlwaysStarted && !item.StartForced)
                         || item.InstallationFailed)
@@ -240,9 +254,16 @@ namespace Palace.Services
                     item.InstallationFailed = true;
                     continue;
                 }
+
+                if (!instancied.LastWriteTime.HasValue)
+				{
+                    instancied = await StartMicroService(item);
+				}
+
                 var totalMinute = (instancied.LastWriteTime.GetValueOrDefault(DateTime.MinValue) - remoteServiceInfo.LastWriteTime).TotalMinutes;
                 if (totalMinute <= 0)
                 {
+
                     Logger.LogInformation("Update detected for service {0}", instancied.Name);
                     var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{Models.ServiceState.UpdateDetected}");
                     await Orchestrator.UpdateRunningMicroServiceProperty(sps);
@@ -471,6 +492,9 @@ namespace Palace.Services
             else
             {
                 instance.LastWriteTime = serviceInfo.LastWriteTime;
+                instance.InstallationFolder = serviceInfo.InstallationFolder;
+                instance.Arguments = serviceInfo.Arguments;
+                instance.LocalInstallationExists = serviceInfo.LocalInstallationExists;
             }
         }
 

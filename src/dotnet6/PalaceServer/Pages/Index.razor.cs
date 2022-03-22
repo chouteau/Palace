@@ -26,16 +26,23 @@ namespace PalaceServer.Pages
             ermsi.NextAction = Models.ServiceAction.Start;
         }
 
-        protected override void OnInitialized()
-        {
-            MicroServicesCollector.OnChanged += async () => 
-            {
-                await InvokeAsync(() =>
+		protected override void OnAfterRender(bool firstRender)
+		{
+			if (firstRender)
+			{
+                MicroServicesCollector.OnChanged += async () =>
                 {
-                    UpdateLists();
-                    base.StateHasChanged();
-                });
-            };
+                    await InvokeAsync(() =>
+                    {
+                        UpdateLists();
+                        base.StateHasChanged();
+                    });
+                };
+            }
+        }
+
+		protected override void OnInitialized()
+        {
             UpdateLists();
         }
 
