@@ -404,17 +404,17 @@ namespace Palace.Services
             {
                 // S'il 'est pas présent localement, on verifie s'il est présent sur le serveur
                 var remoteServiceInfo = await Orchestrator.GetAvailablePackage(serviceSettings);
+                serviceInfo = new Models.MicroServiceInfo();
+                serviceInfo.Name = serviceSettings.ServiceName;
+                serviceInfo.InstallationFolder = serviceSettings.InstallationFolder;
+                serviceInfo.LocalInstallationExists = false;
                 if (remoteServiceInfo == null)
                 {
-                    serviceInfo = new Models.MicroServiceInfo();
-                    serviceInfo.Name = serviceSettings.ServiceName;
                     serviceInfo.ServiceState = Models.ServiceState.NotExists;
                     Logger.LogWarning("this service does not exists {0}", serviceSettings.ServiceName);
                 }
                 else
                 {
-                    serviceInfo = new Models.MicroServiceInfo();
-                    serviceInfo.Name = serviceSettings.ServiceName;
                     serviceInfo.ServiceState = Models.ServiceState.NotInstalled;
                 }
             }
