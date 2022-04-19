@@ -24,7 +24,6 @@ namespace PalaceServer.Pages
         {
             ConfirmDialog.Tag = serviceName;
             ConfirmDialog.ShowDialog($"Confirm remove {serviceName} service ?");
-            Console.WriteLine(ConfirmDialog);
         }
 
         void RemoveService(object serviceName)

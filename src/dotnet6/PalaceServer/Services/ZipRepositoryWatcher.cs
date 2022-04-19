@@ -35,7 +35,9 @@ public class ZipRepositoryWatcher : BackgroundService
 
     private async void OnChanged(object sender, FileSystemEventArgs args)
     {
-        if (args.Name.EndsWith(".tmp", StringComparison.InvariantCultureIgnoreCase))
+		Logger.LogDebug("Detect file {ChangeType} {FullPath}", args.FullPath, args.ChangeType);
+		
+		if (args.Name.EndsWith(".tmp", StringComparison.InvariantCultureIgnoreCase))
 		{
             Logger.LogTrace("detect temp file {0} {1}", args.Name, args.ChangeType);
             return;
@@ -55,8 +57,10 @@ public class ZipRepositoryWatcher : BackgroundService
             return;
         }
 
+        Logger.LogInformation("File unlocked detected {ChangeType} {FullPath}", args.FullPath, args.ChangeType);
+
         try
-		{
+        {
             MicroServiceCollectorManager.BackupAndUpdateRepositoryFile(args.FullPath);
         }
         catch (Exception ex)
@@ -107,6 +111,13 @@ public class ZipRepositoryWatcher : BackgroundService
             }
             catch (IOException)
             {
+				Logger.LogDebug("Wait for unlock {0}", fileName);
+				await Task.Delay(500);
+            }
+            catch (Exception ex)
+			{
+                ex.Data.Add("FileName", fileName);
+                Logger.LogError(ex, ex.Message);
                 await Task.Delay(500);
             }
             loop++;
