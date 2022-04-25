@@ -43,4 +43,19 @@
     </tbody>
 </table>
 
+<Toast @ref="toast"/>
+
+<EditForm Model="@jsonServicesContent" OnSubmit="ValidateAndSave">
+    <ValidationSummary></ValidationSummary>
+    <DataAnnotationsValidator/>
+    <CustomValidator @ref="customValidator"></CustomValidator>
+
+    <div class="mb-3">
+        <InputTextArea @bind-Value="@jsonServicesContent" rows="25" cols="150">
+
+        </InputTextArea>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
 <ConfirmDialog Title="Confirm remove" @ref="ConfirmDialog" Accept="RemoveService"></ConfirmDialog>

@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Palace-B6E59778-5B41-4AC3-BD67-55D951B96AF4</UserSecretsId>
-    <Version>1.2.20</Version>
+    <Version>1.2.21</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LogRPush" Version="1.1.7" />
+    <PackageReference Include="LogRPush" Version="1.1.9.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />

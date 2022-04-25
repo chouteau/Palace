@@ -14,11 +14,18 @@ namespace PalaceServer.Pages
         public string PalaceName { get; set; }
 
         public Models.PalaceInfo PalaceInfo { get; set; }
+        string jsonServicesContent = string.Empty;
+        Pages.Components.CustomValidator customValidator = new();
+        Components.Toast toast;
 
         protected override void OnInitialized()
         { 
             PalaceInfo = PalaceInfoManager.GetPalaceInfoList().SingleOrDefault(i => i.Key == PalaceName);
-        }
+            jsonServicesContent = System.Text.Json.JsonSerializer.Serialize(PalaceInfo.MicroServiceSettingsList, new System.Text.Json.JsonSerializerOptions
+			{
+				WriteIndented = true
+			});
+		}
 
         void ConfirmRemove(string serviceName)
         {
@@ -31,5 +38,33 @@ namespace PalaceServer.Pages
             PalaceInfoManager.RemoveMicroServiceSettings(PalaceInfo, $"{serviceName}");
             StateHasChanged();
         }
+
+        protected void ValidateAndSave()
+        {
+            IEnumerable<Models.MicroServiceSettings> unserialized = null;
+            try
+			{
+                unserialized = System.Text.Json.JsonSerializer.Deserialize<IEnumerable<Models.MicroServiceSettings>>(jsonServicesContent);
+			}
+            catch(Exception ex)
+			{
+                customValidator.DisplayErrors(ex.Message);
+                return;
+            }
+
+			foreach (var item in unserialized)
+			{
+                var errors = PalaceInfoManager.SaveMicroServiceSettings(PalaceInfo, item);
+
+                if (errors != null
+                    && errors.Any())
+                {
+                    customValidator.DisplayErrors(errors);
+                    return;
+                }
+            }
+
+            toast.Show("All services saved", ToastLevel.Success);
+		}
     }
 }
