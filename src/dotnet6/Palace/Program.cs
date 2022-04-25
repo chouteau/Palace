@@ -61,6 +61,7 @@ var builder = Host.CreateDefaultBuilder(args)
 			cfg.HostName = palaceSettings.HostName;
 			cfg.LogServerUrlList.Add(palaceSettings.UpdateServerUrl);
 			cfg.LogLevel = palaceSettings.LogLevel;
+            cfg.EnvironmentName = hostingContext.HostingEnvironment.EnvironmentName;
 		});
 
 		services.AddHostedService<MainService>();

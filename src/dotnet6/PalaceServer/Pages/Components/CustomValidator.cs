@@ -19,6 +19,13 @@ namespace PalaceServer.Pages.Components
             CurrentEditContext.OnValidationRequested += (s, arg) => _messageStore.Clear();
         }
 
+        public void DisplayErrors(string error)
+        {
+            _messageStore.Add(CurrentEditContext.Field("all"), error);
+            CurrentEditContext.NotifyValidationStateChanged();
+        }
+
+
         public void DisplayErrors(Dictionary<string, List<string>> errors)
         {
             foreach (var error in errors)
