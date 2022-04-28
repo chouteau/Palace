@@ -224,6 +224,47 @@ namespace Palace.Services
             return false;
         }
 
+        public bool KillProcess(Models.MicroServiceSettings settings)
+        {
+            return true;
+			var processList = Process.GetProcesses();
+			if (!processList.Any())
+			{
+				Logger.LogWarning("Could not find any dotnet.exe process in this machine");
+				return false;
+			}
+            try
+            {
+				foreach (var p in processList)
+				{
+                    if (p.ProcessName.IndexOf("dotnet") != -1)
+					{
+                        string arguments = null;
+                        try
+						{
+                            arguments = p.StartInfo.Arguments;
+                        }
+                        catch
+						{
+
+						}
+						Logger.LogWarning("Try to kill process {0}", p.Id);
+					}
+                    Logger.LogDebug(p.ProcessName);
+				}
+                var process = processList.FirstOrDefault(p => p.StartInfo.Arguments.Contains(settings.MainAssembly));
+                process.Kill(true);
+                Logger.LogWarning("Try to kill service {0} on processId {1}", settings.ServiceName, process.Id);
+                process.Kill(true);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+            }
+            return false;
+        }
+
         public Models.MicroServiceInfo GetLocallyInstalledMicroServiceInfo(Models.MicroServiceSettings microServiceSettings)
         {
             Models.MicroServiceInfo result = null;

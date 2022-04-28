@@ -95,42 +95,50 @@ namespace Palace.Services
             }
         }
 
-        public async Task<bool> ApplyAction()
+        public async Task<bool> GetApplyAction()
         {
             var result = false;
             foreach (var item in MicroServicesCollection.GetList())
             {
-                var actionResult = await Orchestrator.GetNextAction(item);
-                switch (actionResult?.Action)
-                {
-                    case PalaceServer.Models.ServiceAction.Start:
-                        Logger.LogInformation("try to start {0}", item.ServiceName);
-                        item.StartForced = true;
-                        var startResult = await StartMicroService(item);
-                        if (startResult == null)
-                        {
-                            Logger.LogWarning("start {0} fail", item.ServiceName);
-                        }
-                        result = true;
-                        break;
-
-                    case PalaceServer.Models.ServiceAction.Stop:
-                        Logger.LogInformation("try to stop {0}", item.ServiceName);
-                        item.StartForced = false;
-                        await StopMicroService(item);
-                        result = true;
-                        break;
-                    case PalaceServer.Models.ServiceAction.ResetInstallationInfo:
-                        Logger.LogInformation("reset installation {0}", item.ServiceName);
-                        item.InstallationFailed = false;
-                        result = true;
-                        break;
-                }
+				var actionResult = await Orchestrator.GetNextAction(item);
+                await ApplyAction(item, actionResult);
             }
             return result;
         }
-        public async Task CheckHealth()
+
+        public async Task<bool> ApplyAction(Models.MicroServiceSettings item, PalaceServer.Models.NextActionResult action)
+		{
+            bool result = false;
+            switch (action?.Action)
+            {
+                case PalaceServer.Models.ServiceAction.Start:
+                    Logger.LogInformation("try to start {0}", item.ServiceName);
+                    item.StartForced = true;
+                    var startResult = await StartMicroService(item);
+                    if (startResult == null)
+                    {
+                        Logger.LogWarning("start {0} fail", item.ServiceName);
+                    }
+                    result = true;
+                    break;
+
+                case PalaceServer.Models.ServiceAction.Stop:
+                    Logger.LogInformation("try to stop {0}", item.ServiceName);
+                    item.StartForced = false;
+                    await StopMicroService(item);
+                    result = true;
+                    break;
+                case PalaceServer.Models.ServiceAction.ResetInstallationInfo:
+                    Logger.LogInformation("reset installation {0}", item.ServiceName);
+                    item.InstallationFailed = false;
+                    result = true;
+                    break;
+            }
+            return result;
+        }
+        public async Task<List<(Models.MicroServiceSettings, PalaceServer.Models.NextActionResult)>> CheckHealth()
         {
+            var result = new List<(Models.MicroServiceSettings, PalaceServer.Models.NextActionResult)>();
             foreach (var item in MicroServicesCollection.GetList())
             {
                 var instancied = InstanciedServiceList.SingleOrDefault(i => i.Name.Equals(item.ServiceName, StringComparison.InvariantCultureIgnoreCase));
@@ -155,10 +163,22 @@ namespace Palace.Services
                 if (info == null)
                 {
                     instancied.ServiceState = Models.ServiceState.NotResponding;
+                    instancied.NotRespondingCount++;
                     var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{instancied.ServiceState}");
                     await Orchestrator.UpdateRunningMicroServiceProperty(sps);
+
+                    if (instancied.NotRespondingCount > PalaceSettings.NotRespondingCountBeforeRestart)
+					{
+                        result.Add(new(item, new PalaceServer.Models.NextActionResult
+                        {
+                            Action = PalaceServer.Models.ServiceAction.Stop
+                        }));
+					}
+
                     continue;
                 }
+
+                instancied.NotRespondingCount = 0;
                 instancied.ServiceState = Models.ServiceState.Started;
                 instancied.Version = info.Version;
                 info.ServiceState = $"{instancied.ServiceState}";
@@ -171,7 +191,9 @@ namespace Palace.Services
                         info.PeakWorkingSet = instancied.Process.PeakWorkingSet64;
                         info.PeakVirtualMem = instancied.Process.PeakVirtualMemorySize64;
                         info.PeakPagedMem = instancied.Process.PeakPagedMemorySize64;
+                        info.WorkingSet = instancied.Process.WorkingSet64;
                         info.StartedDate = instancied.Process.StartTime;
+                        info.ThreadCount = instancied.Process.Threads.Count;
                     }
                     catch(Exception ex)
 					{
@@ -186,10 +208,26 @@ namespace Palace.Services
                         instancied.Process = pi;
                     }
                 }
+
+                if (info.ThreadCount > PalaceSettings.ThreadLimitBeforeRestart)
+				{
+                    Logger.LogWarning("service {ServiceName} has too many thread {ThreadCount}", info.ServiceName, info.ThreadCount);
+                    info.ServiceState = "Instable";
+                    result.Add(new(item, new PalaceServer.Models.NextActionResult()
+                    {
+                        Action = PalaceServer.Models.ServiceAction.Stop
+                    }));
+                }
+                else
+				{
+                    Logger.LogDebug("service {0} is up", info.ServiceName);
+                }
+
                 await Orchestrator.RegisterOrUpdateRunningMicroServiceInfo(info);
-                Logger.LogDebug("service {0} is up", info.ServiceName);
             }
+            return result;
         }
+        
         public async Task CheckUpdate()
         {
             foreach (var item in MicroServicesCollection.GetList())
@@ -376,7 +414,17 @@ namespace Palace.Services
             if (result != null)
             {
                 Logger.LogInformation("stop {0} with result {1}", serviceSettings.ServiceName, result.Message);
-                await Task.Delay(2 * 1000);
+                await Task.Delay(5 * 1000);
+            }
+			else
+			{
+                Logger.LogWarning("Try to kill service");
+                var killSuccess = Orchestrator.KillProcess(serviceSettings);
+                if (!killSuccess)
+                {
+                    Logger.LogCritical("Stop service {0} impossible", serviceSettings.ServiceName);
+                    return;
+                }
             }
 
             var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(serviceSettings.ServiceName, $"{Models.ServiceState.Offline}");

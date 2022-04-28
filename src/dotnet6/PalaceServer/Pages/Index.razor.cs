@@ -13,6 +13,7 @@ namespace PalaceServer.Pages
 
 
         public List<Models.ExtendedRunningMicroServiceInfo> RunningMicroServiceList { get; set; }
+        string groupBy = "host";
 
         public void Stop(Models.ExtendedRunningMicroServiceInfo ermsi)
         {
@@ -51,5 +52,10 @@ namespace PalaceServer.Pages
             RunningMicroServiceList = MicroServicesCollector.GetRunningList();
         }
 
+        void DisplayMore(Models.ExtendedRunningMicroServiceInfo info)
+		{
+            info.UIDisplayMore = !info.UIDisplayMore;
+            StateHasChanged();
+		}
     }
 }

@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Palace-B6E59778-5B41-4AC3-BD67-55D951B96AF4</UserSecretsId>
-    <Version>1.2.21</Version>
+    <Version>1.2.24</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -202,6 +202,7 @@ namespace PalaceServer.Services
 			rms.PeakPagedMem = runningMicroserviceInfo.PeakPagedMem;
 			rms.PeakVirtualMem = runningMicroserviceInfo.PeakVirtualMem;	
 			rms.PeakWorkingSet = runningMicroserviceInfo.PeakWorkingSet;
+			rms.WorkingSet = runningMicroserviceInfo.WorkingSet;
 			rms.AdminUrl = runningMicroserviceInfo.AdminUrl;
 			rms.EnvironmentName = runningMicroserviceInfo.EnvironmentName;
 			rms.PalaceClientVersion =	runningMicroserviceInfo.PalaceClientVersion;	

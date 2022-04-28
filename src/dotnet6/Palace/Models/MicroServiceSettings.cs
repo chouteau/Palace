@@ -17,6 +17,10 @@ namespace Palace.Models
         public string PalaceApiKey { get; set; }
         public string PackageFileName { get; set; }
         public string SSLCertificate { get; set; }
+        public int? ThreadLimitBeforeRestart { get; set; }
+        public int? NotRespondingCountBeforeRestart { get; set; }
+        public int? MaxWorkingSetLimitBeforeRestart { get; set; }
+
 
         [System.Text.Json.Serialization.JsonIgnore]
         public bool StartForced { get; set; } = false;
@@ -24,5 +28,5 @@ namespace Palace.Models
         public bool InstallationFailed { get; set; } = false;
         [System.Text.Json.Serialization.JsonIgnore]
         public bool MarkToDelete { get; set; } = false;
-    }
+	}
 }

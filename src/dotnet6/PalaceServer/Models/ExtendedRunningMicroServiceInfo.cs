@@ -6,12 +6,14 @@
         {
             CreationDate = DateTime.Now;
             LastUpdateDate = DateTime.Now;
+            UIDisplayMore = false;
         }
 
         public DateTime CreationDate { get; set; }
         public DateTime LastUpdateDate { get; set; }
         public PalaceInfo PalaceInfo { get; set; }
         public ServiceAction NextAction { get; set; }
+        public bool UIDisplayMore { get; set; }
 
         public string Key
         {

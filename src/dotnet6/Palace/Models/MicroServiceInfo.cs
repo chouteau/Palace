@@ -22,5 +22,6 @@ namespace Palace.Models
         
         public ServiceState ServiceState { get; set; }
         public string StartFailedMessage { get; set; }
-    }
+		public int NotRespondingCount { get; set; }
+	}
 }

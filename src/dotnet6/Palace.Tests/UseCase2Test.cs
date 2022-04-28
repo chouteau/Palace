@@ -67,7 +67,7 @@ namespace Palace.Tests
 
             TestsHelper.PublishDemoProject(host);
 
-            await starter.ApplyAction();
+            await starter.GetApplyAction();
             await starter.CheckUpdate();
 
             starter.InstanciedServiceCount.Should().Be(1);
@@ -127,7 +127,7 @@ namespace Palace.Tests
             TestsHelper.PublishDemoProject(host);
             TestsHelper.PublishDemoProject(host, "DemoSvc2.zip");
 
-            await starter.ApplyAction();
+            await starter.GetApplyAction();
             await starter.CheckUpdate();
 
             starter.InstanciedServiceCount.Should().Be(2);
