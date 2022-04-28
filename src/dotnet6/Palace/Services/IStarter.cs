@@ -9,8 +9,9 @@ namespace Palace.Services
         Models.MicroServiceInfo GetMicroServiceInfo(string serviceName);
         Models.MicroServiceSettings GetMicroServiceSettings(string serviceName);
 
-        Task<bool> ApplyAction();
-        Task CheckHealth();
+        Task<bool> GetApplyAction();
+        Task<bool> ApplyAction(Models.MicroServiceSettings item, PalaceServer.Models.NextActionResult action);
+        Task<List<(Models.MicroServiceSettings, PalaceServer.Models.NextActionResult)>> CheckHealth();
         Task CheckUpdate();
         Task CheckRemove();
         Task Start();

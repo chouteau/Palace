@@ -36,10 +36,18 @@ namespace Palace
 			{
 				await MicroServicesCollectionManager.SynchronizeConfiguration();
 
-				var applyAction = await Starter.ApplyAction();
+				var applyAction = await Starter.GetApplyAction();
 				if (!applyAction)
 				{
-					await Starter.CheckHealth();
+					var actionList = await Starter.CheckHealth();
+					if (actionList != null
+						&& actionList.Count > 0)
+					{
+						foreach (var item in actionList)
+						{
+							await Starter.ApplyAction(item.Item1, item.Item2);
+						}
+					}
 					await Starter.CheckUpdate();
 					await Starter.CheckRemove();
 				}

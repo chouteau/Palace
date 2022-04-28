@@ -36,5 +36,7 @@ namespace Palace.Configuration
 
 		[Obsolete("Use palaceServer instead", true)]
         public string PalaceServicesFileName { get; set; }
+		public int ThreadLimitBeforeRestart { get; set; } = 150;
+		public int NotRespondingCountBeforeRestart { get; set; } = 5;
 	}
 }

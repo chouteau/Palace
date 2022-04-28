@@ -17,7 +17,7 @@ namespace PalaceServer.Models
         public string Ip { get; set; }
         public DateTime LastHitDate { get; set; }
 
-        public IEnumerable<MicroServiceSettings> MicroServiceSettingsList { get; set; }
+		public IEnumerable<MicroServiceSettings> MicroServiceSettingsList { get; set; }
         public DateTime? LastConfigurationUpdate { get; set; }
 
         public string Key => $"{MachineName}.{HostName}";

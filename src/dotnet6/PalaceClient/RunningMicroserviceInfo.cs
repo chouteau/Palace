@@ -15,6 +15,7 @@ namespace PalaceClient
         public DateTime StartedDate { get; set; }
         public string CommandLine { get; set; }
         public long PeakWorkingSet { get; set; }
+        public long WorkingSet { get; set; }
         public long PeakPagedMem { get; set; }
         public long PeakVirtualMem { get; set; }
         public string EnvironmentName { get; set; }
