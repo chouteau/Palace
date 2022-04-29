@@ -308,8 +308,6 @@ namespace Palace.Services
 
                     instancied.ServiceState = Models.ServiceState.UpdateInProgress;
 
-                    Orchestrator.BackupMicroServiceFiles(instancied);
-
                     var update = await Orchestrator.DownloadPackage(item.PackageFileName);
                     if (update != null)
                     {

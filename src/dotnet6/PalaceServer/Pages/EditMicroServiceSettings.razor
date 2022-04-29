@@ -17,6 +17,10 @@
         </div>
     }
     <div class="mb-3">
+        <label class="form-label">AlwaysStarted :</label>
+        <InputCheckbox @bind-Value="MicroServiceSettings.AlwaysStarted" class="form-check-input" />
+    </div>
+    <div class="mb-3">
         <label class="form-label">AdminServiceUrl :</label>
         <InputText type="text" @bind-Value="MicroServiceSettings.AdminServiceUrl" class="form-control" />
         <small>
@@ -66,15 +70,32 @@
         </small>
     </div>
     <div class="mb-3">
-        <label class="form-label">SSLCertificate :</label>
+        <label class="form-label">Instance Count :</label>
         <InputNumber @bind-Value="MicroServiceSettings.InstanceCount" class="form-control" />
         <small>
             <ValidationMessage For="() => MicroServiceSettings.InstanceCount"/>
         </small>
     </div>
     <div class="mb-3">
-        <label class="form-label">AlwaysStarted :</label>
-        <InputCheckbox @bind-Value="MicroServiceSettings.AlwaysStarted" class="form-check-input" />
+        <label class="form-label">Thread limit before restart :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.ThreadLimitBeforeRestart" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.ThreadLimitBeforeRestart"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Not responding count before restart :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.NotRespondingCountBeforeRestart" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.NotRespondingCountBeforeRestart"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Max working set before restart :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.MaxWorkingSetLimitBeforeRestart" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.MaxWorkingSetLimitBeforeRestart"/>
+        </small>
     </div>
     <br/>
     <button type="submit" class="btn btn-primary">Save</button>

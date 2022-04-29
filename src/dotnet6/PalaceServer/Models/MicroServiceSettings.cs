@@ -28,6 +28,11 @@ namespace PalaceServer.Models
         public string SSLCertificate { get; set; }
         public int InstanceCount { get; set; } = 1;
 
+        public int? ThreadLimitBeforeRestart { get; set; }
+        public int? NotRespondingCountBeforeRestart { get; set; }
+        public int? MaxWorkingSetLimitBeforeRestart { get; set; }
+
+
         public object Clone()
         {
             var result = (MicroServiceSettings)this.MemberwiseClone();
