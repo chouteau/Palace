@@ -19,7 +19,6 @@ namespace Palace.Services
         Task<bool> UninstallMicroService(Models.MicroServiceSettings serviceSettings);
 
         Task<bool> UpdateMicroService(MicroServiceInfo microServiceInfo, string packageFileName);
-        void BackupMicroServiceFiles(MicroServiceInfo microServiceInfo);
 
         Task<FileInfoResult> DownloadPackage(string packageFileName);
         Task<AvailablePackage> GetAvailablePackage(MicroServiceSettings microServiceSettings);

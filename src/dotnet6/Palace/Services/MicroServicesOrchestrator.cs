@@ -175,34 +175,6 @@ namespace Palace.Services
             return deploySuccess;
         }
 
-        public void BackupMicroServiceFiles(Models.MicroServiceInfo microServiceInfo)
-        {
-            if (!System.IO.Directory.Exists(microServiceInfo.InstallationFolder))
-            {
-                // Le service n'est pas encore installé
-                Logger.LogInformation("No backup for not already installed service {0}", microServiceInfo.Name);
-                return;
-            }
-
-            var fileList = from f in System.IO.Directory.GetFiles(microServiceInfo.InstallationFolder, "*.*", SearchOption.AllDirectories)
-                           select f;
-
-            var backupDirectory = GetNewBackupDirectory(microServiceInfo);
-            System.IO.Directory.CreateDirectory(backupDirectory);
-
-            foreach (var file in fileList)
-            {
-                var destinationFile = file.Replace(microServiceInfo.InstallationFolder, string.Empty).Trim('\\');
-                destinationFile = System.IO.Path.Combine(backupDirectory, destinationFile);
-                var destinationDirectory = System.IO.Path.GetDirectoryName(destinationFile);
-                if (!System.IO.Directory.Exists(destinationDirectory))
-                {
-                    System.IO.Directory.CreateDirectory(destinationDirectory);
-                }
-                System.IO.File.Copy(file, destinationFile);
-            }
-        }
-
         public bool KillProcess(Models.MicroServiceInfo msi)
         {
             if (msi == null
@@ -290,22 +262,6 @@ namespace Palace.Services
             return result;
         }
 
-        private string GetNewBackupDirectory(Models.MicroServiceInfo microServiceInfo)
-        {
-            var version = 1;
-            string backupDirectory = null;
-            while (true)
-            {
-                backupDirectory = System.IO.Path.Combine(PalaceSettings.BackupDirectory, microServiceInfo.Name, $"v{version}");
-                if (System.IO.Directory.Exists(backupDirectory))
-                {
-                    version++;
-                    continue;
-                }
-                break;
-            }
-            return backupDirectory;
-        }
 
         private async Task<bool> DeployMicroService(Models.MicroServiceInfo microServiceInfo, string unZipFolder)
         {
@@ -317,6 +273,11 @@ namespace Palace.Services
             foreach (var sourceFile in fileList)
             {
                 var destFile = sourceFile.Replace(unZipFolder, "").Trim('\\');
+                if (string.IsNullOrWhiteSpace(microServiceInfo.InstallationFolder))
+				{
+                    Logger.LogWarning($"Installation folder not defined for service {microServiceInfo.Name}");
+                    continue;
+				}
                 destFile = System.IO.Path.Combine(microServiceInfo.InstallationFolder,  destFile);
 
                 var destDirectory = System.IO.Path.GetDirectoryName(destFile);
