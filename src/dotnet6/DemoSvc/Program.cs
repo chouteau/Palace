@@ -47,5 +47,6 @@ if (!string.IsNullOrWhiteSpace(System.Environment.GetCommandLineArgs().GetParame
 
 StopAwaiter.WaitForStopFromWebApi();
 
-await host.StopAsync();
+await Task.Delay(40 * 1000);
 
+await host.StopAsync();

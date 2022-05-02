@@ -431,11 +431,25 @@ namespace Palace.Services
             if (instantiedService != null)
             {
                 InstanciedServiceList.Remove(instantiedService);
-                if (instantiedService.Process != null
-                    && !instantiedService.Process.HasExited)
+                if (instantiedService.Process != null)
                 {
-                    Logger.LogWarning("stop {0} has process not exited", serviceSettings.ServiceName);
-                    sps = PalaceServer.Models.ServiceProperties.CreateChangeState(serviceSettings.ServiceName, $"{Models.ServiceState.NotExitedAfterStop}");
+                    var loop = 0;
+					while(true)
+					{
+                        await Task.Delay(1 * 1000);
+                        if (instantiedService.Process.HasExited)
+						{
+                            break;
+						}
+                        loop++;
+                        Logger.LogWarning("stop {0} has process not exited {loop}", serviceSettings.ServiceName, loop);
+                        sps = PalaceServer.Models.ServiceProperties.CreateChangeState(serviceSettings.ServiceName, $"{Models.ServiceState.NotExitedAfterStop}");
+                        await Task.Delay(4 * 1000);
+                        if (loop > 6)
+						{
+                            break;
+						}
+					}
                 }
             }
 
