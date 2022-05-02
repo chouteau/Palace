@@ -9,6 +9,7 @@ namespace PalaceClient
         public PalaceSettings()
         {
             StartedDate = DateTime.Now;
+            TimeoutInSecondBeforeKillService = 30;
         }
         public string ApiKey { get; set; }
         public string ServiceName { get; set; }
@@ -18,5 +19,6 @@ namespace PalaceClient
         public DateTime LastWriteTime { get; internal set; }
         public DateTime StartedDate { get; set; }
         public string HostEnvironmentName { get; set; }
-    }
+		public int TimeoutInSecondBeforeKillService { get; set; }
+	}
 }

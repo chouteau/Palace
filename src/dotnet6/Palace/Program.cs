@@ -1,4 +1,4 @@
-#define FOR_WINDOWS
+#define WINDOWS
 
 using LogRPush;
 using Palace;
@@ -7,7 +7,7 @@ using Palace.Extensions;
 // [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Palace.Tests")]
 
 var builder = Host.CreateDefaultBuilder(args)
-#if FOR_WINDOWS
+#if WINDOWS
     .UseWindowsService()
 #endif
     .ConfigureAppConfiguration((hostingContext, config) =>
