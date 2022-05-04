@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>", Scope = "member", Target = "~M:PalaceDeployCli.ServiceManager.StopService(System.String)~System.Boolean")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]

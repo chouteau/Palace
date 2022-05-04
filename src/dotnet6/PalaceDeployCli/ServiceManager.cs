@@ -9,13 +9,20 @@ namespace PalaceDeployCli
 {
 	public class ServiceManager
 	{
-		public bool StopService(string serviceName)
+		public ServiceManager(PalaceDeployCliSettings settings)
 		{
-			var serviceController = new ServiceController(serviceName);
+			this.Settings = settings;
+		}
+
+		protected PalaceDeployCliSettings Settings { get; set; }
+
+		public bool StopService()
+		{
+			var serviceController = new ServiceController(Settings.ServiceName);
 			if (serviceController.Status.Equals(ServiceControllerStatus.Stopped)
 				|| serviceController.Status.Equals(ServiceControllerStatus.StopPending))
 			{
-				Console.WriteLine("Service {0} is already stopped or stopping", serviceName);
+				Console.WriteLine("Service {0} is already stopped or stopping", Settings.ServiceName);
 				return false;
 			}
 
@@ -23,5 +30,20 @@ namespace PalaceDeployCli
 			serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(60));
 			return true;
 		}
+
+		public bool StartService()
+		{
+			var serviceController = new ServiceController(Settings.ServiceName);
+			if (serviceController.Status.Equals(ServiceControllerStatus.Running))
+			{
+				Console.WriteLine("Service {0} is already running", Settings.ServiceName);
+				return false;
+			}
+
+			serviceController.Start();
+			serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(60));
+			return true;
+		}
+
 	}
 }
