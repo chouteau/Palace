@@ -48,6 +48,7 @@ jobs:
       run: |
         cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Debug\net6.0\publish
         del appsettings.*.json
+        del appsettings.json
         del web.config
         7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
 

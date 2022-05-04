@@ -198,3 +198,4 @@ ModelManifest.xml
 /server
 /src/dotnet6/PalaceServer/.config
 /palaceserver
+/src/dotnet6/PalaceDeployCli/appsettings.local.json
