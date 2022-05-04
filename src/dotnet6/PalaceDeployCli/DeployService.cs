@@ -19,7 +19,7 @@ namespace PalaceDeployCli
 		protected PalaceDeployCliSettings Settings { get; }
 		protected ILogger Logger { get; }
 
-		public bool UnZip(string zipFileName)
+		public bool UnZipHost(string zipFileName)
 		{
 			try
 			{
@@ -32,5 +32,20 @@ namespace PalaceDeployCli
 			}
 			return true;
 		}
-    }
+
+		public bool UnZipServer(string zipFileName)
+		{
+			try
+			{
+				System.IO.Compression.ZipFile.ExtractToDirectory(zipFileName, Settings.PalaceServerDeployDirectory, true);
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError(ex, ex.Message);
+				return false;
+			}
+			return true;
+		}
+
+	}
 }

@@ -37,7 +37,7 @@ namespace PalaceDeployCli
 					break;
 				}
 				loop++;
-				if (loop > 30)
+				if (loop > 120)
 				{
 					throw new Exception("Worker process not stopped");
 				}
