@@ -100,7 +100,7 @@ await option.MapResult(async (DefaultOptions prompt) =>
 				AnsiConsole.WriteLine("Stop service failed");
 				return -1;
 			}
-			var deployHost = deployService.UnZip(zipFileName);
+			var deployHost = deployService.UnZipHost(zipFileName);
 			if (!deployHost)
 			{
 				AnsiConsole.WriteLine("Deploy failed");
@@ -119,7 +119,7 @@ await option.MapResult(async (DefaultOptions prompt) =>
 			var iisManager = sp.GetRequiredService<IISManager>();
 			var stopWorker = iisManager.StopIISWorkerProcess();
 			iisManager.WaitForStop();
-			var deployServer = deployService.UnZip(zipFileName);
+			var deployServer = deployService.UnZipServer(zipFileName);
 			if (!deployServer)
 			{
 				AnsiConsole.WriteLine("Deploy failed");

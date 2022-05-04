@@ -52,6 +52,16 @@ jobs:
         del web.config
         7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
 
+    - name: Build Palace Deploy Cli
+      run: dotnet publish src\dotnet6\PalaceDeployCli\PalaceDeployCli.csproj -c Release --no-restore -v d
+
+    - name: Zip Palace Deploy Cli
+      run: |
+        cd ${{github.workspace}}\src\dotnet6\PalaceDeployCli\bin\Release\net6.0\publish
+        del appsettings.json
+        del appsettings.*.json
+        7z.exe a -r -tzip ${{github.workspace}}\palacedeploycli.zip * 
+        
     - uses: dev-drprasad/delete-tag-and-release@v0.2.0
       with:
         delete_release: true # default: false
@@ -88,4 +98,14 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{github.workspace}}\palaceserver.zip
         asset_name: palaceserver.zip
+        asset_content_type: application/zip
+
+    - name: Upload Release PalaceDeployCli
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{github.workspace}}\palacedeploycli.zip
+        asset_name: palacedeploycli.zip
         asset_content_type: application/zip
