@@ -102,8 +102,8 @@ else if (groupBy == "service")
                             <button class="btn btn-primary" value=">" @onclick="@(() => DisplayMore(item))">+</button>
                         </td>
                         <td>
-							@item.PalaceInfo.MachineName<br/>
-							@item.PalaceInfo.Ip
+							@item.PalaceInfo.MachineName.@GetHostNameByIp(item.PalaceInfo.Ip)<br/>
+							@item.PalaceInfo.Ip<br/>
                         </td>
                         <td>
                             <b>@item.ServiceName @item.Version</b> <br/>

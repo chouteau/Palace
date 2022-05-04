@@ -57,5 +57,12 @@ namespace PalaceServer.Pages
             info.UIDisplayMore = !info.UIDisplayMore;
             StateHasChanged();
 		}
+
+        string GetHostNameByIp(string ip)
+		{
+            var hostList = PalaceInfoManager.GetPalaceInfoList();
+            var host = hostList.FirstOrDefault(i => i.Ip == ip);
+            return host.HostName;
+        }
     }
 }
