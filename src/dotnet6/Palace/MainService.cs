@@ -10,23 +10,29 @@ namespace Palace
 	{
 		public MainService(Services.IStarter starter, 
 			Services.MicroServicesCollectionManager microServicesCollectionManager,
-			Configuration.PalaceSettings palaceSettings)
+			Configuration.PalaceSettings palaceSettings,
+			ILogger<MainService> logger)
 		{
 			this.Starter = starter;
 			this.MicroServicesCollectionManager = microServicesCollectionManager;
 			this.PalaceSettings = palaceSettings;
+			this.Logger = logger;
 		}
 
 		protected Configuration.PalaceSettings PalaceSettings { get; }
 		protected Services.IStarter Starter { get; }
 		protected Services.MicroServicesCollectionManager MicroServicesCollectionManager { get; }
+		protected ILogger Logger { get; }
 
 		protected System.Timers.Timer Timer { get; }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
+			Logger.LogInformation("Service start");
 			await MicroServicesCollectionManager.SynchronizeConfiguration();
+			Logger.LogInformation("Configuraiton synchronized");
 			await Starter.Start();
+			Logger.LogInformation("Service started");
 			await base.StartAsync(cancellationToken);
         }
 
@@ -36,9 +42,11 @@ namespace Palace
 			{
 				await MicroServicesCollectionManager.SynchronizeConfiguration();
 
+				Logger.LogDebug("GetApplyAction");
 				var applyAction = await Starter.GetApplyAction();
 				if (!applyAction)
 				{
+					Logger.LogDebug("CheckHealth");
 					var actionList = await Starter.CheckHealth();
 					if (actionList != null
 						&& actionList.Count > 0)
@@ -48,7 +56,9 @@ namespace Palace
 							await Starter.ApplyAction(item.Item1, item.Item2);
 						}
 					}
+					Logger.LogDebug("CheckUpdate");
 					await Starter.CheckUpdate();
+					Logger.LogDebug("CheckRemove");
 					await Starter.CheckRemove();
 				}
 				
@@ -58,6 +68,7 @@ namespace Palace
 
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
+			Logger.LogInformation("Service stop");
 			await Starter.Stop();
 			await base.StopAsync(cancellationToken);
 		}

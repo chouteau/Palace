@@ -151,10 +151,12 @@ namespace Palace.Services
 
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
+                Logger.LogWarning($"get nextaction for {microServiceSettings.ServiceName} return bad status code {response.StatusCode}");
                 return null;
             }
 
             var result = await response.Content.ReadFromJsonAsync<PalaceServer.Models.NextActionResult>();
+            Logger.LogDebug($"Next action : {result.Action}");
             return result;
         }
 

@@ -17,9 +17,17 @@ namespace Palace.Models
         public string PalaceApiKey { get; set; }
         public string PackageFileName { get; set; }
         public string SSLCertificate { get; set; }
+
+
         public int? ThreadLimitBeforeRestart { get; set; }
+        public int? ThreadLimitBeforeAlert { get; set; }
+
         public int? NotRespondingCountBeforeRestart { get; set; }
+        public int? NotRespondingCountBeforeAlert { get; set; }
+
+
         public int? MaxWorkingSetLimitBeforeRestart { get; set; }
+        public int? MaxWorkingSetLimitBeforeAlert { get; set; }
 
 
         [System.Text.Json.Serialization.JsonIgnore]

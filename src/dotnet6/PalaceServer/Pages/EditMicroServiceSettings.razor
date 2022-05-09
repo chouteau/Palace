@@ -77,6 +77,13 @@
         </small>
     </div>
     <div class="mb-3">
+        <label class="form-label">Thread limit before alert :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.ThreadLimitBeforeAlert" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.ThreadLimitBeforeAlert"/>
+        </small>
+    </div>
+    <div class="mb-3">
         <label class="form-label">Thread limit before restart :</label>
         <InputNumber @bind-Value="MicroServiceSettings.ThreadLimitBeforeRestart" class="form-control" />
         <small>
@@ -84,10 +91,24 @@
         </small>
     </div>
     <div class="mb-3">
+        <label class="form-label">Not responding count before alert :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.NotRespondingCountBeforeAlert" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.NotRespondingCountBeforeAlert"/>
+        </small>
+    </div>
+    <div class="mb-3">
         <label class="form-label">Not responding count before restart :</label>
         <InputNumber @bind-Value="MicroServiceSettings.NotRespondingCountBeforeRestart" class="form-control" />
         <small>
             <ValidationMessage For="() => MicroServiceSettings.NotRespondingCountBeforeRestart"/>
+        </small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Max working set before alert :</label>
+        <InputNumber @bind-Value="MicroServiceSettings.MaxWorkingSetLimitBeforeAlert" class="form-control" />
+        <small>
+            <ValidationMessage For="() => MicroServiceSettings.MaxWorkingSetLimitBeforeAlert"/>
         </small>
     </div>
     <div class="mb-3">
