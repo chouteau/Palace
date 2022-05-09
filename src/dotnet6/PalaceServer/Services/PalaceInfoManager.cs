@@ -126,6 +126,42 @@
             }
             existing.InstanceCount = settings.InstanceCount;
 
+            if (existing.MaxWorkingSetLimitBeforeAlert != settings.MaxWorkingSetLimitBeforeAlert)
+            {
+                isDirty = true;
+            }
+            existing.MaxWorkingSetLimitBeforeAlert = settings.MaxWorkingSetLimitBeforeAlert;
+
+            if (existing.MaxWorkingSetLimitBeforeRestart != settings.MaxWorkingSetLimitBeforeRestart)
+            {
+                isDirty = true;
+            }
+            existing.MaxWorkingSetLimitBeforeRestart = settings.MaxWorkingSetLimitBeforeRestart;
+
+            if (existing.ThreadLimitBeforeAlert != settings.ThreadLimitBeforeAlert)
+            {
+                isDirty = true;
+            }
+            existing.ThreadLimitBeforeAlert = settings.ThreadLimitBeforeAlert;
+
+            if (existing.ThreadLimitBeforeRestart != settings.ThreadLimitBeforeRestart)
+            {
+                isDirty = true;
+            }
+            existing.ThreadLimitBeforeRestart = settings.ThreadLimitBeforeRestart;
+
+            if (existing.NotRespondingCountBeforeAlert!= settings.NotRespondingCountBeforeAlert)
+            {
+                isDirty = true;
+            }
+            existing.NotRespondingCountBeforeAlert = settings.NotRespondingCountBeforeAlert;
+
+            if (existing.NotRespondingCountBeforeRestart != settings.NotRespondingCountBeforeRestart)
+            {
+                isDirty = true;
+            }
+            existing.NotRespondingCountBeforeRestart = settings.NotRespondingCountBeforeRestart;
+
             if (isDirty)
             {
                 palaceInfo.LastConfigurationUpdate = DateTime.Now;

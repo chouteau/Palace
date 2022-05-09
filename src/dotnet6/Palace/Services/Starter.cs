@@ -17,7 +17,8 @@ namespace Palace.Services
             ILogger<Starter> logger,
             IMicroServicesOrchestrator orchestrator,
             IMemoryCache cache,
-            MicroServicesCollectionManager microServicesCollection)
+            MicroServicesCollectionManager microServicesCollection,
+            INotificationService notificationService)
         {
             this.PalaceSettings = palaceSettings;
             this.Logger = logger;
@@ -32,6 +33,7 @@ namespace Palace.Services
         protected IMemoryCache Cache { get; }
         protected MicroServicesCollectionManager MicroServicesCollection { get; set; }
         protected List<Models.MicroServiceInfo> InstanciedServiceList { get; set; } = new();
+        protected INotificationService NotificationService { get; }
 
         public int InstanciedServiceCount => InstanciedServiceList.Count;
         public int RunningServiceCount => InstanciedServiceList.Count(i => i.Process != null && !i.Process.HasExited);
@@ -167,7 +169,14 @@ namespace Palace.Services
                     var sps = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{instancied.ServiceState}");
                     await Orchestrator.UpdateRunningMicroServiceProperty(sps);
 
-                    if (instancied.NotRespondingCount > PalaceSettings.NotRespondingCountBeforeRestart)
+                    var notRespondingAlert = Math.Min(item.NotRespondingCountBeforeAlert.GetValueOrDefault(int.MaxValue), PalaceSettings.NotRespondingCountBeforeAlert);
+					if (instancied.NotRespondingCount > notRespondingAlert)
+					{
+                        NotificationService.SendAlert($"Service {item.ServiceName} not responding after {instancied.NotRespondingCount} retries");
+					}
+
+                    var notRespondingRestart = Math.Min(item.NotRespondingCountBeforeRestart.GetValueOrDefault(int.MaxValue), PalaceSettings.NotRespondingCountBeforeRestart);
+                    if (instancied.NotRespondingCount > notRespondingRestart)
 					{
                         result.Add(new(item, new PalaceServer.Models.NextActionResult
                         {
@@ -209,7 +218,14 @@ namespace Palace.Services
                     }
                 }
 
-                if (info.ThreadCount > PalaceSettings.ThreadLimitBeforeRestart)
+                var threadAlert = Math.Min(item.ThreadLimitBeforeAlert.GetValueOrDefault(int.MaxValue), PalaceSettings.ThreadLimitBeforeAlert);
+                if (info.ThreadCount > threadAlert)
+				{
+                    NotificationService.SendAlert($"Service {item.ServiceName} thread count greater than {info.ThreadCount}");
+                }
+
+				var threadLimit = Math.Min(item.ThreadLimitBeforeRestart.GetValueOrDefault(int.MaxValue), PalaceSettings.ThreadLimitBeforeRestart);
+				if (info.ThreadCount > threadLimit)
 				{
                     Logger.LogWarning("service {ServiceName} has too many thread {ThreadCount}", info.ServiceName, info.ThreadCount);
                     info.ServiceState = "Instable";
@@ -221,6 +237,22 @@ namespace Palace.Services
                 else
 				{
                     Logger.LogDebug("service {0} is up", info.ServiceName);
+                }
+
+				if (info.WorkingSet > item.MaxWorkingSetLimitBeforeAlert.GetValueOrDefault(int.MaxValue))
+				{
+                    Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeAlert}", info.ServiceName, item.MaxWorkingSetLimitBeforeAlert);
+                    NotificationService.SendAlert($"Service {item.ServiceName} has working set greater than {info.WorkingSet}");
+				}
+
+                if (info.WorkingSet > item.MaxWorkingSetLimitBeforeRestart.GetValueOrDefault(int.MaxValue))
+				{
+                    Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeRestart}", info.ServiceName, item.MaxWorkingSetLimitBeforeRestart);
+                    info.ServiceState = "Instable";
+                    result.Add(new(item, new PalaceServer.Models.NextActionResult()
+                    {
+                        Action = PalaceServer.Models.ServiceAction.Stop
+                    }));
                 }
 
                 await Orchestrator.RegisterOrUpdateRunningMicroServiceInfo(info);

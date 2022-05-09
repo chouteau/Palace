@@ -38,12 +38,18 @@ var builder = Host.CreateDefaultBuilder(args)
         var palaceSettings = new Palace.Configuration.PalaceSettings();
         palaceSection.Bind(palaceSettings);
         palaceSettings.Initialize();
-
         services.AddSingleton(palaceSettings);
+
+        var smtpSection = hostingContext.Configuration.GetSection("SmtpSettings");
+        var smtpSettings = new Palace.Configuration.SmtpSettings();
+		smtpSection.Bind(smtpSettings);
+        services.AddSingleton(smtpSettings);
+
         services.AddSingleton<Palace.Services.IStarter, Palace.Services.Starter>();
 
         services.AddTransient<Palace.Services.IMicroServicesOrchestrator, Palace.Services.MicroServicesOrchestrator>();
         services.AddSingleton<Palace.Services.MicroServicesCollectionManager>();
+        services.AddTransient<Palace.Services.INotificationService, Palace.Services.SmtpNotificationService>();
 
         services.AddMemoryCache();
 

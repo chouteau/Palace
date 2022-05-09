@@ -28,10 +28,14 @@ namespace PalaceServer.Models
         public string SSLCertificate { get; set; }
         public int InstanceCount { get; set; } = 1;
 
+        public int? ThreadLimitBeforeAlert { get; set; }
         public int? ThreadLimitBeforeRestart { get; set; }
-        public int? NotRespondingCountBeforeRestart { get; set; }
-        public int? MaxWorkingSetLimitBeforeRestart { get; set; }
 
+        public int? NotRespondingCountBeforeAlert { get; set; }
+        public int? NotRespondingCountBeforeRestart { get; set; }
+
+        public int? MaxWorkingSetLimitBeforeAlert { get; set; }
+        public int? MaxWorkingSetLimitBeforeRestart { get; set; }
 
         public object Clone()
         {

@@ -30,7 +30,7 @@
                 @foreach (var item in host.OrderBy(i => i.ServiceName))
                 {
                     var workingSet = item.WorkingSet / 1024;
-                    <tr @key=item>
+                    <tr @key=item class="@GetColor(host.Key, item)">
                         <td>
                             <button class="btn btn-primary" value=">" @onclick="@(() => DisplayMore(item))">+</button>
                         </td>

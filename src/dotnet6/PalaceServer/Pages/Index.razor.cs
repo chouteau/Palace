@@ -11,7 +11,6 @@ namespace PalaceServer.Pages
         [Inject] Services.MicroServiceCollectorManager MicroServicesCollector { get; set; }
         [Inject] Services.PalaceInfoManager PalaceInfoManager { get; set; }
 
-
         public List<Models.ExtendedRunningMicroServiceInfo> RunningMicroServiceList { get; set; }
         string groupBy = "host";
 
@@ -64,5 +63,11 @@ namespace PalaceServer.Pages
             var host = hostList.FirstOrDefault(i => i.Ip == ip);
             return host.HostName;
         }
+
+        string GetColor(Models.PalaceInfo host, Models.ExtendedRunningMicroServiceInfo msinfo)
+        {
+            return null;
+        }
+
     }
 }
