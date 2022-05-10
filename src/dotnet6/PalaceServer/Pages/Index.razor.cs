@@ -7,9 +7,12 @@ namespace PalaceServer.Pages
 {
     public partial class Index
     {
-        [Inject] ILogger<Index> Logger { get; set; }
-        [Inject] Services.MicroServiceCollectorManager MicroServicesCollector { get; set; }
-        [Inject] Services.PalaceInfoManager PalaceInfoManager { get; set; }
+        [Inject] 
+        ILogger<Index> Logger { get; set; }
+        [Inject] 
+        Services.MicroServiceCollectorManager MicroServicesCollector { get; set; }
+        [Inject] 
+        Services.PalaceInfoManager PalaceInfoManager { get; set; }
 
         public List<Models.ExtendedRunningMicroServiceInfo> RunningMicroServiceList { get; set; }
         string groupBy = "host";

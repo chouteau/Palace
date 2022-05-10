@@ -119,7 +119,9 @@ namespace PalaceServer.Controllers
         {
             EnsureGoodAuthorization(authorization);
 
-            var svc = Collector.GetRunningList().FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
+            var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
+            var key = $"{palaceInfo.MachineName}.{palaceInfo.HostName}.{serviceName}".ToLower();
+            var svc = Collector.GetRunningList().FirstOrDefault(i => i.Key == key);
             if (svc == null)
             {
                 Logger.LogWarning($"{serviceName} not fount in {Collector.GetRunningList().Count} running");
