@@ -36,5 +36,7 @@ namespace Palace.Models
         public bool InstallationFailed { get; set; } = false;
         [System.Text.Json.Serialization.JsonIgnore]
         public bool MarkToDelete { get; set; } = false;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool MarkHasNew { get; set; } = false;
 	}
 }

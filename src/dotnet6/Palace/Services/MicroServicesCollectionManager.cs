@@ -35,7 +35,7 @@ namespace Palace.Services
             _list.TryRemove(item.ServiceName, out var removed);
         }
 
-        public async Task SynchronizeConfiguration()
+        public async Task SynchronizeConfiguration(bool firstLoad)
         {
             var result = await GetConfiguration();
             if (result == null)
@@ -78,6 +78,10 @@ namespace Palace.Services
                 if (serviceToAdd != null)
                 {
                     _list.TryAdd(serviceName, serviceToAdd);
+                    if (!firstLoad)
+					{
+                        serviceToAdd.MarkHasNew = true;
+					}
                     isDirty = true;
                 }
             }

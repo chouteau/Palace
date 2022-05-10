@@ -29,7 +29,7 @@ namespace Palace
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
 			Logger.LogInformation("Service start");
-			await MicroServicesCollectionManager.SynchronizeConfiguration();
+			await MicroServicesCollectionManager.SynchronizeConfiguration(true);
 			Logger.LogInformation("Configuraiton synchronized");
 			await Starter.Start();
 			Logger.LogInformation("Service started");
@@ -40,7 +40,7 @@ namespace Palace
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				await MicroServicesCollectionManager.SynchronizeConfiguration();
+				await MicroServicesCollectionManager.SynchronizeConfiguration(false);
 
 				Logger.LogDebug("GetApplyAction");
 				var applyAction = await Starter.GetApplyAction();
