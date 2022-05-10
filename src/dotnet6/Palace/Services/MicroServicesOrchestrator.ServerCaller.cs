@@ -156,7 +156,7 @@ namespace Palace.Services
             }
 
             var result = await response.Content.ReadFromJsonAsync<PalaceServer.Models.NextActionResult>();
-            Logger.LogDebug($"Next action : {result.Action}");
+            Logger.LogDebug($"Next action for {microServiceSettings.ServiceName} : {result.Action}");
             return result;
         }
 
