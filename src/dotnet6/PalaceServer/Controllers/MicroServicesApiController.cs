@@ -122,6 +122,7 @@ namespace PalaceServer.Controllers
             var svc = Collector.GetRunningList().FirstOrDefault(i => i.ServiceName.Equals(serviceName, StringComparison.InvariantCultureIgnoreCase));
             if (svc == null)
             {
+                Logger.LogWarning($"{serviceName} not fount in {Collector.GetRunningList().Count} running");
                 return Ok(new Models.NextActionResult
                 {
                     Action = Models.ServiceAction.DoNothing
@@ -131,14 +132,15 @@ namespace PalaceServer.Controllers
             var nextAction = svc.NextAction;
             if (nextAction != Models.ServiceAction.DoNothing)
 			{
-                Logger.LogInformation("Action {0} required for running service {1} on {2}", nextAction, serviceName, svc.Key);
+                Logger.LogInformation($"Action {nextAction} required for running service {serviceName} on {svc.Key}");
 			}
-            svc.NextAction = Models.ServiceAction.DoNothing;
-
-            return Ok(new Models.NextActionResult
+            var result = new Models.NextActionResult
             {
                 Action = nextAction
-            });
+            };
+
+            svc.NextAction = Models.ServiceAction.DoNothing;
+            return Ok(result);
         }
 
         [HttpGet]
