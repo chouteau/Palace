@@ -40,30 +40,42 @@ namespace Palace
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				await MicroServicesCollectionManager.SynchronizeConfiguration(false);
-
-				Logger.LogDebug("GetApplyAction");
-				var applyAction = await Starter.GetApplyAction();
-				if (!applyAction)
+				try
 				{
-					Logger.LogDebug("CheckHealth");
-					var actionList = await Starter.CheckHealth();
-					if (actionList != null
-						&& actionList.Count > 0)
-					{
-						foreach (var item in actionList)
-						{
-							await Starter.ApplyAction(item.Item1, item.Item2);
-						}
-					}
-					Logger.LogDebug("CheckUpdate");
-					await Starter.CheckUpdate();
-					Logger.LogDebug("CheckRemove");
-					await Starter.CheckRemove();
+					await ExecuteInternalAsync(stoppingToken);
 				}
-				
-				await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
+				catch(Exception ex)
+				{
+					Logger.LogCritical(ex, ex.Message);
+				}
 			}
+		}
+
+		private async Task ExecuteInternalAsync(CancellationToken stoppingToken)
+		{
+			await MicroServicesCollectionManager.SynchronizeConfiguration(false);
+
+			Logger.LogDebug("GetApplyAction");
+			var applyAction = await Starter.GetApplyAction();
+			if (!applyAction)
+			{
+				Logger.LogDebug("CheckHealth");
+				var actionList = await Starter.CheckHealth();
+				if (actionList != null
+					&& actionList.Count > 0)
+				{
+					foreach (var item in actionList)
+					{
+						await Starter.ApplyAction(item.Item1, item.Item2);
+					}
+				}
+				Logger.LogDebug("CheckUpdate");
+				await Starter.CheckUpdate();
+				Logger.LogDebug("CheckRemove");
+				await Starter.CheckRemove();
+			}
+
+			await Task.Delay(PalaceSettings.ScanIntervalInSeconds * 1000, stoppingToken);
 		}
 
 		public override async Task StopAsync(CancellationToken cancellationToken)
