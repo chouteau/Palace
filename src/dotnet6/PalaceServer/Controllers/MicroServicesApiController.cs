@@ -121,17 +121,14 @@ namespace PalaceServer.Controllers
 
             var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());
             var key = $"{palaceInfo.MachineName}.{palaceInfo.HostName}.{serviceName}".ToLower();
-            Logger.LogTrace($"Get next action for {key}");
             var svc = Collector.GetRunningList().FirstOrDefault(i => i.Key == key);
             if (svc == null)
             {
-                Logger.LogWarning($"{serviceName} not fount in {Collector.GetRunningList().Count} running");
                 return Ok(new Models.NextActionResult
                 {
                     Action = Models.ServiceAction.DoNothing
                 });
             }
-            Logger.LogTrace($"{svc}");
             var nextAction = svc.NextAction;
             if (nextAction != Models.ServiceAction.DoNothing)
 			{
