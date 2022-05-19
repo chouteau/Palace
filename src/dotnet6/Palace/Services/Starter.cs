@@ -25,6 +25,7 @@ namespace Palace.Services
             this.Orchestrator = orchestrator;
             this.Cache = cache;
             this.MicroServicesCollection = microServicesCollection;
+            this.NotificationService = notificationService;
         }
 
         protected Configuration.PalaceSettings PalaceSettings { get; }
@@ -176,7 +177,7 @@ namespace Palace.Services
                     var notRespondingAlert = Math.Min(item.NotRespondingCountBeforeAlert.GetValueOrDefault(int.MaxValue), PalaceSettings.NotRespondingCountBeforeAlert);
 					if (instancied.NotRespondingCount > notRespondingAlert)
 					{
-                        NotificationService.SendAlert($"Service {item.ServiceName} not responding after {instancied.NotRespondingCount} retries");
+                        await NotificationService.SendAlert($"Service {item.ServiceName} not responding after {instancied.NotRespondingCount} retries");
 					}
 
                     var notRespondingRestart = Math.Min(item.NotRespondingCountBeforeRestart.GetValueOrDefault(int.MaxValue), PalaceSettings.NotRespondingCountBeforeRestart);
@@ -225,7 +226,7 @@ namespace Palace.Services
                 var threadAlert = Math.Min(item.ThreadLimitBeforeAlert.GetValueOrDefault(int.MaxValue), PalaceSettings.ThreadLimitBeforeAlert);
                 if (info.ThreadCount > threadAlert)
 				{
-                    NotificationService.SendAlert($"Service {item.ServiceName} thread count greater than {info.ThreadCount}");
+                    await NotificationService.SendAlert($"Service {item.ServiceName} thread count greater than {info.ThreadCount}");
                 }
 
 				var threadLimit = Math.Min(item.ThreadLimitBeforeRestart.GetValueOrDefault(int.MaxValue), PalaceSettings.ThreadLimitBeforeRestart);
@@ -246,7 +247,7 @@ namespace Palace.Services
 				if (info.WorkingSet > item.MaxWorkingSetLimitBeforeAlert.GetValueOrDefault(int.MaxValue))
 				{
                     Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeAlert}", info.ServiceName, item.MaxWorkingSetLimitBeforeAlert);
-                    NotificationService.SendAlert($"Service {item.ServiceName} has working set greater than {info.WorkingSet}");
+                    await NotificationService.SendAlert($"Service {item.ServiceName} has working set greater than {info.WorkingSet}");
 				}
 
                 if (info.WorkingSet > item.MaxWorkingSetLimitBeforeRestart.GetValueOrDefault(int.MaxValue))

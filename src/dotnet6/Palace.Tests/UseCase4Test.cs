@@ -47,7 +47,7 @@ namespace Palace.Tests
             var palaceSettings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
 
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
-            await msm.SynchronizeConfiguration();
+            await msm.SynchronizeConfiguration(true);
 
 			await msm.AddOrUpdateService(new Models.MicroServiceSettings
 			{
