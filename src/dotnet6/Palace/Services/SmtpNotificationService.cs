@@ -30,6 +30,12 @@ namespace Palace.Services
 
 		private async Task SendInternal(string subject, string message)
 		{
+			if (SmtpSettings == null
+				|| string.IsNullOrWhiteSpace(SmtpSettings.Host))
+			{
+				return;
+			}
+
 			var mail = new System.Net.Mail.MailMessage();
 			mail.From = new System.Net.Mail.MailAddress(SmtpSettings.FromPersonEmail, SmtpSettings.FromPersonName);
 			mail.Subject = subject;

@@ -38,7 +38,7 @@ namespace Palace.Tests
             starter.InstanciedServiceCount.Should().Be(0);
 
             var msm = host.Services.GetRequiredService<Palace.Services.MicroServicesCollectionManager>();
-            await msm.SynchronizeConfiguration();
+			await msm.SynchronizeConfiguration(true);
 
 			await msm.AddOrUpdateService(new Models.MicroServiceSettings
 			{
