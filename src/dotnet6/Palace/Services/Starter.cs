@@ -241,13 +241,13 @@ namespace Palace.Services
                     Logger.LogDebug("service {0} is up", info.ServiceName);
                 }
 
-				if (info.WorkingSet > item.MaxWorkingSetLimitBeforeAlert.GetValueOrDefault(int.MaxValue))
+				if (info.WorkingSet > item.MaxWorkingSetLimitBeforeAlert.GetValueOrDefault(long.MaxValue))
 				{
                     Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeAlert}", info.ServiceName, item.MaxWorkingSetLimitBeforeAlert);
                     await NotificationService.SendAlert($"Service {item.ServiceName} has working set greater than {info.WorkingSet}");
 				}
 
-                if (info.WorkingSet > item.MaxWorkingSetLimitBeforeRestart.GetValueOrDefault(int.MaxValue))
+                if (info.WorkingSet > item.MaxWorkingSetLimitBeforeRestart.GetValueOrDefault(long.MaxValue))
 				{
                     Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeRestart}", info.ServiceName, item.MaxWorkingSetLimitBeforeRestart);
                     info.ServiceState = "Instable";
