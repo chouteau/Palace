@@ -66,7 +66,7 @@ namespace Palace
 				{
 					foreach (var item in actionList)
 					{
-						await Starter.ApplyAction(item.Item1, item.Item2);
+						await Starter.ApplyAction(item.Settings, item.NextAction);
 					}
 				}
 				Logger.LogDebug("CheckUpdate");

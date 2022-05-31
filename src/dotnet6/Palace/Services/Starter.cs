@@ -16,14 +16,12 @@ namespace Palace.Services
         public Starter(Configuration.PalaceSettings palaceSettings,
             ILogger<Starter> logger,
             IMicroServicesOrchestrator orchestrator,
-            IMemoryCache cache,
             MicroServicesCollectionManager microServicesCollection,
             INotificationService notificationService)
         {
             this.PalaceSettings = palaceSettings;
             this.Logger = logger;
             this.Orchestrator = orchestrator;
-            this.Cache = cache;
             this.MicroServicesCollection = microServicesCollection;
             this.NotificationService = notificationService;
         }
@@ -31,7 +29,6 @@ namespace Palace.Services
         protected Configuration.PalaceSettings PalaceSettings { get; }
         protected ILogger Logger { get; }
         protected IMicroServicesOrchestrator Orchestrator { get; }
-        protected IMemoryCache Cache { get; }
         protected MicroServicesCollectionManager MicroServicesCollection { get; set; }
         protected List<Models.MicroServiceInfo> InstanciedServiceList { get; set; } = new();
         protected INotificationService NotificationService { get; }
@@ -139,7 +136,7 @@ namespace Palace.Services
             }
             return result;
         }
-        public async Task<List<(Models.MicroServiceSettings, PalaceServer.Models.NextActionResult)>> CheckHealth()
+        public async Task<List<(Models.MicroServiceSettings Settings, PalaceServer.Models.NextActionResult NextAction)>> CheckHealth()
         {
             var result = new List<(Models.MicroServiceSettings, PalaceServer.Models.NextActionResult)>();
             foreach (var item in MicroServicesCollection.GetList())
