@@ -11,7 +11,7 @@ namespace Palace.Services
 
         Task<bool> GetApplyAction();
         Task<bool> ApplyAction(Models.MicroServiceSettings item, PalaceServer.Models.NextActionResult action);
-        Task<List<(Models.MicroServiceSettings, PalaceServer.Models.NextActionResult)>> CheckHealth();
+        Task<List<(Models.MicroServiceSettings Settings, PalaceServer.Models.NextActionResult NextAction)>> CheckHealth();
         Task CheckUpdate();
         Task CheckRemove();
         Task Start();

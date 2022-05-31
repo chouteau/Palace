@@ -26,8 +26,8 @@ namespace Palace.Models
         public int? NotRespondingCountBeforeAlert { get; set; }
 
 
-        public int? MaxWorkingSetLimitBeforeRestart { get; set; }
-        public int? MaxWorkingSetLimitBeforeAlert { get; set; }
+        public long? MaxWorkingSetLimitBeforeRestart { get; set; }
+        public long? MaxWorkingSetLimitBeforeAlert { get; set; }
 
 
         [System.Text.Json.Serialization.JsonIgnore]
