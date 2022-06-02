@@ -241,15 +241,17 @@ namespace Palace.Services
                     Logger.LogDebug("service {0} is up", info.ServiceName);
                 }
 
-				if (info.WorkingSet > item.MaxWorkingSetLimitBeforeAlert.GetValueOrDefault(long.MaxValue))
+                var maxWorkingSetLimitBeforeAlert = item.MaxWorkingSetLimitBeforeAlert.GetValueOrDefault(long.MaxValue);
+                if (info.WorkingSet > maxWorkingSetLimitBeforeAlert)
 				{
-                    Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeAlert}", info.ServiceName, item.MaxWorkingSetLimitBeforeAlert);
-                    await NotificationService.SendAlert($"Service {item.ServiceName} has working set greater than {info.WorkingSet}");
+                    Logger.LogWarning("Warning : service {ServiceName} has working set greater than {maxWorkingSetLimitBeforeAlert}", info.ServiceName, maxWorkingSetLimitBeforeAlert);
+                    await NotificationService.SendAlert($"Service {item.ServiceName} has working set greater than {maxWorkingSetLimitBeforeAlert}");
 				}
 
-                if (info.WorkingSet > item.MaxWorkingSetLimitBeforeRestart.GetValueOrDefault(long.MaxValue))
+                var maxWorkingSetLimitBeforeRestart = item.MaxWorkingSetLimitBeforeRestart.GetValueOrDefault(long.MaxValue);
+                if (info.WorkingSet > maxWorkingSetLimitBeforeRestart)
 				{
-                    Logger.LogWarning("service {ServiceName} has working set greater than {MaxWorkingSetLimitBeforeRestart}", info.ServiceName, item.MaxWorkingSetLimitBeforeRestart);
+                    Logger.LogCritical("service {ServiceName} has working set greater than {maxWorkingSetLimitBeforeRestart}", info.ServiceName, maxWorkingSetLimitBeforeRestart);
                     info.ServiceState = "Instable";
                     result.Add(new(item, new PalaceServer.Models.NextActionResult()
                     {
