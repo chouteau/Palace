@@ -94,7 +94,6 @@ namespace PalaceServer.Services
 				if (availablePackage.ChangeDetected)
 				{
 					Logger.LogInformation("BackupAndUpdateRepositoryFile {0} with version {1} change already detected", zipFileFullPath, version);
-					return;
 				}
 				availablePackage.ChangeDetected = true;
 			}
