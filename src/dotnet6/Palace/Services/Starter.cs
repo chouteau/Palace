@@ -199,12 +199,20 @@ namespace Palace.Services
                     try
 					{
                         instancied.Process.Refresh();
-                        info.PeakWorkingSet = instancied.Process.PeakWorkingSet64;
-                        info.PeakVirtualMem = instancied.Process.PeakVirtualMemorySize64;
-                        info.PeakPagedMem = instancied.Process.PeakPagedMemorySize64;
-                        info.WorkingSet = instancied.Process.WorkingSet64;
-                        info.StartedDate = instancied.Process.StartTime;
-                        info.ThreadCount = instancied.Process.Threads.Count;
+						if (!instancied.Process.HasExited)
+						{
+                            info.PeakWorkingSet = instancied.Process.PeakWorkingSet64;
+                            info.PeakVirtualMem = instancied.Process.PeakVirtualMemorySize64;
+                            info.PeakPagedMem = instancied.Process.PeakPagedMemorySize64;
+                            info.WorkingSet = instancied.Process.WorkingSet64;
+                            info.StartedDate = instancied.Process.StartTime;
+                            info.ThreadCount = instancied.Process.Threads.Count;
+                        }
+						else
+						{
+                            Logger.LogWarning($"process already exited, associated with service {info.ServiceName} reset in progress");
+                            instancied.Process = null;
+						}
                     }
                     catch(Exception ex)
 					{
