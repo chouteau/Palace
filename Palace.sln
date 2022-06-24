@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace", "src\dotnet6\Palace\Palace.csproj", "{8439A855-464C-48A2-A48D-13670EACF542}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace", "src\Palace\Palace.csproj", "{8439A855-464C-48A2-A48D-13670EACF542}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceServer", "src\dotnet6\PalaceServer\PalaceServer.csproj", "{D545D7E1-E64B-4364-B886-97D8545886F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceServer", "src\PalaceServer\PalaceServer.csproj", "{D545D7E1-E64B-4364-B886-97D8545886F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoSvc", "src\dotnet6\DemoSvc\DemoSvc.csproj", "{EB9BD78B-2381-47E6-9730-B462EE5B929D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoSvc", "src\DemoSvc\DemoSvc.csproj", "{EB9BD78B-2381-47E6-9730-B462EE5B929D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceClient", "src\dotnet6\PalaceClient\PalaceClient.csproj", "{168664EF-63E0-470E-BA8A-714EB4BEBB39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceClient", "src\PalaceClient\PalaceClient.csproj", "{168664EF-63E0-470E-BA8A-714EB4BEBB39}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9E9957E-9624-49CD-AA59-DD8108E0F252}"
 	ProjectSection(SolutionItems) = preProject
@@ -22,9 +22,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9760CFFF-556A-402C-BF82-CCFAF9B0EA3A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace.Tests", "src\dotnet6\Palace.Tests\Palace.Tests.csproj", "{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace.Tests", "src\Palace.Tests\Palace.Tests.csproj", "{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalaceDeployCli", "src\dotnet6\PalaceDeployCli\PalaceDeployCli.csproj", "{40BE6CC5-C350-4421-B0E2-454448AAB76B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalaceDeployCli", "src\PalaceDeployCli\PalaceDeployCli.csproj", "{40BE6CC5-C350-4421-B0E2-454448AAB76B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

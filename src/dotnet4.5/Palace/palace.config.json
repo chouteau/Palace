@@ -1,9 +1,0 @@
-﻿{
-	"ServiceName": "Palace",
-	"ServiceDisplayName": "Palace Services Hoster",
-	"ServiceDescription": "Host for services",
-	"UpdateUriList": [],
-	"ScanIntervalInSeconds": "60",
-	"ApiKey": null,
-	"SearchPattern" : "*.dll"
-}
