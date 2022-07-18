@@ -12,7 +12,6 @@
     <Compile Include="..\PalaceClient\RunningMicroserviceInfo.cs" Link="Models\RunningMicroserviceInfo.cs" />
     <Compile Include="..\PalaceClient\StopResult.cs" Link="Models\StopResult.cs" />
     <Compile Include="..\PalaceServer\Models\AvailablePackage.cs" Link="Models\AvailablePackage.cs" />
-    <Compile Include="..\PalaceServer\Models\LogInfo.cs" Link="Models\LogInfo.cs" />
     <Compile Include="..\PalaceServer\Models\NextActionResult.cs" Link="Models\NextActionResult.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceAction.cs" Link="Models\ServiceAction.cs" />
     <Compile Include="..\PalaceServer\Models\ServiceProperties.cs" Link="Models\ServiceProperties.cs" />

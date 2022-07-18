@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Components;
 
 namespace PalaceServer.Pages.Components;
 

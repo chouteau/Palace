@@ -1,8 +1,13 @@
 using LogRWebMonitor;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
 using PalaceServer.Extensions;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Palace.Tests")]
@@ -33,7 +38,9 @@ builder.Services.AddSingleton(palaceSettings);
 builder.Services.AddSingleton<PalaceServer.Services.MicroServiceCollectorManager>();
 builder.Services.AddSingleton<PalaceServer.Services.PalaceInfoManager>();
 builder.Services.AddSingleton<PalaceServer.Services.AdminLoginContext>();
+builder.Services.AddScoped<PalaceServer.Services.ClipboardService>();
 builder.Services.AddHostedService<PalaceServer.Services.ZipRepositoryWatcher>();
+
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

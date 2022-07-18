@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-
 namespace PalaceServer.Services;
 
 public class ZipRepositoryWatcher : BackgroundService

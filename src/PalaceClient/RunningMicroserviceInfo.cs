@@ -22,4 +22,6 @@ namespace PalaceClient
         public string AdminUrl { get; set; }
         public string PalaceClientVersion { get; set; }
     }
+
 }
+

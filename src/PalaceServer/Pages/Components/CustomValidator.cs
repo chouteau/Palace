@@ -1,38 +1,33 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
+﻿namespace PalaceServer.Pages.Components;
 
-namespace PalaceServer.Pages.Components
+public class CustomValidator : ComponentBase
 {
-    public class CustomValidator : ComponentBase
+    private ValidationMessageStore _messageStore;
+    [CascadingParameter]
+    public EditContext CurrentEditContext { get; set; }
+
+    protected override void OnInitialized()
     {
-        private ValidationMessageStore _messageStore;
-        [CascadingParameter]
-        public EditContext CurrentEditContext { get; set; }
-
-        protected override void OnInitialized()
+        if (CurrentEditContext == null)
         {
-            if (CurrentEditContext == null)
-            {
-                throw new InvalidOperationException();
-            }
-            _messageStore = new(CurrentEditContext);
-            CurrentEditContext.OnValidationRequested += (s, arg) => _messageStore.Clear();
+            throw new InvalidOperationException();
         }
+        _messageStore = new(CurrentEditContext);
+        CurrentEditContext.OnValidationRequested += (s, arg) => _messageStore.Clear();
+    }
 
-        public void DisplayErrors(string error)
+    public void DisplayErrors(string error)
+    {
+        _messageStore.Add(CurrentEditContext.Field("all"), error);
+        CurrentEditContext.NotifyValidationStateChanged();
+    }
+
+    public void DisplayErrors(Dictionary<string, List<string>> errors)
+    {
+        foreach (var error in errors)
         {
-            _messageStore.Add(CurrentEditContext.Field("all"), error);
-            CurrentEditContext.NotifyValidationStateChanged();
+            _messageStore.Add(CurrentEditContext.Field(error.Key), error.Value);
         }
-
-
-        public void DisplayErrors(Dictionary<string, List<string>> errors)
-        {
-            foreach (var error in errors)
-            {
-                _messageStore.Add(CurrentEditContext.Field(error.Key), error.Value);
-            }
-            CurrentEditContext.NotifyValidationStateChanged();
-        }
+        CurrentEditContext.NotifyValidationStateChanged();
     }
 }

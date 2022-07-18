@@ -1,33 +1,33 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
-namespace PalaceServer.Extensions
+namespace PalaceServer.Extensions;
+
+public static class HttpExtensions
 {
-    public static class HttpExtensions
+    internal static string GetUserHostAddress(this HttpContext context)
     {
-        internal static string GetUserHostAddress(this HttpContext context)
+        string userHostAddress;
+        if (context.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues value))
         {
-            string userHostAddress;
-            if (context.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues value))
-            {
-                userHostAddress = value.FirstOrDefault();
-            }
-            else if (context.Request.Headers.TryGetValue("X-Remote-Ip", out value))
-            {
-                userHostAddress = value.FirstOrDefault();
-            }
-            else
-            {
-                userHostAddress = context.Connection.RemoteIpAddress.ToString();
-            }
-
-            return userHostAddress;
+            userHostAddress = value.FirstOrDefault();
+        }
+        else if (context.Request.Headers.TryGetValue("X-Remote-Ip", out value))
+        {
+            userHostAddress = value.FirstOrDefault();
+        }
+        else
+        {
+            userHostAddress = context.Connection.RemoteIpAddress.ToString();
         }
 
-        internal static string GetUserAgent(this HttpContext httpContext)
-        {
-            var ua = httpContext.Request.Headers["User-Agent"].FirstOrDefault();
-            return ua;
-        }
-
+        return userHostAddress;
     }
+
+    internal static string GetUserAgent(this HttpContext httpContext)
+    {
+        var ua = httpContext.Request.Headers["User-Agent"].FirstOrDefault();
+        return ua;
+    }
+
 }

@@ -1,8 +1,7 @@
-﻿namespace PalaceServer.Models
+﻿namespace PalaceServer.Models;
+
+public class ServiceProperty
 {
-    public class ServiceProperty
-    {
-        public string PropetyName { get; set; }
-        public string PropertyValue { get; set; }
-    }
+    public string PropetyName { get; set; }
+    public string PropertyValue { get; set; }
 }

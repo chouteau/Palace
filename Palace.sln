@@ -24,7 +24,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9760CFFF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace.Tests", "src\Palace.Tests\Palace.Tests.csproj", "{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalaceDeployCli", "src\PalaceDeployCli\PalaceDeployCli.csproj", "{40BE6CC5-C350-4421-B0E2-454448AAB76B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceDeployCli", "src\PalaceDeployCli\PalaceDeployCli.csproj", "{40BE6CC5-C350-4421-B0E2-454448AAB76B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{EBE1249D-03B3-4B5E-9591-3B12F777FE16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA} = {9760CFFF-556A-402C-BF82-CCFAF9B0EA3A}
+		{40BE6CC5-C350-4421-B0E2-454448AAB76B} = {EBE1249D-03B3-4B5E-9591-3B12F777FE16}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32C0444B-A131-4CA5-8892-B9406F723CA7}
