@@ -18,7 +18,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Restore dependencies
-      run: dotnet restore palace-6.sln
+      run: dotnet restore palace.sln
 
     - name: Build PalaceClient
       run: dotnet build src\PalaceClient\PalaceClient.csproj -c Release --no-restore
