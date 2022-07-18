@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace", "src\Palace\Palace.csproj", "{8439A855-464C-48A2-A48D-13670EACF542}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceServer", "src\PalaceServer\PalaceServer.csproj", "{D545D7E1-E64B-4364-B886-97D8545886F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoSvc", "src\DemoSvc\DemoSvc.csproj", "{EB9BD78B-2381-47E6-9730-B462EE5B929D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceClient", "src\PalaceClient\PalaceClient.csproj", "{168664EF-63E0-470E-BA8A-714EB4BEBB39}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9E9957E-9624-49CD-AA59-DD8108E0F252}"
+	ProjectSection(SolutionItems) = preProject
+		deploy.cmd = deploy.cmd
+		.github\workflows\palace6.yml = .github\workflows\palace6.yml
+		publish.palace.cmd = publish.palace.cmd
+		publish.palaceserver.cmd = publish.palaceserver.cmd
+		readme.md = readme.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9760CFFF-556A-402C-BF82-CCFAF9B0EA3A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Palace.Tests", "src\Palace.Tests\Palace.Tests.csproj", "{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PalaceDeployCli", "src\PalaceDeployCli\PalaceDeployCli.csproj", "{40BE6CC5-C350-4421-B0E2-454448AAB76B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{EBE1249D-03B3-4B5E-9591-3B12F777FE16}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8439A855-464C-48A2-A48D-13670EACF542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8439A855-464C-48A2-A48D-13670EACF542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8439A855-464C-48A2-A48D-13670EACF542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8439A855-464C-48A2-A48D-13670EACF542}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D545D7E1-E64B-4364-B886-97D8545886F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D545D7E1-E64B-4364-B886-97D8545886F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D545D7E1-E64B-4364-B886-97D8545886F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D545D7E1-E64B-4364-B886-97D8545886F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB9BD78B-2381-47E6-9730-B462EE5B929D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB9BD78B-2381-47E6-9730-B462EE5B929D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB9BD78B-2381-47E6-9730-B462EE5B929D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB9BD78B-2381-47E6-9730-B462EE5B929D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{168664EF-63E0-470E-BA8A-714EB4BEBB39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{168664EF-63E0-470E-BA8A-714EB4BEBB39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{168664EF-63E0-470E-BA8A-714EB4BEBB39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{168664EF-63E0-470E-BA8A-714EB4BEBB39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40BE6CC5-C350-4421-B0E2-454448AAB76B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40BE6CC5-C350-4421-B0E2-454448AAB76B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40BE6CC5-C350-4421-B0E2-454448AAB76B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40BE6CC5-C350-4421-B0E2-454448AAB76B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{88AFCDEE-5D40-4660-A1FF-7E75CAAE0CAA} = {9760CFFF-556A-402C-BF82-CCFAF9B0EA3A}
+		{40BE6CC5-C350-4421-B0E2-454448AAB76B} = {EBE1249D-03B3-4B5E-9591-3B12F777FE16}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {32C0444B-A131-4CA5-8892-B9406F723CA7}
+	EndGlobalSection
+EndGlobal

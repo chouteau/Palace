@@ -21,43 +21,43 @@ jobs:
       run: dotnet restore palace-6.sln
 
     - name: Build PalaceClient
-      run: dotnet build src\dotnet6\PalaceClient\PalaceClient.csproj -c Release --no-restore
+      run: dotnet build src\PalaceClient\PalaceClient.csproj -c Release --no-restore
 
     - name: Pack PalaceClient
-      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\dotnet6\PalaceClient\PalaceClient.csproj --output .
+      run: dotnet pack --no-build --configuration Release ${{github.workspace}}\src\PalaceClient\PalaceClient.csproj --output .
 
     - name: Push Nuget
       run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.nuget}} --skip-duplicate
 
     - name: Build Palace
-      run: dotnet publish src\dotnet6\palace\palace.csproj -c Release --no-restore -v d
+      run: dotnet publish src\palace\palace.csproj -c Release --no-restore -v d
 
     - name: Zip Palace
       run: |
-        cd ${{github.workspace}}\src\dotnet6\palace\bin\Release\net6.0\publish
+        cd ${{github.workspace}}\src\palace\bin\Release\net6.0\publish
         del appsettings.json
         del appsettings.*.json
         7z.exe a -r -tzip ${{github.workspace}}\palace.zip * 
 
     - name: Build Palace Server
       run: |
-        cd ${{github.workspace}}\src\dotnet6\palaceserver
+        cd ${{github.workspace}}\src\palaceserver
         dotnet publish -p:PublishProfile=Properties\PublishProfiles\FolderProfile.pubxml
 
     - name: Zip Palace Server
       run: |
-        cd ${{github.workspace}}\src\dotnet6\palaceserver\bin\Debug\net6.0\publish
+        cd ${{github.workspace}}\src\palaceserver\bin\Debug\net6.0\publish
         del appsettings.*.json
         del appsettings.json
         del web.config
         7z.exe a -r -tzip ${{github.workspace}}\palaceserver.zip * 
 
     - name: Build Palace Deploy Cli
-      run: dotnet publish src\dotnet6\PalaceDeployCli\PalaceDeployCli.csproj -c Release --no-restore -v d
+      run: dotnet publish src\PalaceDeployCli\PalaceDeployCli.csproj -c Release --no-restore -v d
 
     - name: Zip Palace Deploy Cli
       run: |
-        cd ${{github.workspace}}\src\dotnet6\PalaceDeployCli\bin\Release\net6.0\publish
+        cd ${{github.workspace}}\src\PalaceDeployCli\bin\Release\net6.0\publish
         del appsettings.json
         del appsettings.*.json
         7z.exe a -r -tzip ${{github.workspace}}\palacedeploycli.zip * 
