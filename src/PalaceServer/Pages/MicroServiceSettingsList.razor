@@ -27,7 +27,16 @@
 			<tbody>
 				@foreach (var item in PalaceInfo.MicroServiceSettingsList)
 				{
-					var ico = bagList.Single(i => i.Item == item);
+					var ico = bagList.SingleOrDefault(i => i.Item.ServiceName == item.ServiceName);
+					if (ico == null)
+					{
+						ico = new Bag<MicroServiceSettings>()
+							{
+								Content = "oi oi-clipboard",
+								Item = item
+							};
+						bagList.Add(ico);
+					}
 					<tr>
 						<td>
 							<a href="/palace/@PalaceInfo.Key/EditService/@item.ServiceName">
