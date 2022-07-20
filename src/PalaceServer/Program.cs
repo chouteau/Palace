@@ -66,6 +66,11 @@ if (builder.Environment.IsDevelopment())
     builder.Logging.SetMinimumLevel(LogLevel.Trace);
 }
 
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = null;
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
