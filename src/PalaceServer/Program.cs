@@ -24,6 +24,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+builder.Services.AddHostedService<PalaceServer.Services.BackupCleanerBackgroundService>();
 
 builder.AddLogRWebMonitor(cfg =>
 {
