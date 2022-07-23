@@ -40,7 +40,7 @@ public partial class Index : ComponentBase
         }
     }
 
-		protected override void OnInitialized()
+	protected override void OnInitialized()
     {
         UpdateLists();
     }

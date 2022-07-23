@@ -8,4 +8,5 @@ public class PalaceServerSettings
     public string MicroServiceConfigurationFolder { get; set; } = @".\Configuration";
     public string MicroServiceStagingFolder { get; set; } = @".\Staging";
     public string MicroServiceBackupFolder { get; set; } = @".\Backup";
+    public int BackupRetentionCount { get; set; } = 5;
 }
