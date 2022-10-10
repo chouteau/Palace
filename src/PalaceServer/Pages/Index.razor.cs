@@ -51,10 +51,10 @@ public partial class Index : ComponentBase
     }
 
     void DisplayMore(Models.ExtendedRunningMicroServiceInfo info)
-		{
+	{
         info.UIDisplayMore = !info.UIDisplayMore;
         StateHasChanged();
-		}
+	}
 
     string GetHostNameByIp(string ip)
 		{

@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using Palace.Services;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +37,7 @@ namespace Palace.Tests
 
             builder.ConfigureTestServices(services =>
             {
+                services.AddTransient<INotificationService, MockNotificationService>();
                 services.AddSingleton<IStartupFilter, MockStartupFilter>();
             });
 

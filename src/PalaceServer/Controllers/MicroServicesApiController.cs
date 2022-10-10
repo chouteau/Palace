@@ -158,7 +158,7 @@ public class MicroServicesApiController : ControllerBase
     [HttpPost]
     [Microsoft.AspNetCore.Mvc.Route("addorupdateservicesettings")]
     public IActionResult AddService([FromHeader] string authorization, Models.MicroServiceSettings serviceSettings)
-		{
+	{
         EnsureGoodAuthorization(authorization);
 
         var palaceInfo = PalaceInfoManager.GetOrCreatePalaceInfo(HttpContext.GetUserAgent(), HttpContext.GetUserHostAddress());

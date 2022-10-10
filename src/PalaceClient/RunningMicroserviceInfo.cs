@@ -21,6 +21,7 @@ namespace PalaceClient
         public string EnvironmentName { get; set; }
         public string AdminUrl { get; set; }
         public string PalaceClientVersion { get; set; }
+        public bool AlwaysStarted { get; set; }
     }
 
 }

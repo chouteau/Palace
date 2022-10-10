@@ -160,9 +160,9 @@ public class MicroServiceCollectorManager
 		}
 
 		foreach (var running in GetRunningList())
-            {
+        {
 			running.NextAction = Models.ServiceAction.ResetInstallationInfo;
-            }
+        }
 
 		OnChanged?.Invoke();
 
@@ -186,7 +186,7 @@ public class MicroServiceCollectorManager
 			rms = new Models.ExtendedRunningMicroServiceInfo();
 			rms.ServiceName = runningMicroserviceInfo.ServiceName;
 			runningList.Add(rms);
-            }
+        }
 		rms.PalaceInfo = palaceInfo;
 		rms.Location = runningMicroserviceInfo.Location;
 		rms.UserInteractive = runningMicroserviceInfo.UserInteractive;

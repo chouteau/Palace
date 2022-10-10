@@ -270,7 +270,19 @@ namespace Palace.Services
             
             Logger.LogInformation($"try to deploy {fileList.Count()} files from {unZipFolder} to {microServiceInfo.InstallationFolder}");
 
-            foreach (var sourceFile in fileList)
+            try
+            {
+                // Nettoyage global du repertoire de destination
+                System.IO.Directory.Delete(microServiceInfo.InstallationFolder, true);
+                System.IO.Directory.CreateDirectory(microServiceInfo.InstallationFolder);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                return false;
+            }
+
+			foreach (var sourceFile in fileList)
             {
                 var destFile = sourceFile.Replace(unZipFolder, "").Trim('\\');
                 if (string.IsNullOrWhiteSpace(microServiceInfo.InstallationFolder))
