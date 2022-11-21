@@ -96,7 +96,15 @@ namespace Palace.Services
             Logger.LogWarning("Extact zipfile {0} for service {1} in directory {2}", zipFileInfo.ZipFileName, microServiceInfo.Name, extractDirectory);
             if (!System.IO.Directory.Exists(extractDirectory))
             {
-                System.IO.Directory.CreateDirectory(extractDirectory);
+                try
+                {
+                    System.IO.Directory.CreateDirectory(extractDirectory);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex, ex.Message);
+                    return false;
+                }
             }
             System.IO.Compression.ZipFile.ExtractToDirectory(zipFileInfo.ZipFileName, extractDirectory, true);
 
@@ -272,9 +280,12 @@ namespace Palace.Services
 
             try
             {
-                // Nettoyage global du repertoire de destination
-                System.IO.Directory.Delete(microServiceInfo.InstallationFolder, true);
-                System.IO.Directory.CreateDirectory(microServiceInfo.InstallationFolder);
+                if (System.IO.Directory.Exists(microServiceInfo.InstallationFolder))
+                {
+                    // Nettoyage global du repertoire de destination
+                    System.IO.Directory.Delete(microServiceInfo.InstallationFolder, true);
+                    System.IO.Directory.CreateDirectory(microServiceInfo.InstallationFolder);
+                }
             }
             catch(Exception ex)
             {

@@ -2,9 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
     <PackageId>PalaceClient</PackageId>
     <Product>PalaceClient</Product>
+	  <PackageProjectUrl>https://github.com/chouteau/Ariane</PackageProjectUrl>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
+	  <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
