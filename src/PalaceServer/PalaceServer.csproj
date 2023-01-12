@@ -4,19 +4,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Version>1.4.40</Version>
+    <Version>1.5.42</Version>
+	  <PackageReleaseNotes>
+		  1.5.42 : Incruise size of upload
+		  1.5.41 : Add upload api method
+	  </PackageReleaseNotes>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Logging\**" />
-    <Compile Remove="Temp\**" />
-    <Content Remove="Logging\**" />
-    <Content Remove="Temp\**" />
-    <EmbeddedResource Remove="Logging\**" />
-    <EmbeddedResource Remove="Temp\**" />
-    <None Remove="Logging\**" />
-    <None Remove="Temp\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\PalaceClient\RunningMicroserviceInfo.cs" Link="Models\RunningMicroserviceInfo.cs" />
@@ -57,9 +50,5 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
-	<!--<ItemGroup>
-		<InternalsVisibleTo Include ="Palace.Tests"/>
-	</ItemGroup>-->
 
 </Project>
