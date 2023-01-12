@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Reflection.PortableExecutable;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace PalaceServer.Controllers;
 
@@ -62,6 +64,52 @@ public class MicroServicesApiController : ControllerBase
 
         var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         return File(stream, "application/zip", packageFileName);
+    }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Mvc.Route("upload-package")]
+    [DisableRequestSizeLimit]
+    public async Task<IActionResult> UploadPackage([FromHeader] string authorization)
+    {
+        EnsureGoodAuthorization(authorization);
+
+        if (!Request.HasFormContentType)
+        {
+            var message = "accept only mimetype 'multipart/form-data'";
+            Logger.LogWarning(message);
+            return BadRequest(message);
+        }
+
+        var form = await Request.ReadFormAsync();
+
+        if (!form.Files.Any())
+        {
+            var message = "there is no package";
+            Logger.LogWarning(message);
+            return BadRequest(message);
+        }
+
+        var package = form.Files.First();
+        if (package is null || package.Length == 0)
+        {
+            var message = "package is null or empty";
+            Logger.LogWarning(message);
+            return BadRequest(message);
+        }
+
+        Logger.LogInformation($"{package.FileName} uploaded");
+        var fileName = System.IO.Path.GetFileName(package.FileName);
+        var destination = System.IO.Path.Combine(PalaceServerSettings.MicroServiceStagingFolder, fileName);
+        if (System.IO.File.Exists(destination))
+        {
+            System.IO.File.Delete(destination);
+        }
+        using var writer = System.IO.File.Create(destination);
+        await package.CopyToAsync(writer);
+
+        Logger.LogInformation($"{package.FileName} deployed to {destination}");
+
+        return Ok();
     }
 
     [HttpGet]

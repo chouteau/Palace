@@ -270,7 +270,6 @@ namespace Palace.Services
             return result;
         }
 
-
         private async Task<bool> DeployMicroService(Models.MicroServiceInfo microServiceInfo, string unZipFolder)
         {
             var deploySuccess = true;

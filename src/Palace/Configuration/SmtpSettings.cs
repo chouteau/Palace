@@ -32,7 +32,7 @@ namespace Palace.Configuration
 				result.DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory;
 				if (settings.PickupDirectoryLocation.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
 				{
-					var currentPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "TimeSheetMails");
+					var currentPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "PalaceMails");
 					result.PickupDirectoryLocation = System.IO.Path.Combine(currentPath, settings.PickupDirectoryLocation.Replace(@".\", ""));
 					if (!System.IO.Directory.Exists(result.PickupDirectoryLocation))
 					{
