@@ -86,7 +86,15 @@ namespace Palace.Services
                     if (serviceInfo.ServiceState == Models.ServiceState.NotInstalled)
                     {
                         Logger.LogInformation("Install this service {0}", serviceInfo.Name);
-                        await Orchestrator.InstallMicroService(serviceInfo, serviceSettings);
+                        try
+                        {
+                            await Orchestrator.InstallMicroService(serviceInfo, serviceSettings);
+                        }
+                        catch(Exception ex)
+                        {
+                            serviceInfo.ServiceState = Models.ServiceState.InstallationFailed;
+                            Logger.LogError(ex, ex.Message);
+                        }
                         continue;
                     }
 
@@ -101,7 +109,14 @@ namespace Palace.Services
             foreach (var item in MicroServicesCollection.GetList())
             {
 				var actionResult = await Orchestrator.GetNextAction(item);
-                await ApplyAction(item, actionResult);
+                try
+                {
+                    await ApplyAction(item, actionResult);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, ex.Message);
+                }
             }
             return result;
         }
