@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9E9957E-9624-49CD-AA59-DD8108E0F252}"
 	ProjectSection(SolutionItems) = preProject
 		deploy.cmd = deploy.cmd
+		deploy.palace.cmd = deploy.palace.cmd
 		.github\workflows\palace6.yml = .github\workflows\palace6.yml
 		publish.palace.cmd = publish.palace.cmd
 		publish.palaceserver.cmd = publish.palaceserver.cmd

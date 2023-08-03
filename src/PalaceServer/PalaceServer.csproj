@@ -6,7 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Version>1.5.42</Version>
 	  <PackageReleaseNotes>
-		  1.5.42 : Incruise size of upload
+		  1.5.42 : Increase size of upload
 		  1.5.41 : Add upload api method
 	  </PackageReleaseNotes>
   </PropertyGroup>

@@ -21,6 +21,7 @@ namespace Palace.Models
         InstallationFailed = 7,
         NotExitedAfterStop = 8,
         Removed = 9,
-        InstallationInProgress = 10
+        InstallationInProgress = 10,
+        UninstallFailed = 11
     }
 }

@@ -436,15 +436,34 @@ namespace Palace.Services
                     break;
                 }
 
+                if (item.UnInstallationFailed)
+                {
+                    break;
+                }
+
                 var instancied = InstanciedServiceList.SingleOrDefault(i => i.Name.Equals(item.ServiceName, StringComparison.InvariantCultureIgnoreCase));
 
                 Logger.LogInformation("Try to remove service {0}", item.ServiceName);
                 await StopMicroService(item);
 
-                var uninstallResult = await Orchestrator.UninstallMicroService(item);
-                if (!uninstallResult)
+                try
                 {
-                    Logger.LogCritical("remove service {0} failed", item.ServiceName);
+                    var uninstallResult = await Orchestrator.UninstallMicroService(item);
+                    if (!uninstallResult)
+                    {
+                        Logger.LogCritical("remove service {0} failed", item.ServiceName);
+                        item.UnInstallationFailed = true;
+                        var spsFail = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{Models.ServiceState.UninstallFailed}");
+                        await Orchestrator.UpdateRunningMicroServiceProperty(spsFail);
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex, "remove service {ServiceName} failed", item.ServiceName);
+                    item.UnInstallationFailed = true;
+                    var spsFail = PalaceServer.Models.ServiceProperties.CreateChangeState(item.ServiceName, $"{Models.ServiceState.UninstallFailed}");
+                    await Orchestrator.UpdateRunningMicroServiceProperty(spsFail);
                     return;
                 }
                 MicroServicesCollection.Remove(item);
@@ -559,7 +578,11 @@ namespace Palace.Services
                         serviceInfo.Process = pid;
                     }
                 }
-            }
+                else
+                {
+					serviceInfo.ServiceState = Models.ServiceState.StartFail;
+				}
+			}
 
             if (serviceInfo.ServiceState == Models.ServiceState.Started)
             {

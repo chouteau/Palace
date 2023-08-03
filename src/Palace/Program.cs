@@ -75,6 +75,9 @@ var builder = Host.CreateDefaultBuilder(args)
 
 var host = builder.Build();
 
+var settings = host.Services.GetRequiredService<Palace.Configuration.PalaceSettings>();
+Console.WriteLine("ApiKey : " + settings.ApiKey);
+
 host.Services.UseLogRPush();
 
 await host.RunAsync();

@@ -24,8 +24,6 @@ namespace Palace
 		protected Services.MicroServicesCollectionManager MicroServicesCollectionManager { get; }
 		protected ILogger Logger { get; }
 
-		protected System.Timers.Timer Timer { get; }
-
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
 			Logger.LogInformation("Service start");

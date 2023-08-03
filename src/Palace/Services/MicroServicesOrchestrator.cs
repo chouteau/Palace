@@ -80,18 +80,12 @@ namespace Palace.Services
                 return false;
             }
 
-            var version = 1;
             string extractDirectory = null;
-            while (true)
+            // Dezip dans son répertoire avec la bonne version
+            extractDirectory = System.IO.Path.Combine(PalaceSettings.DownloadDirectory, microServiceInfo.Name);
+            if (Directory.Exists(extractDirectory))
             {
-                // Dezip dans son répertoire avec la bonne version
-                extractDirectory = System.IO.Path.Combine(PalaceSettings.DownloadDirectory, microServiceInfo.Name, $"v{version}");
-                if (Directory.Exists(extractDirectory))
-                {
-                    version++;
-                    continue;
-                }
-                break;
+                Directory.Delete(extractDirectory, true);
             }
             Logger.LogWarning("Extact zipfile {0} for service {1} in directory {2}", zipFileInfo.ZipFileName, microServiceInfo.Name, extractDirectory);
             if (!System.IO.Directory.Exists(extractDirectory))

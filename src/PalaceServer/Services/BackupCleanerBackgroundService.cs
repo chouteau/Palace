@@ -16,6 +16,19 @@ internal class BackupCleanerBackgroundService : BackgroundService
 	{
 		Logger.LogInformation("Start backup cleaner");
 
+		try
+		{
+			await ExecuteInternal(stoppingToken);
+		}
+		catch(Exception ex) 
+		{
+			Logger.LogError(ex, ex.Message);
+		}
+		await Task.Delay(24 * 60 * 60 * 1000, stoppingToken); // Every days
+	}
+
+	private Task ExecuteInternal(CancellationToken stoppingToken)
+	{
 		var backupDirectoryList = from d in System.IO.Directory.GetDirectories(ServerSettings.MicroServiceBackupFolder, "*.*", SearchOption.TopDirectoryOnly)
 								  select d;
 
@@ -24,12 +37,12 @@ internal class BackupCleanerBackgroundService : BackgroundService
 		foreach (var rootDirectoryPackage in backupDirectoryList)
 		{
 			var subDirectoryList = (from subd in System.IO.Directory.GetDirectories(rootDirectoryPackage, "*.*", SearchOption.TopDirectoryOnly)
-								   let directoryInfo = new System.IO.DirectoryInfo(subd)
-								   orderby directoryInfo.CreationTime descending
-								   select subd).ToList();
+									let directoryInfo = new System.IO.DirectoryInfo(subd)
+									orderby directoryInfo.CreationTime descending
+									select subd).ToList();
 
 			var retentionCount = ServerSettings.BackupRetentionCount;
-			while(true)
+			while (true)
 			{
 				var subd = subDirectoryList.FirstOrDefault();
 				if (subd == null)
@@ -47,7 +60,7 @@ internal class BackupCleanerBackgroundService : BackgroundService
 			}
 		}
 
-		await Task.Delay(24 * 60 * 60 * 1000, stoppingToken); // Every days
+		return Task.CompletedTask;
 	}
 }
 

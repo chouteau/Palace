@@ -33,9 +33,21 @@ namespace Palace.Services
                 return null;
             }
 
-            var result = await response.Content.ReadFromJsonAsync<PalaceClient.RunningMicroserviceInfo>();
-            return result;
-        }
+            try
+            {
+                var result = await response.Content.ReadFromJsonAsync<PalaceClient.RunningMicroserviceInfo>();
+                return result;
+            }
+            catch(Exception ex)
+            {
+				ex.Data.Add("url", microServiceSettings.AdminServiceUrl);
+				ex.Data.Add("certificate", microServiceSettings.SSLCertificate);
+				ex.Data.Add("serviceName", microServiceSettings.ServiceName);
+				Logger.LogError(ex, ex.Message);
+            }
+
+            return null;
+		}
 
         public async Task<PalaceClient.StopResult> StopRunningMicroService(Models.MicroServiceSettings microServiceSettings)
         {

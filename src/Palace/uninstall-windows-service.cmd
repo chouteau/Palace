@@ -1,1 +1,1 @@
-sc delete "Palace Service" binPath="Palace.exe"
+sc delete "Palace Service"

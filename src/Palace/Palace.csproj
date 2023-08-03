@@ -5,8 +5,10 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Palace-B6E59778-5B41-4AC3-BD67-55D951B96AF4</UserSecretsId>
-    <Version>1.4.36.2</Version>
+    <Version>1.5.39.0</Version>
 	  <PackageReleaseNotes>
+		  1.5.39.0 : Catch bad diagnostic response from µSvc
+		  1.5.37.0 : Always unzip in same folder without version
 		  1.4.36.2 : Fix download and create deploy folder loop
 	  </PackageReleaseNotes>
   </PropertyGroup>
